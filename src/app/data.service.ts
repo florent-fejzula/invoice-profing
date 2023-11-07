@@ -6,9 +6,11 @@ import { Injectable } from '@angular/core';
 export class DataService {
   datum = new Date();
   valuta = new Date();
+  selectedOption = '';
   fakturaBroj = '';
   companyTitle = '';
   companyAddress = '';
   companyCity = '';
   companyID = '';
+  slobodenOpis = '';
 }

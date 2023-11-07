@@ -13,7 +13,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { EntryModalComponent } from './entry-modal/entry-modal.component';
-
+import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,9 @@ import { EntryModalComponent } from './entry-modal/entry-modal.component';
     MatButtonModule,
     MatInputModule,
     MatDatepickerModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+    MatIconModule,
+    MatSelectModule
   ],
   providers: [
     {

@@ -10,11 +10,14 @@ import { DataService } from '../data.service';
 export class EditModalComponent {
   datum: Date = new Date();
   valuta: Date = new Date();
+  selectedOption: string = 'Фактура';
+  options: string[] = ['Фактура', 'Авансна Фактура', 'Понуда'];
   fakturaBroj = '';
   companyTitle = '';
   companyAddress = '';
   companyCity = '';
   companyID = '';
+  slobodenOpis = '';
 
   constructor(
     public dialogRef: MatDialogRef<EditModalComponent>,
@@ -23,7 +26,7 @@ export class EditModalComponent {
 
   onDateChange(event: any, propertyToUpdate: string): void {
     const selectedDate = event.value;
-  
+
     if (selectedDate) {
       (this as any)[propertyToUpdate] = selectedDate;
       (this.dataService as any)[propertyToUpdate] = selectedDate;
@@ -36,6 +39,8 @@ export class EditModalComponent {
     this.dataService.companyAddress = this.companyAddress;
     this.dataService.companyCity = this.companyCity;
     this.dataService.companyID = this.companyID;
+    this.dataService.slobodenOpis = this.slobodenOpis;
+    this.dataService.selectedOption = this.selectedOption;
     this.dialogRef.close();
   }
 

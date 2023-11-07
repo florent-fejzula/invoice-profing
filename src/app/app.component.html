@@ -34,7 +34,7 @@
           </div>
         </div>
         <div class="invoice-number">
-          <h2>АВАНСНА ФАКТУРА</h2>
+          <h2 class="uppercase">{{selectedOption}}</h2>
           <h2>број: {{ fakturaBroj }}</h2>
         </div>
       </div>
@@ -71,12 +71,17 @@
             <td>{{ i + 1 }}</td>
             <td>{{ item.opis }}</td>
             <td>{{ item.em }}</td>
-            <td>{{ item.kolicina | number:'1.2-2' }}</td>
-            <td>{{ item.cenaBezDanok | number:'1.2-2' }}</td>
+            <td>{{ item.kolicina | number : "1.2-2" }}</td>
+            <td>{{ item.cenaBezDanok | number : "1.2-2" }}</td>
             <td>{{ item.rabatProcent }}</td>
-            <td>{{ calculateRabat(item) | number:'1.2-2' }}</td>
+            <td>{{ calculateRabat(item) | number : "1.2-2" }}</td>
             <td>{{ item.ddv }}</td>
-            <td>{{ calculateItemTotal(item) | number:'1.2-2' }}</td>
+            <td>{{ calculateItemTotal(item) | number : "1.2-2" }}</td>
+            <td class="deleteEntry">
+              <button mat-icon-button (click)="removeItem(i)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -88,11 +93,11 @@
           <div>ДДВ</div>
           <div>Износ со ДДВ</div>
         </div>
-        <div class="invoice-total-values">
-          <div>0%</div>
-          <div>600000</div>
-          <div>0.00</div>
-          <div>600000</div>
+        <div class="invoice-total-values" *ngFor="let summary of summaryData">
+          <div>{{ summary.tariff }}%</div>
+          <div>{{ summary.totalWithoutTax | number : "1.2-2" }}</div>
+          <div>{{ summary.totalTax | number : "1.2-2" }}</div>
+          <div>{{ summary.totalWithTax | number : "1.2-2" }}</div>
         </div>
       </div>
     </div>
@@ -100,15 +105,18 @@
 
   <div class="elementB">
     <div class="invoice-total-down">
-      <div class="down-first">
-        <span>Износ без ДДВ:</span>
-        <span>ДДВ +</span>
-        <span>Вкупен износ со ДДВ</span>
-      </div>
-      <div class="down-second">
-        <span>600000</span>
-        <span>0</span>
-        <span>600000</span>
+      <div class="slobodenOpis">{{ slobodenOpis }}</div>
+      <div class="totals">
+        <div class="down-first">
+          <span>Износ без ДДВ:</span>
+          <span>ДДВ +</span>
+          <span>Вкупен износ со ДДВ</span>
+        </div>
+        <div class="down-second">
+          <span>{{ totalPriceWithoutTax | number : "1.2-2" }}</span>
+          <span>{{ totalTax | number : "1.2-2" }}</span>
+          <span>{{ totalPriceWithoutTax + totalTax | number : "1.2-2" }}</span>
+        </div>
       </div>
     </div>
 
@@ -117,7 +125,9 @@
         <span>За наплата</span>
       </div>
       <div class="payment-second">
-        <span><b>600000</b></span>
+        <span
+          ><b>{{ totalPriceWithoutTax + totalTax | number : "1.2-2" }}</b></span
+        >
       </div>
     </div>
 
@@ -126,9 +136,6 @@
         За секое каснење после валутниот рок, засметуваме законска затезна
         камата.
       </p>
-
-      <div>Пренесување на даночна обврска по чл. 32-ка</div>
-      <div>600.000x18%=108.000</div>
       <br />
 
       <p>Со зборови: {{ soZborovi }} <input type="text" /></p>
