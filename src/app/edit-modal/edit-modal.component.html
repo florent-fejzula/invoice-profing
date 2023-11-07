@@ -42,5 +42,6 @@
     <input matInput [(ngModel)]="companyID" name="companyID" />
   </mat-form-field>
   <br />
-  <button mat-button (click)="onSaveClick()">Save</button>
+  <button mat-button class="saveButton" (click)="onSaveClick()">Save</button>
+  <button mat-button (click)="onCancelClick()">Cancel</button>
 </form>

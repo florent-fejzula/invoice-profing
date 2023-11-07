@@ -3,35 +3,33 @@
   <mat-form-field>
     <input matInput [(ngModel)]="opis" name="opis" required />
   </mat-form-field>
+  
   <div>ЕМ</div>
   <mat-form-field>
     <input matInput [(ngModel)]="em" name="em" />
   </mat-form-field>
+
   <div>Количина</div>
   <mat-form-field>
     <input matInput [(ngModel)]="kolicina" name="kolicina" />
   </mat-form-field>
+
   <div>Цена без данок</div>
   <mat-form-field>
     <input matInput [(ngModel)]="cenaBezDanok" name="cenaBezDanok" />
   </mat-form-field>
+
   <div>Рабат процент</div>
   <mat-form-field>
     <input matInput [(ngModel)]="rabatProcent" name="rabatProcent" />
   </mat-form-field>
-  <div>Рабат</div>
-  <mat-form-field>
-    <input matInput [(ngModel)]="rabat" name="rabat" />
-  </mat-form-field>
+
   <div>ДДВ</div>
   <mat-form-field>
     <input matInput [(ngModel)]="ddv" name="ddv" />
   </mat-form-field>
-  <div>Износ со ДДВ</div>
-  <mat-form-field>
-    <input matInput [(ngModel)]="iznosSoDDV" name="iznosSoDDV" />
-  </mat-form-field>
   <br />
-  <button mat-button (click)="onSaveClick()">Save</button>
+
+  <button mat-button class="saveButton" (click)="onSaveClick()">Save</button>
   <button mat-button (click)="onCancelClick()">Cancel</button>
 </form>

@@ -38,4 +38,8 @@ export class EditModalComponent {
     this.dataService.companyID = this.companyID;
     this.dialogRef.close();
   }
+
+  onCancelClick(): void {
+    this.dialogRef.close();
+  }
 }

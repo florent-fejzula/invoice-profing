@@ -63,6 +63,26 @@ export class AppComponent {
       }
     });
   }
+  
+  calculateRabat(item: any): number {
+    if (item && item.cenaBezDanok !== undefined && item.rabatProcent !== undefined) {
+      const price = item.cenaBezDanok;
+      const discountPercentage = item.rabatProcent;
+  
+      if (price >= 0 && discountPercentage >= 0 && discountPercentage <= 100) {
+        const discountAmount = (price * discountPercentage) / 100;
+        return discountAmount;
+      } else {
+        // Handle invalid inputs (negative price or discount out of range)
+        console.error("Invalid inputs: price and discount must be non-negative, and discount must be between 0 and 100.");
+        return 0;
+      }
+    } else {
+      // Handle missing or undefined item, price, or discount
+      console.error("Invalid input: item, price, and discount must be defined.");
+      return 0;
+    }
+  }
 
   calculateItemTotal(item: any) {
     const price = item.cenaBezDanok * (1 - item.rabatProcent / 100);

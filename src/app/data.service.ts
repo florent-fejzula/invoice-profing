@@ -4,8 +4,8 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class DataService {
-  datum!: Date;
-  valuta!: Date;
+  datum = new Date();
+  valuta = new Date();
   fakturaBroj = '';
   companyTitle = '';
   companyAddress = '';
