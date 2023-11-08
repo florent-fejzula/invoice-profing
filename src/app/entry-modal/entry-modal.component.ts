@@ -10,12 +10,12 @@ import { MatDialogRef } from '@angular/material/dialog';
 export class EntryModalComponent {
   opis = '';
   em = '';
-  kolicina = 0;
-  cenaBezDanok = 0;
-  rabatProcent = 0;
-  rabat = 0;
-  ddv = 0;
-  iznosSoDDV = 0;
+  kolicina!: number;
+  cenaBezDanok!: number;
+  rabatProcent!: number;
+  rabat!: number;
+  ddv!: number;
+  iznosSoDDV!: number;
 
   constructor(
     public dialogRef: MatDialogRef<EntryModalComponent>,

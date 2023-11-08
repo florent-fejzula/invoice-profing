@@ -1,57 +1,61 @@
-<h2>Детали за фактура</h2>
-<form>
-  <div>Датум</div>
-  <mat-form-field>
-    <input
-      matInput
-      [matDatepicker]="picker1"
-      (dateChange)="onDateChange($event, 'datum')"
-    />
-    <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
-    <mat-datepicker #picker1></mat-datepicker>
-  </mat-form-field>
-  <div>Валута</div>
-  <mat-form-field>
-    <input
-      matInput
-      [matDatepicker]="picker2"
-      (dateChange)="onDateChange($event, 'valuta')"
-    />
-    <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
-    <mat-datepicker #picker2></mat-datepicker>
-  </mat-form-field>
+<div class="container">
+  <h2>Детали за фактура</h2>
+  <form>
+    <div>Датум</div>
+    <mat-form-field>
+      <input
+        matInput
+        [matDatepicker]="picker1"
+        (dateChange)="onDateChange($event, 'datum')"
+      />
+      <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+      <mat-datepicker #picker1></mat-datepicker>
+    </mat-form-field>
+    <div>Валута</div>
+    <mat-form-field>
+      <input
+        matInput
+        [matDatepicker]="picker2"
+        (dateChange)="onDateChange($event, 'valuta')"
+      />
+      <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+      <mat-datepicker #picker2></mat-datepicker>
+    </mat-form-field>
 
-  <mat-form-field>
-    <mat-label>Тип</mat-label>
-    <mat-select [(ngModel)]="selectedOption" name="selectedOption">
-      <mat-option *ngFor="let option of options" [value]="option">{{ option }}</mat-option>
-    </mat-select>
-  </mat-form-field>
-  <div>Фактура број</div>
-  <mat-form-field>
-    <input matInput [(ngModel)]="fakturaBroj" name="fakturaBroj" />
-  </mat-form-field>
-  <div>Име на фирма</div>
-  <mat-form-field>
-    <input matInput [(ngModel)]="companyTitle" name="companyTitle" />
-  </mat-form-field>
-  <div>Адреса</div>
-  <mat-form-field>
-    <input matInput [(ngModel)]="companyAddress" name="companyAddress" />
-  </mat-form-field>
-  <div>Град</div>
-  <mat-form-field>
-    <input matInput [(ngModel)]="companyCity" name="companyCity" />
-  </mat-form-field>
-  <div>Даночен број (ЕМБГ)</div>
-  <mat-form-field>
-    <input matInput [(ngModel)]="companyID" name="companyID" />
-  </mat-form-field>
-  <div>Слободен опис</div>
-  <mat-form-field>
-    <input matInput [(ngModel)]="slobodenOpis" name="slobodenOpis" />
-  </mat-form-field>
-  <br />
-  <button mat-button class="saveButton" (click)="onSaveClick()">Save</button>
-  <button mat-button (click)="onCancelClick()">Cancel</button>
-</form>
+    <mat-form-field>
+      <mat-label>Тип</mat-label>
+      <mat-select [(ngModel)]="selectedOption" name="selectedOption">
+        <mat-option *ngFor="let option of options" [value]="option">{{
+          option
+        }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <div>Фактура број</div>
+    <mat-form-field>
+      <input matInput [(ngModel)]="fakturaBroj" name="fakturaBroj" />
+    </mat-form-field>
+    <div>Име на фирма</div>
+    <mat-form-field>
+      <input matInput [(ngModel)]="companyTitle" name="companyTitle" />
+    </mat-form-field>
+    <div>Адреса</div>
+    <mat-form-field>
+      <input matInput [(ngModel)]="companyAddress" name="companyAddress" />
+    </mat-form-field>
+    <div>Град</div>
+    <mat-form-field>
+      <input matInput [(ngModel)]="companyCity" name="companyCity" />
+    </mat-form-field>
+    <div>Даночен број (ЕМБГ)</div>
+    <mat-form-field>
+      <input matInput [(ngModel)]="companyID" name="companyID" />
+    </mat-form-field>
+    <br />
+    <div class="editModalButtons">
+      <button mat-button class="saveButton" (click)="onSaveClick()">
+        Save
+      </button>
+      <button mat-button (click)="onCancelClick()">Cancel</button>
+    </div>
+  </form>
+</div>

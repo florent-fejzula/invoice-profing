@@ -1,13 +1,28 @@
-.saveButton {
-    margin-right: 16px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
+.entryContainer {
+  display: flex;
+  flex-direction: column;
+}
 
-  .saveButton:hover {
-    background-color: #0056b3;
-  }
+form {
+  display: flex;
+  flex-direction: column;
+  font-weight: bold;
+}
+
+.saveButton {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.saveButton:hover {
+  background-color: #0056b3;
+}
+
+.entryModalButtons {
+  display: flex;
+  justify-content: space-evenly;
+}

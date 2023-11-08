@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { DataService } from '../data.service';
 
@@ -6,6 +6,7 @@ import { DataService } from '../data.service';
   selector: 'app-edit-modal',
   templateUrl: './edit-modal.component.html',
   styleUrls: ['./edit-modal.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class EditModalComponent {
   datum: Date = new Date();
