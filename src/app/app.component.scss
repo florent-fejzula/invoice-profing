@@ -323,6 +323,10 @@
   }
 }
 
+input.mat-input-element {
+  width: 440px;
+}
+
 @media print {
   .buttons {
     display: none;
@@ -334,5 +338,17 @@
 
   .deleteEntry {
     display: none;
+  }
+
+  .zabeleshkaHide {
+    display: none;
+  }
+
+  .soZboroviInput {
+    border: none;
+  }
+
+  .slobodenOpisInput {
+    border: none;
   }
 }
