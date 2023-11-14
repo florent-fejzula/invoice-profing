@@ -1,21 +1,26 @@
 .buttons {
   display: flex;
+  justify-content: space-between;
+  margin: auto;
+  max-width: 960px;
+  margin-top: 40px;
+  margin-bottom: 16px;
 
-  .print {
-    margin-top: 40px;
-    margin-bottom: 16px;
-    margin-left: 270px;
+  .button {
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 10px 20px;
-    background-color: #007bff;
     color: #fff;
     font-size: 20px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+  }
+
+  .print {
+    background-color: #007bff;
   }
 
   .print:hover {
@@ -23,24 +28,21 @@
   }
 
   .edit {
-    margin-top: 40px;
-    margin-bottom: 16px;
-    margin-left: 270px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 20px;
     background-color: #00b630;
-    color: #fff;
-    font-size: 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
   }
 
   .edit:hover {
     background-color: #008f07;
+  }
+
+  .invisible {
+    visibility: hidden;
+    width: 110px;
+    height: 0;
+    padding: 0;
+    margin: 0;
+    border: none;
+    outline: none;
   }
 }
 
@@ -155,82 +157,70 @@
         border-collapse: collapse;
         margin-bottom: 20px;
 
-        thead {
-          font-size: 12px;
-        }
-
+        thead,
         tbody {
           font-size: 12px;
         }
-      }
 
-      .invoice-table th,
-      .invoice-table td {
-        border: 1px solid #000;
-        padding: 0px 8px;
-        width: 100%;
-      }
+        th,
+        td {
+          border: 1px solid #000;
+          padding: 0px 8px;
+          width: 100%;
+        }
 
-      .invoice-table td {
-        vertical-align: top;
-      }
+        td {
+          vertical-align: top;
+        }
 
-      .invoice-table th:first-child,
-      .invoice-table td:first-child {
-        width: 5%;
-      }
+        th:first-child,
+        td:first-child {
+          width: 5%;
+        }
 
-      .invoice-table th:nth-child(2),
-      .invoice-table td:nth-child(2) {
-        max-width: 41%;
-      }
+        th:nth-child(2),
+        td:nth-child(2) {
+          max-width: 41%;
+        }
 
-      .invoice-table th:nth-child(3),
-      .invoice-table td:nth-child(3) {
-        max-width: 6%;
-      }
+        th:nth-child(3),
+        td:nth-child(3),
+        th:nth-child(4),
+        td:nth-child(4) {
+          max-width: 6%;
+        }
 
-      .invoice-table th:nth-child(4),
-      .invoice-table td:nth-child(4) {
-        max-width: 6%;
-      }
+        td:nth-child(4),
+        td:nth-child(5),
+        td:nth-child(7),
+        td:nth-child(9) {
+          text-align: right;
+        }
 
-      .invoice-table td:nth-child(4),
-      .invoice-table td:nth-child(5),
-      .invoice-table td:nth-child(7),
-      .invoice-table td:nth-child(9) {
-        text-align: right;
-      }
+        td:nth-child(3),
+        td:nth-child(6),
+        td:nth-child(8) {
+          text-align: center;
+        }
 
-      .invoice-table td:nth-child(3),
-      .invoice-table td:nth-child(6),
-      .invoice-table td:nth-child(8) {
-        text-align: center;
-      }
+        th:nth-child(5),
+        td:nth-child(5) {
+          max-width: 14%;
+        }
 
-      .invoice-table th:nth-child(5),
-      .invoice-table td:nth-child(5) {
-        max-width: 14%;
-      }
+        th:nth-child(6),
+        td:nth-child(6),
+        th:nth-child(7),
+        td:nth-child(7),
+        th:nth-child(8),
+        td:nth-child(8) {
+          max-width: 6%;
+        }
 
-      .invoice-table th:nth-child(6),
-      .invoice-table td:nth-child(6) {
-        max-width: 6%;
-      }
-
-      .invoice-table th:nth-child(7),
-      .invoice-table td:nth-child(7) {
-        max-width: 7%;
-      }
-
-      .invoice-table th:nth-child(8),
-      .invoice-table td:nth-child(8) {
-        max-width: 5%;
-      }
-
-      .invoice-table th:nth-child(9),
-      .invoice-table td:nth-child(9) {
-        max-width: 14%;
+        th:nth-child(9),
+        td:nth-child(9) {
+          max-width: 14%;
+        }
       }
 
       .invoice-total {
@@ -328,26 +318,16 @@ input.mat-input-element {
 }
 
 @media print {
-  .buttons {
+  .buttons,
+  .addButton,
+  .deleteEntry,
+  .zabeleshkaHide,
+  .soZboroviInput,
+  .slobodenOpisInput {
     display: none;
   }
 
-  .addButton {
-    display: none;
-  }
-
-  .deleteEntry {
-    display: none;
-  }
-
-  .zabeleshkaHide {
-    display: none;
-  }
-
-  .soZboroviInput {
-    border: none;
-  }
-
+  .soZboroviInput,
   .slobodenOpisInput {
     border: none;
   }
