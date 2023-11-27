@@ -317,13 +317,17 @@ input.mat-input-element {
   width: 440px;
 }
 
+.deleteEntry {
+  display: flex;
+  padding: 0 !important;
+}
+
 @media print {
   .buttons,
   .addButton,
   .deleteEntry,
   .zabeleshkaHide,
-  .soZboroviInput,
-  .slobodenOpisInput {
+  .soZboroviInput {
     display: none;
   }
 

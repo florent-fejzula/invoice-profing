@@ -1,8 +1,8 @@
-  <div class="buttons">
-    <button class="button print" (click)="printThisPage()">Print</button>
-    <button class="button edit" (click)="openEditModal()">Пополни</button>
-    <button class="invisible"></button>
-  </div>
+<div class="buttons">
+  <button class="button print" (click)="printThisPage()">Print</button>
+  <button class="button edit" (click)="openEditModal()">Пополни</button>
+  <button class="invisible"></button>
+</div>
 
 <div class="invoice">
   <div class="elementA">
@@ -35,7 +35,7 @@
           </div>
         </div>
         <div class="invoice-number">
-          <h2 class="uppercase">{{selectedOption}}</h2>
+          <h2 class="uppercase">{{ selectedOption }}</h2>
           <h2>број: {{ fakturaBroj }}</h2>
         </div>
       </div>
@@ -69,18 +69,21 @@
         </thead>
         <tbody>
           <tr *ngFor="let item of items; let i = index">
-            <td>{{ i + 1 }}</td>
+            <td>{{ i + 1 }}.</td>
             <td>{{ item.opis }}</td>
             <td>{{ item.em }}</td>
             <td>{{ item.kolicina | number : "1.2-2" }}</td>
             <td>{{ item.cenaBezDanok | number : "1.2-2" }}</td>
             <td>{{ item.rabatProcent }}</td>
-            <td>{{ calculateRabat(item) | number : "1.2-2" }}</td>
+            <td>{{ cenaSoPresmetanRabat(item) | number : "1.2-2" }}</td>
             <td>{{ item.ddv }}</td>
-            <td>{{ calculateItemTotal(item) | number : "1.2-2" }}</td>
+            <td>{{ cenaSoDDV(item) | number : "1.2-2" }}</td>
             <td class="deleteEntry">
               <button mat-icon-button (click)="removeItem(i)">
                 <mat-icon>delete</mat-icon>
+              </button>
+              <button mat-icon-button (click)="openEntryModal(item)">
+                <mat-icon>edit</mat-icon>
               </button>
             </td>
           </tr>
@@ -95,10 +98,10 @@
           <div>Износ со ДДВ</div>
         </div>
         <div class="invoice-total-values" *ngFor="let summary of summaryData">
-          <div>{{ summary.tariff }}%</div>
-          <div>{{ summary.totalWithoutTax | number : "1.2-2" }}</div>
-          <div>{{ summary.totalTax | number : "1.2-2" }}</div>
-          <div>{{ summary.totalWithTax | number : "1.2-2" }}</div>
+          <div>{{ summary.ddvTarifa }}%</div>
+          <div>{{ summary.iznosBezDDV | number : "1.2-2" }}</div>
+          <div>{{ summary.vkupnoDDV | number : "1.2-2" }}</div>
+          <div>{{ summary.iznosSoDDV | number : "1.2-2" }}</div>
         </div>
       </div>
     </div>
@@ -108,7 +111,12 @@
     <div class="invoice-total-down">
       <div class="slobodenOpis">
         <span class="zabeleshkaHide">Забелешка: </span>
-        <input matInput [(ngModel)]="slobodenOpis" class="slobodenOpisInput" name="slobodenOpis" />
+        <input
+          matInput
+          [(ngModel)]="slobodenOpis"
+          class="slobodenOpisInput"
+          name="slobodenOpis"
+        />
       </div>
       <div class="totals">
         <div class="down-first">
@@ -117,9 +125,9 @@
           <span>Вкупен износ со ДДВ</span>
         </div>
         <div class="down-second">
-          <span>{{ totalPriceWithoutTax | number : "1.2-2" }}</span>
-          <span>{{ totalTax | number : "1.2-2" }}</span>
-          <span>{{ totalPriceWithoutTax + totalTax | number : "1.2-2" }}</span>
+          <span>{{ vkupenIznosBezDDV | number : "1.2-2" }}</span>
+          <span>{{ vkupnoDDV | number : "1.2-2" }}</span>
+          <span>{{ vkupenIznosBezDDV + vkupnoDDV | number : "1.2-2" }}</span>
         </div>
       </div>
     </div>
@@ -130,7 +138,7 @@
       </div>
       <div class="payment-second">
         <span
-          ><b>{{ totalPriceWithoutTax + totalTax | number : "1.2-2" }}</b></span
+          ><b>{{ vkupenIznosBezDDV + vkupnoDDV | number : "1.2-2" }}</b></span
         >
       </div>
     </div>
@@ -142,7 +150,9 @@
       </p>
       <br />
 
-      <p>Со зборови: {{ soZborovi }} <input class="soZboroviInput" type="text" /></p>
+      <p>
+        Со зборови: {{ soZborovi }} <input class="soZboroviInput" type="text" />
+      </p>
     </div>
 
     <div class="signatures">

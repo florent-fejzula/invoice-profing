@@ -4,7 +4,7 @@ import { EditModalComponent } from './edit-modal/edit-modal.component';
 import { DataService } from './data.service';
 import { EntryModalComponent } from './entry-modal/entry-modal.component';
 
-interface InvoiceItem {
+export interface InvoiceItem {
   opis: string;
   em: string;
   kolicina: number;
@@ -31,14 +31,14 @@ export class AppComponent implements OnInit {
   companyID = '';
   slobodenOpis = '';
 
-  totalPriceWithoutTax: number = 0;
-  totalTax: number = 0;
+  vkupenIznosBezDDV: number = 0;
+  vkupnoDDV: number = 0;
 
   summaryData: {
-    tariff: number;
-    totalWithoutTax: number;
-    totalTax: number;
-    totalWithTax: number;
+    ddvTarifa: number;
+    iznosBezDDV: number;
+    vkupnoDDV: number;
+    iznosSoDDV: number;
   }[] = [];
 
   soZborovi = '';
@@ -69,97 +69,126 @@ export class AppComponent implements OnInit {
     });
   }
 
-  openEntryModal(): void {
+  openEntryModal(item?: InvoiceItem): void {
+    console.log('item: ', item);
+
     const dialogRef = this.dialog.open(EntryModalComponent, {
       width: '400px',
+      data: { item },
+      disableClose: true
     });
 
     dialogRef.afterClosed().subscribe((data: any) => {
       if (data && data.newItem) {
-        const newItem = data.newItem;
-        this.items.push(newItem);
+        var newItem = data.newItem;
+        if (item) {
+          const index = this.items.indexOf(item);
+          if (index !== -1) {
+            this.items[index] = newItem;
+          }
+        } else {
+          this.items.push(newItem);
+        }
         this.calculateSummaryData();
-        this.updateTotalPriceWithoutTax();
-        this.updateTotalTax();
+        this.updateVkupenIznosBezDDV();
+        this.updateVkupnoDDV();
       }
     });
   }
 
-  calculateRabat(item: any): number {
-    if (
-      item &&
-      item.cenaBezDanok !== undefined &&
-      item.rabatProcent !== undefined
-    ) {
-      const price = item.cenaBezDanok;
-      const discountPercentage = item.rabatProcent;
+  cenaSoPresmetanRabat(item: any): number {
+    const cenaBezDanok = item.cenaBezDanok;
+    const rabatProcent = item.rabatProcent;
 
-      if (price >= 0 && discountPercentage >= 0 && discountPercentage <= 100) {
-        const discountAmount = (price * discountPercentage) / 100;
-        return discountAmount;
-      } else {
-        // Handle invalid inputs (negative price or discount out of range)
-        console.error(
-          'Invalid inputs: price and discount must be non-negative, and discount must be between 0 and 100.'
-        );
-        return 0;
-      }
-    } else {
-      // Handle missing or undefined item, price, or discount
-      console.error(
-        'Invalid input: item, price, and discount must be defined.'
-      );
-      return 0;
-    }
+    const popustVrednost = (cenaBezDanok * rabatProcent) / 100;
+    return popustVrednost;
   }
 
-  calculateItemTotal(item: any) {
-    const price = item.cenaBezDanok * (1 - item.rabatProcent / 100);
-    const taxAmount = price * (item.ddv / 100);
-    return price + taxAmount;
+  cenaSoDDV(item: any) {
+    const cenaSoPresmetanRabat =
+      item.kolicina * item.cenaBezDanok * (1 - item.rabatProcent / 100);
+    const iznosDDV = cenaSoPresmetanRabat * (item.ddv / 100);
+    return cenaSoPresmetanRabat + iznosDDV;
   }
 
   removeItem(index: number): void {
     if (index >= 0 && index < this.items.length) {
       this.items.splice(index, 1);
       this.calculateSummaryData();
-      this.updateTotalPriceWithoutTax();
-      this.updateTotalTax();
+      this.updateVkupenIznosBezDDV();
+      this.updateVkupnoDDV();
     }
   }
 
+  // calculateSummaryData() {
+  //   const unikatniDDV = Array.from(
+  //     new Set(this.items.map((item) => item.ddv))
+  //   );
+
+  //   this.summaryData = unikatniDDV.map((ddvTarifa) => {
+  //     const itemsWithTariff = this.items.filter((item) => item.ddv === ddvTarifa);
+  //     const iznosBezDDV = itemsWithTariff.reduce(
+  //       (total, item) => total + Number(item.cenaBezDanok),
+  //       0
+  //     );
+  //     const vkupnoDDV = itemsWithTariff.reduce(
+  //       (total, item) => total + (item.cenaBezDanok * ddvTarifa) / 100,
+  //       0
+  //     );
+  //     const iznosSoDDV = Number(iznosBezDDV) + Number(vkupnoDDV);
+
+  //     return { ddvTarifa, iznosBezDDV, vkupnoDDV, iznosSoDDV };
+  //   });
+  // }
+
   calculateSummaryData() {
-    const uniqueTariffs = Array.from(
-      new Set(this.items.map((item) => item.ddv))
-    );
+    const unikatniDDV = Array.from(new Set(this.items.map((item) => item.ddv)));
 
-    this.summaryData = uniqueTariffs.map((tariff) => {
-      const itemsWithTariff = this.items.filter((item) => item.ddv === tariff);
-      const totalWithoutTax = itemsWithTariff.reduce(
-        (total, item) => total + Number(item.cenaBezDanok),
+    this.summaryData = unikatniDDV.map((ddvTarifa) => {
+      const itemsWithTariff = this.items.filter(
+        (item) => item.ddv === ddvTarifa
+      );
+      const iznosBezDDV = itemsWithTariff.reduce(
+        (total, item) => total + Number(item.cenaBezDanok) * item.kolicina,
         0
       );
-      const totalTax = itemsWithTariff.reduce(
-        (total, item) => total + (item.cenaBezDanok * tariff) / 100,
+      const vkupnoDDV = itemsWithTariff.reduce(
+        (total, item) =>
+          total + (item.cenaBezDanok * ddvTarifa * item.kolicina) / 100,
         0
       );
-      const totalWithTax = Number(totalWithoutTax) + Number(totalTax);
+      const iznosSoDDV = Number(iznosBezDDV) + Number(vkupnoDDV);
 
-      return { tariff, totalWithoutTax, totalTax, totalWithTax };
+      return { ddvTarifa, iznosBezDDV, vkupnoDDV, iznosSoDDV };
     });
   }
 
-  updateTotalPriceWithoutTax() {
-    this.totalPriceWithoutTax = this.items.reduce((total, item) => {
+  // updateVkupenIznosBezDDV() {
+  //   this.vkupenIznosBezDDV = this.items.reduce((total, item) => {
+  //     const priceWithDiscount =
+  //       item.cenaBezDanok * (1 - item.rabatProcent / 100);
+  //     return total + priceWithDiscount;
+  //   }, 0);
+  // }
+
+  // updateVkupnoDDV() {
+  //   this.vkupnoDDV = this.items.reduce((total, item) => {
+  //     const taxAmount = (item.cenaBezDanok * item.ddv) / 100;
+  //     return total + taxAmount;
+  //   }, 0);
+  // }
+
+  updateVkupenIznosBezDDV() {
+    this.vkupenIznosBezDDV = this.items.reduce((total, item) => {
       const priceWithDiscount =
         item.cenaBezDanok * (1 - item.rabatProcent / 100);
-      return total + priceWithDiscount;
+      return total + priceWithDiscount * item.kolicina;
     }, 0);
   }
-
-  updateTotalTax() {
-    this.totalTax = this.items.reduce((total, item) => {
-      const taxAmount = (item.cenaBezDanok * item.ddv) / 100;
+  
+  updateVkupnoDDV() {
+    this.vkupnoDDV = this.items.reduce((total, item) => {
+      const taxAmount = (item.cenaBezDanok * item.ddv / 100) * item.kolicina;
       return total + taxAmount;
     }, 0);
   }
