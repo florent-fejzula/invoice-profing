@@ -11,8 +11,9 @@ import { DataService } from '../data.service';
 export class EditModalComponent {
   datum: Date = new Date();
   valuta: Date = new Date();
-  selectedOption: string = 'Фактура';
-  options: string[] = ['Фактура', 'Авансна Фактура', 'Понуда'];
+  // selectedOption: string = 'Фактура';
+  // options: string[] = ['Фактура', 'Авансна Фактура', 'Понуда'];
+  fakturaTip = '';
   fakturaBroj = '';
   companyTitle = '';
   companyAddress = '';
@@ -35,13 +36,14 @@ export class EditModalComponent {
   }
 
   onSaveClick(): void {
+    this.dataService.fakturaTip = this.fakturaTip;
     this.dataService.fakturaBroj = this.fakturaBroj;
     this.dataService.companyTitle = this.companyTitle;
     this.dataService.companyAddress = this.companyAddress;
     this.dataService.companyCity = this.companyCity;
     this.dataService.companyID = this.companyID;
     this.dataService.slobodenOpis = this.slobodenOpis;
-    this.dataService.selectedOption = this.selectedOption;
+    // this.dataService.selectedOption = this.selectedOption;
     this.dialogRef.close();
   }
 

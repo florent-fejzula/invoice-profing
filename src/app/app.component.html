@@ -17,7 +17,7 @@
       </div>
       <div>
         <span>Жиро сметка: 300000003952592</span> *
-        <span>Банка: Комерцијална Банка</span> * <span>ЕДБ: 4038016510833</span>
+        <span>Банка: Комерцијална Банка</span> * <span>ЕДБ: MK4038016510833</span>
       </div>
       <div>fari.fejzula@hotmail.com</div>
     </div>
@@ -35,7 +35,7 @@
           </div>
         </div>
         <div class="invoice-number">
-          <h2 class="uppercase">{{ selectedOption }}</h2>
+          <h2 class="uppercase">{{ fakturaTip }}</h2>
           <h2>број: {{ fakturaBroj }}</h2>
         </div>
       </div>
@@ -70,7 +70,9 @@
         <tbody>
           <tr *ngFor="let item of items; let i = index">
             <td>{{ i + 1 }}.</td>
-            <td>{{ item.opis }}</td>
+            <td>
+              {{ item.opis }}
+            </td>
             <td>{{ item.em }}</td>
             <td>{{ item.kolicina | number : "1.2-2" }}</td>
             <td>{{ item.cenaBezDanok | number : "1.2-2" }}</td>

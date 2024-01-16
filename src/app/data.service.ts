@@ -7,6 +7,7 @@ export class DataService {
   datum = new Date();
   valuta = new Date();
   selectedOption = '';
+  fakturaTip = '';
   fakturaBroj = '';
   companyTitle = '';
   companyAddress = '';

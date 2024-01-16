@@ -22,13 +22,17 @@
       <mat-datepicker #picker2></mat-datepicker>
     </mat-form-field>
 
-    <mat-form-field>
+    <!-- <mat-form-field>
       <mat-label>Тип</mat-label>
       <mat-select [(ngModel)]="selectedOption" name="selectedOption">
         <mat-option *ngFor="let option of options" [value]="option">{{
           option
         }}</mat-option>
       </mat-select>
+    </mat-form-field> -->
+    <div>Тип</div>
+    <mat-form-field>
+      <input matInput [(ngModel)]="fakturaTip" name="fakturaTip" />
     </mat-form-field>
     <div>Фактура број</div>
     <mat-form-field>

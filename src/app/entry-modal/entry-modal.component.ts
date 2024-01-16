@@ -64,7 +64,7 @@ export class EntryModalComponent {
         opis: this.editedItem.opis,
         em: this.editedItem.em || 'ком',
         kolicina: this.editedItem.kolicina || 1,
-        cenaBezDanok: this.editedItem.cenaBezDanok,
+        cenaBezDanok: this.editedItem.cenaBezDanok || 0,
         rabatProcent: this.editedItem.rabatProcent || 0,
         rabat: this.editedItem.rabat,
         ddv: this.editedItem.ddv || 0,

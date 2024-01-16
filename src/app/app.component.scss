@@ -290,6 +290,10 @@
 
   .declarations {
     font-size: 12px;
+
+    .soZboroviInput {
+      width: 600px;
+    }
   }
 }
 
@@ -326,8 +330,7 @@ input.mat-input-element {
   .buttons,
   .addButton,
   .deleteEntry,
-  .zabeleshkaHide,
-  .soZboroviInput {
+  .zabeleshkaHide {
     display: none;
   }
 

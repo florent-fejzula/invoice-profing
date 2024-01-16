@@ -24,6 +24,7 @@ export class AppComponent implements OnInit {
   datum = new Date();
   valuta = new Date();
   selectedOption = '';
+  fakturaTip = '';
   fakturaBroj = '';
   companyTitle = '';
   companyAddress = '';
@@ -60,6 +61,7 @@ export class AppComponent implements OnInit {
       this.datum = this.dataService.datum;
       this.valuta = this.dataService.valuta;
       this.selectedOption = this.dataService.selectedOption;
+      this.fakturaTip = this.dataService.fakturaTip;
       this.fakturaBroj = this.dataService.fakturaBroj;
       this.companyTitle = this.dataService.companyTitle;
       this.companyAddress = this.dataService.companyAddress;
@@ -121,18 +123,19 @@ export class AppComponent implements OnInit {
   }
 
   // calculateSummaryData() {
-  //   const unikatniDDV = Array.from(
-  //     new Set(this.items.map((item) => item.ddv))
-  //   );
+  //   const unikatniDDV = Array.from(new Set(this.items.map((item) => item.ddv)));
 
   //   this.summaryData = unikatniDDV.map((ddvTarifa) => {
-  //     const itemsWithTariff = this.items.filter((item) => item.ddv === ddvTarifa);
+  //     const itemsWithTariff = this.items.filter(
+  //       (item) => item.ddv === ddvTarifa
+  //     );
   //     const iznosBezDDV = itemsWithTariff.reduce(
-  //       (total, item) => total + Number(item.cenaBezDanok),
+  //       (total, item) => total + Number(item.cenaBezDanok) * item.kolicina,
   //       0
   //     );
   //     const vkupnoDDV = itemsWithTariff.reduce(
-  //       (total, item) => total + (item.cenaBezDanok * ddvTarifa) / 100,
+  //       (total, item) =>
+  //         total + (item.cenaBezDanok * ddvTarifa * item.kolicina) / 100,
   //       0
   //     );
   //     const iznosSoDDV = Number(iznosBezDDV) + Number(vkupnoDDV);
@@ -143,40 +146,23 @@ export class AppComponent implements OnInit {
 
   calculateSummaryData() {
     const unikatniDDV = Array.from(new Set(this.items.map((item) => item.ddv)));
-
+  
     this.summaryData = unikatniDDV.map((ddvTarifa) => {
-      const itemsWithTariff = this.items.filter(
-        (item) => item.ddv === ddvTarifa
-      );
+      const itemsWithTariff = this.items.filter((item) => item.ddv === ddvTarifa);
       const iznosBezDDV = itemsWithTariff.reduce(
-        (total, item) => total + Number(item.cenaBezDanok) * item.kolicina,
+        (total, item) => total + Number(item.cenaBezDanok * item.kolicina),
         0
       );
       const vkupnoDDV = itemsWithTariff.reduce(
         (total, item) =>
-          total + (item.cenaBezDanok * ddvTarifa * item.kolicina) / 100,
+          total + (item.cenaBezDanok * ddvTarifa * item.kolicina * (1 - item.rabatProcent / 100)) / 100,
         0
       );
       const iznosSoDDV = Number(iznosBezDDV) + Number(vkupnoDDV);
-
+  
       return { ddvTarifa, iznosBezDDV, vkupnoDDV, iznosSoDDV };
     });
   }
-
-  // updateVkupenIznosBezDDV() {
-  //   this.vkupenIznosBezDDV = this.items.reduce((total, item) => {
-  //     const priceWithDiscount =
-  //       item.cenaBezDanok * (1 - item.rabatProcent / 100);
-  //     return total + priceWithDiscount;
-  //   }, 0);
-  // }
-
-  // updateVkupnoDDV() {
-  //   this.vkupnoDDV = this.items.reduce((total, item) => {
-  //     const taxAmount = (item.cenaBezDanok * item.ddv) / 100;
-  //     return total + taxAmount;
-  //   }, 0);
-  // }
 
   updateVkupenIznosBezDDV() {
     this.vkupenIznosBezDDV = this.items.reduce((total, item) => {
@@ -185,10 +171,11 @@ export class AppComponent implements OnInit {
       return total + priceWithDiscount * item.kolicina;
     }, 0);
   }
-  
+
   updateVkupnoDDV() {
     this.vkupnoDDV = this.items.reduce((total, item) => {
-      const taxAmount = (item.cenaBezDanok * item.ddv / 100) * item.kolicina;
+      const discountedPrice = item.cenaBezDanok * (1 - item.rabatProcent / 100);
+      const taxAmount = (discountedPrice * item.ddv / 100) * item.kolicina;
       return total + taxAmount;
     }, 0);
   }
