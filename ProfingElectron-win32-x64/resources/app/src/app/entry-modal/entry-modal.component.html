@@ -1,0 +1,47 @@
+<div class="entryContainer">
+  <form>
+    <div>Опис</div>
+    <mat-form-field>
+      <textarea matInput [(ngModel)]="editedItem.opis" name="opis" required></textarea>
+    </mat-form-field>
+
+    <div class="form-row">
+      <div>ЕМ</div>
+      <mat-form-field>
+        <input matInput [(ngModel)]="editedItem.em" name="em" />
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <div>Количина</div>
+      <mat-form-field>
+        <input matInput [(ngModel)]="editedItem.kolicina" name="kolicina" />
+      </mat-form-field>
+    </div>
+    <div class="form-row">
+      <div>Цена без данок</div>
+      <mat-form-field>
+        <input matInput [(ngModel)]="editedItem.cenaBezDanok" name="cenaBezDanok" />
+      </mat-form-field>
+    </div>
+    <div class="form-row">
+      <div>Рабат процент</div>
+      <mat-form-field>
+        <input matInput [(ngModel)]="editedItem.rabatProcent" name="rabatProcent" />
+      </mat-form-field>
+    </div>
+    <div class="form-row">
+      <div>ДДВ</div>
+      <mat-form-field>
+        <input matInput [(ngModel)]="editedItem.ddv" name="ddv" />
+      </mat-form-field>
+    </div>
+    <br />
+    <div class="entryModalButtons">
+      <button mat-button class="saveButton" (click)="onSaveClick()">
+        Save
+      </button>
+      <button mat-button (click)="onCancelClick()">Cancel</button>
+    </div>
+  </form>
+</div>

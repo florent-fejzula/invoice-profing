@@ -1,0 +1,40 @@
+.entryContainer {
+  display: flex;
+  flex-direction: column;
+  max-height: 560px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  font-weight: bold;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+
+  div {
+    width: 106px;
+    text-align: right;
+  }
+}
+
+.saveButton {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.saveButton:hover {
+  background-color: #0056b3;
+}
+
+.entryModalButtons {
+  display: flex;
+  justify-content: space-evenly;
+}
