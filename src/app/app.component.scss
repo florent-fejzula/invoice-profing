@@ -27,12 +27,28 @@
     background-color: #0056b3;
   }
 
+  .font {
+    background-color: #2d8ff8;
+  }
+
+  .font:hover {
+    background-color: #146dcd;
+  }
+
   .edit {
     background-color: #00b630;
   }
 
   .edit:hover {
     background-color: #008f07;
+  }
+
+  .export {
+    background-color: #b61b00;
+  }
+
+  .export:hover {
+    background-color: #8d1601;
   }
 
   .invisible {
@@ -335,7 +351,8 @@ input.mat-input-element {
   }
 
   .soZboroviInput,
-  .slobodenOpisInput {
+  .slobodenOpisInput,
+  .napomenaInput {
     border: none;
   }
 }

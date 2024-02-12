@@ -1,5 +1,15 @@
 <div class="buttons">
   <button class="button print" (click)="printThisPage()">Print</button>
+  <button class="button export" (click)="exportToJson()">Export</button>
+  <input
+    type="file"
+    (change)="importJson($event)"
+    style="display: none"
+    #fileInput
+  />
+  <button class="button export" (click)="fileInput.click()">Import</button
+  ><button class="button font" (click)="increaseFontSize()">Font+</button>
+  <button class="button font" (click)="decreaseFontSize()">Font-</button>
   <button class="button edit" (click)="openEditModal()">Пополни</button>
   <button class="invisible"></button>
 </div>
@@ -13,11 +23,13 @@
 
     <div class="invoice-company-info">
       <div>
-        <span>Ул. Цветан Димов бр.40/2-5 Скопје, РС Македонија</span> * <span>Тел.: 070773663</span>
+        <span>Ул. Цветан Димов бр.40/2-5 Скопје, РС Македонија</span> *
+        <span>Тел.: 070773663</span>
       </div>
       <div>
         <span>Жиро сметка: 210069768590129</span> *
-        <span>Банка: НЛБ банка АД Скопје</span> * <span>ЕДБ: MK4082014513737</span>
+        <span>Банка: НЛБ банка АД Скопје</span> *
+        <span>ЕДБ: MK4082014513737</span>
       </div>
       <!-- <div>fari.fejzula@hotmail.com</div> -->
     </div>
@@ -69,17 +81,60 @@
         </thead>
         <tbody>
           <tr *ngFor="let item of items; let i = index">
-            <td>{{ i + 1 }}.</td>
-            <td>
+            <td
+              [style.font-size.px]="currentFontSize"
+              [style.padding.px]="paddingSize"
+            >
+              {{ i + 1 }}.
+            </td>
+            <td
+              [style.font-size.px]="currentFontSize"
+              [style.padding.px]="paddingSize"
+            >
               {{ item.opis }}
             </td>
-            <td>{{ item.em }}</td>
-            <td>{{ item.kolicina | number : "1.2-2" }}</td>
-            <td>{{ item.cenaBezDanok | number : "1.2-2" }}</td>
-            <td>{{ item.rabatProcent }}</td>
-            <td>{{ cenaSoPresmetanRabat(item) | number : "1.2-2" }}</td>
-            <td>{{ item.ddv }}</td>
-            <td>{{ cenaSoDDV(item) | number : "1.2-2" }}</td>
+            <td
+              [style.font-size.px]="currentFontSize"
+              [style.padding.px]="paddingSize"
+            >
+              {{ item.em }}
+            </td>
+            <td
+              [style.font-size.px]="currentFontSize"
+              [style.padding.px]="paddingSize"
+            >
+              {{ item.kolicina | number : "1.2-2" }}
+            </td>
+            <td
+              [style.font-size.px]="currentFontSize"
+              [style.padding.px]="paddingSize"
+            >
+              {{ item.cenaBezDanok | number : "1.2-2" }}
+            </td>
+            <td
+              [style.font-size.px]="currentFontSize"
+              [style.padding.px]="paddingSize"
+            >
+              {{ item.rabatProcent }}
+            </td>
+            <td
+              [style.font-size.px]="currentFontSize"
+              [style.padding.px]="paddingSize"
+            >
+              {{ cenaSoPresmetanRabat(item) | number : "1.2-2" }}
+            </td>
+            <td
+              [style.font-size.px]="currentFontSize"
+              [style.padding.px]="paddingSize"
+            >
+              {{ item.ddv }}
+            </td>
+            <td
+              [style.font-size.px]="currentFontSize"
+              [style.padding.px]="paddingSize"
+            >
+              {{ cenaSoDDV(item) | number : "1.2-2" }}
+            </td>
             <td class="deleteEntry">
               <button mat-icon-button (click)="removeItem(i)">
                 <mat-icon>delete</mat-icon>
@@ -147,9 +202,9 @@
 
     <div class="declarations">
       <p>
-        Напомена: Пренесување на даночна обврска согласно член 32а, <br>
-        став 1, точка 1 и член 53 став 6 од Закон за ДДВ <br>
-        За ненавремено плаќање се пресметува законска затезна камата <br>
+        Напомена: Пренесување на даночна обврска согласно член 32а, <br />
+        став 1, точка 1 и член 53 став 6 од Закон за ДДВ <br />
+        За ненавремено плаќање се пресметува законска затезна камата <br />
       </p>
       <br />
 

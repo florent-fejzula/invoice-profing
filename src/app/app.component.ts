@@ -3,6 +3,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { EditModalComponent } from './edit-modal/edit-modal.component';
 import { DataService } from './data.service';
 import { EntryModalComponent } from './entry-modal/entry-modal.component';
+import { ExportService } from './export.service';
+import { FileSaveDialogComponent } from './file-save-dialog/file-save-dialog.component';
 
 export interface InvoiceItem {
   opis: string;
@@ -21,6 +23,9 @@ export interface InvoiceItem {
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
+  currentFontSize = 12;
+  paddingSize = 5;
+
   datum = new Date();
   valuta = new Date();
   selectedOption = '';
@@ -31,6 +36,7 @@ export class AppComponent implements OnInit {
   companyCity = '';
   companyID = '';
   slobodenOpis = '';
+  napomena = '';
 
   vkupenIznosBezDDV: number = 0;
   vkupnoDDV: number = 0;
@@ -43,14 +49,77 @@ export class AppComponent implements OnInit {
   }[] = [];
 
   soZborovi = '';
+  exportFileName: string = 'exported-data.json'; // Default file name
 
   items: InvoiceItem[] = [];
 
-  constructor(private dialog: MatDialog, private dataService: DataService) {}
+  constructor(private dialog: MatDialog, private dataService: DataService,
+    private exportService: ExportService) {}
 
   ngOnInit() {
     this.calculateSummaryData();
   }
+
+  exportToJson(): void {
+    const dataToExport = {
+      datum: this.datum,
+      valuta: this.valuta,
+      selectedOption: this.selectedOption,
+      fakturaTip: this.fakturaTip,
+      fakturaBroj: this.fakturaBroj,
+      companyTitle: this.companyTitle,
+      companyAddress: this.companyAddress,
+      companyCity: this.companyCity,
+      companyID: this.companyID,
+      slobodenOpis: this.slobodenOpis,
+      napomena: this.napomena,
+      vkupenIznosBezDDV: this.vkupenIznosBezDDV,
+      vkupnoDDV: this.vkupnoDDV,
+      soZborovi: this.soZborovi,
+      items: this.items
+    };
+  
+    const dialogRef = this.dialog.open(FileSaveDialogComponent, {
+      width: '300px',
+      data: { fileName: this.exportFileName },
+    });
+  
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.exportFileName = result;
+        this.exportService.exportToJsonFile(dataToExport, this.exportFileName);
+      }
+    });
+  }
+  
+  importJson(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const importedData = JSON.parse(reader.result as string);
+  
+        this.datum = new Date(importedData.datum);
+        this.valuta = new Date(importedData.valuta);
+        this.selectedOption = importedData.selectedOption;
+        this.fakturaTip = importedData.fakturaTip;
+        this.fakturaBroj = importedData.fakturaBroj;
+        this.companyTitle = importedData.companyTitle;
+        this.companyAddress = importedData.companyAddress;
+        this.companyCity = importedData.companyCity;
+        this.companyID = importedData.companyID;
+        this.slobodenOpis = importedData.slobodenOpis;
+        this.napomena = importedData.napomena;
+        this.vkupenIznosBezDDV = importedData.vkupenIznosBezDDV;
+        this.vkupnoDDV = importedData.vkupnoDDV;
+        this.soZborovi = importedData.soZborovi;
+        this.items = importedData.items;
+      };
+  
+      reader.readAsText(file);
+    }
+  }
+  
 
   openEditModal(): void {
     const dialogRef = this.dialog.open(EditModalComponent, {
@@ -178,6 +247,18 @@ export class AppComponent implements OnInit {
       const taxAmount = (discountedPrice * item.ddv / 100) * item.kolicina;
       return total + taxAmount;
     }, 0);
+  }
+
+  increaseFontSize(): void {
+    this.currentFontSize++;
+  }
+  
+  decreaseFontSize(): void {
+    this.currentFontSize--;
+  }
+
+  adjustPaddingSize(): void {
+    this.paddingSize = this.currentFontSize / 5; // Adjust padding size according to your preference
   }
 
   printThisPage() {
