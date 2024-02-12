@@ -1,16 +1,29 @@
-// This file can be replaced during build by using the `fileReplacements` array.
-// `ng build` replaces `environment.ts` with `environment.prod.ts`.
-// The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  company: {
+    name: 'ПРОФИНГ АРТ ДООЕЛ',
+    address: 'Гоце Стојчевски 3/3-19',
+    phone: '070554623',
+    accountNo: '300000003952592',
+    bank: 'Комерцијална Банка',
+    EDB: 'MK4038016510833',
+    email: 'fari.fejzula@hotmail.com',
+    ownerName: 'Фари Фејзула'
+  }
 };
 
-/*
- * For easier debugging in development mode, you can import the following file
- * to ignore zone related error stack frames such as `zone.run`, `zoneDelegate.invokeTask`.
- *
- * This import should be commented out in production mode because it will have a negative impact
- * on performance if an error is thrown.
- */
-// import 'zone.js/plugins/zone-error';  // Included with Angular CLI.
+// TIL KERAMIK
+// export const environment = {
+//   production: false,
+//   company: {
+//     name: 'ТИЛ КЕРАМИК 2014 ДООЕЛ',
+//     address: 'Ул. Цветан Димов бр.40/2-5 Скопје, РС Македонија',
+//     phone: '070773663',
+//     accountNo: '210069768590129',
+//     bank: 'НЛБ банка АД Скопје',
+//     EDB: 'MK4082014513737',
+//     email: '',
+//     ownerName: 'Дритон Шерифи'
+//   }
+// };

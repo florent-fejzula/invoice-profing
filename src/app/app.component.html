@@ -17,21 +17,21 @@
 <div class="invoice">
   <div class="elementA">
     <div class="invoice-header">
-      <h2>ТИЛ КЕРАМИК 2014 ДООЕЛ</h2>
+      <h2>{{ environment.company.name }}</h2>
       <div class="box-line"></div>
     </div>
 
     <div class="invoice-company-info">
       <div>
-        <span>Ул. Цветан Димов бр.40/2-5 Скопје, РС Македонија</span> *
-        <span>Тел.: 070773663</span>
+        <span>{{ environment.company.address }}</span> *
+        <span>Тел.: {{ environment.company.phone }}</span>
       </div>
       <div>
-        <span>Жиро сметка: 210069768590129</span> *
-        <span>Банка: НЛБ банка АД Скопје</span> *
-        <span>ЕДБ: MK4082014513737</span>
+        <span>Жиро сметка: {{ environment.company.accountNo }}</span> *
+        <span>Банка: {{ environment.company.bank }}</span> *
+        <span>ЕДБ: {{ environment.company.EDB }}</span>
       </div>
-      <!-- <div>fari.fejzula@hotmail.com</div> -->
+      <div>{{ environment.company.email }}</div>
     </div>
 
     <div class="pre-main-content">
@@ -147,7 +147,7 @@
         </tbody>
       </table>
 
-      <!-- <div class="invoice-total">
+      <div class="invoice-total">
         <div class="invoice-total-titles">
           <div>Тарифа</div>
           <div>Износ без ДДВ</div>
@@ -160,7 +160,7 @@
           <div>{{ summary.vkupnoDDV | number : "1.2-2" }}</div>
           <div>{{ summary.iznosSoDDV | number : "1.2-2" }}</div>
         </div>
-      </div> -->
+      </div>
     </div>
   </div>
 
@@ -201,11 +201,12 @@
     </div>
 
     <div class="declarations">
-      <p>
+      <!-- <p>
         Напомена: Пренесување на даночна обврска согласно член 32а, <br />
         став 1, точка 1 и член 53 став 6 од Закон за ДДВ <br />
         За ненавремено плаќање се пресметува законска затезна камата <br />
-      </p>
+      </p> -->
+      <p>За секое каснење после валутниот рок, засметуваме законска затезна камата.</p>
       <br />
 
       <p>
@@ -220,7 +221,7 @@
       </div>
       <div class="signatures-right">
         <span>Лице со овластување за потпишување фактури:</span>
-        <div>Дритон Шерифи</div>
+        <div>{{ environment.company.ownerName }}</div>
       </div>
     </div>
   </div>

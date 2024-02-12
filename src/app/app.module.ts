@@ -3,6 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { DatePipe } from '@angular/common';
 
 import { AppComponent } from './app.component';
+import { environment } from '../environments/environment';
 import { FormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { EditModalComponent } from './edit-modal/edit-modal.component';
@@ -42,7 +43,8 @@ import { FileSaveDialogComponent } from './file-save-dialog/file-save-dialog.com
       provide: MatDialogRef,
       useValue: {}
     },
-    DatePipe
+    DatePipe,
+    { provide: 'environment', useValue: environment }
   ],
   bootstrap: [AppComponent]
 })
