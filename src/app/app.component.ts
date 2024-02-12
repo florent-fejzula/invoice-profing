@@ -6,6 +6,7 @@ import { EntryModalComponent } from './entry-modal/entry-modal.component';
 import { ExportService } from './export.service';
 import { FileSaveDialogComponent } from './file-save-dialog/file-save-dialog.component';
 import { environment } from '../environments/environment';
+import { Environment } from 'src/environments/environment.interface';
 
 export interface InvoiceItem {
   opis: string;
@@ -24,7 +25,7 @@ export interface InvoiceItem {
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  environment = environment;
+  environment: Environment = environment;
 
   currentFontSize = 12;
   paddingSize = 5;

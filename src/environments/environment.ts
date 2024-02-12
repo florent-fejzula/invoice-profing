@@ -1,5 +1,6 @@
+import { Environment } from './environment.interface';
 
-export const environment = {
+export const environment: Environment = {
   production: false,
   company: {
     name: 'ПРОФИНГ АРТ ДООЕЛ',
@@ -23,7 +24,6 @@ export const environment = {
 //     accountNo: '210069768590129',
 //     bank: 'НЛБ банка АД Скопје',
 //     EDB: 'MK4082014513737',
-//     email: '',
 //     ownerName: 'Дритон Шерифи'
 //   }
 // };
