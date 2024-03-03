@@ -1,5 +1,5 @@
-import { Component, ViewEncapsulation } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { Component, Inject, ViewEncapsulation } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DataService } from '../data.service';
 
 @Component({
@@ -11,8 +11,6 @@ import { DataService } from '../data.service';
 export class EditModalComponent {
   datum: Date = new Date();
   valuta: Date = new Date();
-  // selectedOption: string = 'Фактура';
-  // options: string[] = ['Фактура', 'Авансна Фактура', 'Понуда'];
   fakturaTip = '';
   fakturaBroj = '';
   companyTitle = '';
@@ -23,8 +21,19 @@ export class EditModalComponent {
 
   constructor(
     public dialogRef: MatDialogRef<EditModalComponent>,
-    private dataService: DataService
-  ) {}
+    private dataService: DataService,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {
+    this.datum = data.datum;
+    this.valuta = data.valuta;
+    this.fakturaTip = data.fakturaTip;
+    this.fakturaBroj = data.fakturaBroj;
+    this.companyTitle = data.companyTitle;
+    this.companyAddress = data.companyAddress;
+    this.companyCity = data.companyCity;
+    this.companyID = data.companyID;
+    this.slobodenOpis = data.slobodenOpis;
+  }
 
   onDateChange(event: any, propertyToUpdate: string): void {
     const selectedDate = event.value;
@@ -43,7 +52,6 @@ export class EditModalComponent {
     this.dataService.companyCity = this.companyCity;
     this.dataService.companyID = this.companyID;
     this.dataService.slobodenOpis = this.slobodenOpis;
-    // this.dataService.selectedOption = this.selectedOption;
     this.dialogRef.close();
   }
 

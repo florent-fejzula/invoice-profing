@@ -138,6 +138,17 @@ export class AppComponent implements OnInit {
   openEditModal(): void {
     const dialogRef = this.dialog.open(EditModalComponent, {
       width: '400px',
+      data: { 
+        datum: this.datum,
+        valuta: this.valuta,
+        fakturaTip: this.fakturaTip,
+        fakturaBroj: this.fakturaBroj,
+        companyTitle: this.companyTitle,
+        companyAddress: this.companyAddress,
+        companyCity: this.companyCity,
+        companyID: this.companyID,
+        slobodenOpis: this.slobodenOpis
+      }
     });
 
     dialogRef.afterClosed().subscribe(() => {
