@@ -57,14 +57,21 @@ export class AppComponent implements OnInit {
 
   items: InvoiceItem[] = [];
 
-  constructor(private dialog: MatDialog, private dataService: DataService,
-    private exportService: ExportService) {}
+  constructor(
+    private dialog: MatDialog,
+    private dataService: DataService,
+    private exportService: ExportService
+  ) {}
 
   ngOnInit() {
     this.calculateSummaryData();
   }
 
   exportToJson(): void {
+    const textareaValue = (
+      document.querySelector('textarea') as HTMLTextAreaElement
+    ).value;
+
     const dataToExport = {
       datum: this.datum,
       valuta: this.valuta,
@@ -76,18 +83,19 @@ export class AppComponent implements OnInit {
       companyCity: this.companyCity,
       companyID: this.companyID,
       slobodenOpis: this.slobodenOpis,
+      textareaValue: textareaValue,
       napomena: this.napomena,
       vkupenIznosBezDDV: this.vkupenIznosBezDDV,
       vkupnoDDV: this.vkupnoDDV,
       soZborovi: this.soZborovi,
-      items: this.items
+      items: this.items,
     };
-  
+
     const dialogRef = this.dialog.open(FileSaveDialogComponent, {
       width: '300px',
       data: { fileName: this.exportFileName },
     });
-  
+
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.exportFileName = result;
@@ -95,14 +103,14 @@ export class AppComponent implements OnInit {
       }
     });
   }
-  
+
   importJson(event: any): void {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
         const importedData = JSON.parse(reader.result as string);
-  
+
         this.datum = new Date(importedData.datum);
         this.valuta = new Date(importedData.valuta);
         this.selectedOption = importedData.selectedOption;
@@ -113,17 +121,19 @@ export class AppComponent implements OnInit {
         this.companyCity = importedData.companyCity;
         this.companyID = importedData.companyID;
         this.slobodenOpis = importedData.slobodenOpis;
+        const textareaValue = importedData.textareaValue;
+        (document.querySelector('textarea') as HTMLTextAreaElement).value =
+          textareaValue;
         this.napomena = importedData.napomena;
         this.vkupenIznosBezDDV = importedData.vkupenIznosBezDDV;
         this.vkupnoDDV = importedData.vkupnoDDV;
         this.soZborovi = importedData.soZborovi;
         this.items = importedData.items;
       };
-  
+
       reader.readAsText(file);
     }
   }
-  
 
   openEditModal(): void {
     const dialogRef = this.dialog.open(EditModalComponent, {
@@ -145,12 +155,10 @@ export class AppComponent implements OnInit {
   }
 
   openEntryModal(item?: InvoiceItem): void {
-    console.log('item: ', item);
-
     const dialogRef = this.dialog.open(EntryModalComponent, {
       width: '400px',
       data: { item },
-      disableClose: true
+      disableClose: true,
     });
 
     dialogRef.afterClosed().subscribe((data: any) => {
@@ -219,20 +227,27 @@ export class AppComponent implements OnInit {
 
   calculateSummaryData() {
     const unikatniDDV = Array.from(new Set(this.items.map((item) => item.ddv)));
-  
+
     this.summaryData = unikatniDDV.map((ddvTarifa) => {
-      const itemsWithTariff = this.items.filter((item) => item.ddv === ddvTarifa);
+      const itemsWithTariff = this.items.filter(
+        (item) => item.ddv === ddvTarifa
+      );
       const iznosBezDDV = itemsWithTariff.reduce(
         (total, item) => total + Number(item.cenaBezDanok * item.kolicina),
         0
       );
       const vkupnoDDV = itemsWithTariff.reduce(
         (total, item) =>
-          total + (item.cenaBezDanok * ddvTarifa * item.kolicina * (1 - item.rabatProcent / 100)) / 100,
+          total +
+          (item.cenaBezDanok *
+            ddvTarifa *
+            item.kolicina *
+            (1 - item.rabatProcent / 100)) /
+            100,
         0
       );
       const iznosSoDDV = Number(iznosBezDDV) + Number(vkupnoDDV);
-  
+
       return { ddvTarifa, iznosBezDDV, vkupnoDDV, iznosSoDDV };
     });
   }
@@ -248,7 +263,7 @@ export class AppComponent implements OnInit {
   updateVkupnoDDV() {
     this.vkupnoDDV = this.items.reduce((total, item) => {
       const discountedPrice = item.cenaBezDanok * (1 - item.rabatProcent / 100);
-      const taxAmount = (discountedPrice * item.ddv / 100) * item.kolicina;
+      const taxAmount = ((discountedPrice * item.ddv) / 100) * item.kolicina;
       return total + taxAmount;
     }, 0);
   }
@@ -256,7 +271,7 @@ export class AppComponent implements OnInit {
   increaseFontSize(): void {
     this.currentFontSize++;
   }
-  
+
   decreaseFontSize(): void {
     this.currentFontSize--;
   }

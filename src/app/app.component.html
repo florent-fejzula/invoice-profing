@@ -64,6 +64,9 @@
         Додај
       </button>
     </div>
+    <div class="textArea">
+      <textarea rows="2" cols="100"></textarea>
+    </div>
     <div class="invoice-content">
       <table class="invoice-table">
         <thead>
@@ -73,8 +76,8 @@
             <th>Е М</th>
             <th>Количина</th>
             <th>Цена без данок</th>
-            <th>Рабат %</th>
-            <th>Рабат</th>
+            <!-- <th>Рабат %</th>
+            <th>Рабат</th> -->
             <th>ДДВ %</th>
             <th>Износ со ДДВ</th>
           </tr>
@@ -111,7 +114,7 @@
             >
               {{ item.cenaBezDanok | number : "1.2-2" }}
             </td>
-            <td
+            <!-- <td
               [style.font-size.px]="currentFontSize"
               [style.padding.px]="paddingSize"
             >
@@ -122,7 +125,7 @@
               [style.padding.px]="paddingSize"
             >
               {{ cenaSoPresmetanRabat(item) | number : "1.2-2" }}
-            </td>
+            </td> -->
             <td
               [style.font-size.px]="currentFontSize"
               [style.padding.px]="paddingSize"
@@ -206,7 +209,10 @@
         став 1, точка 1 и член 53 став 6 од Закон за ДДВ <br />
         За ненавремено плаќање се пресметува законска затезна камата <br />
       </p> -->
-      <p>За секое каснење после валутниот рок, засметуваме законска затезна камата.</p>
+      <p>
+        За секое каснење после валутниот рок, засметуваме законска затезна
+        камата.
+      </p>
       <br />
 
       <p>
