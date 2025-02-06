@@ -1,0 +1,236 @@
+<div class="buttons">
+    <button class="button print" (click)="printThisPage()">Print</button>
+    <button class="button export" (click)="exportToJson()">Save</button>
+    <input
+      type="file"
+      (change)="importJson($event)"
+      style="display: none"
+      #fileInput
+    />
+    <button class="button export" (click)="fileInput.click()">Open</button
+    ><button class="button font" (click)="increaseFontSize()">Font+</button>
+    <button class="button font" (click)="decreaseFontSize()">Font-</button>
+    <button class="button edit" (click)="openEditModal()">Пополни</button>
+    <button class="invisible"></button>
+  </div>
+  
+  <div class="invoice">
+    <div class="elementA">
+      <div class="invoice-header">
+        <h2>{{ environment.company.name }}</h2>
+        <div class="box-line"></div>
+      </div>
+  
+      <div class="invoice-company-info">
+        <div>
+          <span>{{ environment.company.address }}</span> *
+          <span>Тел.: {{ environment.company.phone }}</span>
+        </div>
+        <div>
+          <span>Жиро сметка: {{ environment.company.accountNo }}</span> *
+          <span>Банка: {{ environment.company.bank }}</span> *
+          <span>ЕДБ: {{ environment.company.EDB }}</span>
+        </div>
+        <div>{{ environment.company.email }}</div>
+      </div>
+  
+      <div class="pre-main-content">
+        <div class="date-invoice-number">
+          <div class="date-value">
+            <div class="date">
+              <span class="bold">Датум</span>
+              <span> {{ datum | date : "dd/MM/yyyy" }}</span>
+            </div>
+            <div class="value">
+              <span class="bold">Валута</span>
+              <span> {{ valuta | date : "dd/MM/yyyy" }}</span>
+            </div>
+          </div>
+          <div class="invoice-number">
+            <h2 class="uppercase">{{ fakturaTip }}</h2>
+            <h2>број: {{ fakturaBroj }}</h2>
+          </div>
+        </div>
+        <div class="invoiced-company">
+          <h2>{{ companyTitle }}</h2>
+          <p>{{ companyAddress }}</p>
+          <p>{{ companyCity }}</p>
+          <p *ngIf="companyID">Даночен Број (ЕМБГ): {{ companyID }}</p>
+        </div>
+      </div>
+      <br />
+      <div class="addButton">
+        <button mat-button class="add-button" (click)="openEntryModal()">
+          Додај
+        </button>
+      </div>
+      <!-- <div class="textArea">
+        <textarea rows="2" cols="100"></textarea>
+      </div> -->
+      <div class="invoice-content">
+        <table class="invoice-table">
+          <thead>
+            <tr>
+              <th>Р.б</th>
+              <th>Опис</th>
+              <th>Е М</th>
+              <th>Количина</th>
+              <th>Цена без данок</th>
+              <th>Рабат %</th>
+              <th>Рабат</th>
+              <th>ДДВ %</th>
+              <th>Износ со ДДВ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of items; let i = index">
+              <td
+                [style.font-size.px]="currentFontSize"
+                [style.padding.px]="paddingSize"
+              >
+                {{ i + 1 }}.
+              </td>
+              <td
+                [style.font-size.px]="currentFontSize"
+                [style.padding.px]="paddingSize"
+              >
+                {{ item.opis }}
+              </td>
+              <td
+                [style.font-size.px]="currentFontSize"
+                [style.padding.px]="paddingSize"
+              >
+                {{ item.em }}
+              </td>
+              <td
+                [style.font-size.px]="currentFontSize"
+                [style.padding.px]="paddingSize"
+              >
+                {{ item.kolicina | number : "1.2-2" }}
+              </td>
+              <td
+                [style.font-size.px]="currentFontSize"
+                [style.padding.px]="paddingSize"
+              >
+                {{ item.cenaBezDanok | number : "1.2-2" }}
+              </td>
+              <td
+                [style.font-size.px]="currentFontSize"
+                [style.padding.px]="paddingSize"
+              >
+                {{ item.rabatProcent }}
+              </td>
+              <td
+                [style.font-size.px]="currentFontSize"
+                [style.padding.px]="paddingSize"
+              >
+                {{ cenaSoPresmetanRabat(item) | number : "1.2-2" }}
+              </td>
+              <td
+                [style.font-size.px]="currentFontSize"
+                [style.padding.px]="paddingSize"
+              >
+                {{ item.ddv }}
+              </td>
+              <td
+                [style.font-size.px]="currentFontSize"
+                [style.padding.px]="paddingSize"
+              >
+                {{ cenaSoDDV(item) | number : "1.2-2" }}
+              </td>
+              <td class="deleteEntry">
+                <button mat-icon-button (click)="removeItem(i)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+                <button mat-icon-button (click)="openEntryModal(item)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+  
+        <!-- <div class="invoice-total">
+          <div class="invoice-total-titles">
+            <div>Тарифа</div>
+            <div>Износ без ДДВ</div>
+            <div>ДДВ</div>
+            <div>Износ со ДДВ</div>
+          </div>
+          <div class="invoice-total-values" *ngFor="let summary of summaryData">
+            <div>{{ summary.ddvTarifa }}%</div>
+            <div>{{ summary.iznosBezDDV | number : "1.2-2" }}</div>
+            <div>{{ summary.vkupnoDDV | number : "1.2-2" }}</div>
+            <div>{{ summary.iznosSoDDV | number : "1.2-2" }}</div>
+          </div>
+        </div> -->
+      </div>
+    </div>
+  
+    <div class="elementB">
+      <div class="invoice-total-down">
+        <div class="slobodenOpis">
+          <span class="zabeleshkaHide">Забелешка: </span>
+          <input
+            matInput
+            [(ngModel)]="slobodenOpis"
+            class="slobodenOpisInput"
+            name="slobodenOpis"
+          />
+        </div>
+        <div class="totals">
+          <div class="down-first">
+            <span>Износ без ДДВ:</span>
+            <span>ДДВ +</span>
+            <span>Вкупен износ со ДДВ</span>
+          </div>
+          <div class="down-second">
+            <span>{{ vkupenIznosBezDDV | number : "1.2-2" }}</span>
+            <span>{{ vkupnoDDV | number : "1.2-2" }}</span>
+            <span>{{ vkupenIznosBezDDV + vkupnoDDV | number : "1.2-2" }}</span>
+          </div>
+        </div>
+      </div>
+  
+      <div class="invoice-total-payment">
+        <div class="payment-first">
+          <span>За наплата</span>
+        </div>
+        <div class="payment-second">
+          <span
+            ><b>{{ vkupenIznosBezDDV + vkupnoDDV | number : "1.2-2" }}</b></span
+          >
+        </div>
+      </div>
+  
+      <div class="declarations">
+        <button class="toggleButton" (click)="toggleNoteVisibility()">Даночна обврска</button>
+  
+        <p *ngIf="isNoteVisible">
+          Напомена: Пренесување на даночна обврска согласно член 32а, <br />
+          став 1, точка 1 и член 53 став 6 од Закон за ДДВ <br />
+          За ненавремено плаќање се пресметува законска затезна камата <br />
+        </p>
+        <br />
+  
+        <p [ngClass]="{ 'hidden-on-print': soZborovi === '' }">
+          Со зборови: {{ soZborovi }} <input class="soZboroviInput" type="text" />
+        </p>
+      </div>
+  
+      <div class="signatures">
+        <div class="signatures-left">
+          <div>________________________</div>
+          <p>ПРИМИЛ</p>
+        </div>
+        <div class="signatures-right">
+          <p>
+            Лице со овластување за потпишување фактури: <br />
+            {{ environment.company.ownerName }}
+          </p>
+          <div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  

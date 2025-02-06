@@ -3,6 +3,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { DatePipe } from '@angular/common';
 
 import { AppComponent } from './app.component';
+import { AngularFireModule } from '@angular/fire/compat';
+import { AngularFireAuthModule } from '@angular/fire/compat/auth';
 import { environment } from '../environments/environment';
 import { FormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -17,16 +19,25 @@ import { EntryModalComponent } from './entry-modal/entry-modal.component';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { FileSaveDialogComponent } from './file-save-dialog/file-save-dialog.component';
+import { LoginComponent } from './login/login.component';
+import { AppRoutingModule } from './app-routing.module';
+import { DashboardComponent } from './dashboard/dashboard.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    DashboardComponent,
     EditModalComponent,
     EntryModalComponent,
-    FileSaveDialogComponent
+    FileSaveDialogComponent,
+    LoginComponent,
+    DashboardComponent
   ],
   imports: [
     BrowserModule,
+    AngularFireModule.initializeApp(environment.firebaseConfig),
+    AngularFireAuthModule,
+    AppRoutingModule,
     FormsModule,
     NoopAnimationsModule,
     MatDialogModule,

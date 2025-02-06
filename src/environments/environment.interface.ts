@@ -1,5 +1,14 @@
 export interface Environment {
     production: boolean;
+    firebaseConfig: {
+      apiKey: string;
+      authDomain: string;
+      projectId: string;
+      storageBucket: string;
+      messagingSenderId: string;
+      appId: string;
+      measurementId: string;
+    };
     company: {
       name: string;
       address: string;
@@ -8,6 +17,6 @@ export interface Environment {
       bank: string;
       EDB: string;
       email?: string;
-      ownerName: string;
+      ownerName?: string;
     };
   }
