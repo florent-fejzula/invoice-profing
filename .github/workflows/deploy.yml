@@ -15,12 +15,15 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'  # Updated to Node.js 18
+          node-version: '18'
 
       - name: Install dependencies
         run: |
           npm install -g firebase-tools
           npm install
+
+      - name: Build Angular App
+        run: npm run build --prod  # This will generate the 'dist' folder
 
       - name: Deploy to Firebase Hosting
         run: npx firebase deploy --only hosting --token ${{ secrets.FIREBASE_TOKEN }}
