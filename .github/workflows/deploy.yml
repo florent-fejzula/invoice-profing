@@ -6,23 +6,25 @@ on:
       - main  # Deploy on push to the main branch
 
 jobs:
-  build_and_deploy:
+  deploy:
     runs-on: ubuntu-latest
-
     steps:
+      # Check out the repository
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Set up Node.js environment
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '14'  # Use the desired Node.js version
 
+      # Install dependencies
       - name: Install dependencies
-        run: npm install
+        run: |
+          npm install -g firebase-tools  # Ensure Firebase CLI is globally installed
+          npm install  # Install project dependencies
 
-      - name: Build Angular app
-        run: npm run build -- --prod
-
-      - name: Deploy to Firebase
+      # Deploy to Firebase
+      - name: Deploy to Firebase Hosting
         run: npx firebase deploy --only hosting --token ${{ secrets.FIREBASE_TOKEN }}
