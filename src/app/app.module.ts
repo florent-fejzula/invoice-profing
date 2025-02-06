@@ -4,6 +4,7 @@ import { DatePipe } from '@angular/common';
 
 import { AppComponent } from './app.component';
 import { AngularFireModule } from '@angular/fire/compat';
+import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth';
 import { environment } from '../environments/environment';
 import { FormsModule } from '@angular/forms';
@@ -37,6 +38,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
     BrowserModule,
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireAuthModule,
+    AngularFirestoreModule,
     AppRoutingModule,
     FormsModule,
     NoopAnimationsModule,
