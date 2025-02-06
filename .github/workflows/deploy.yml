@@ -9,22 +9,18 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      # Check out the repository
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Set up Node.js environment
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '14'  # Use the desired Node.js version
+          node-version: '18'  # Updated to Node.js 18
 
-      # Install dependencies
       - name: Install dependencies
         run: |
-          npm install -g firebase-tools  # Ensure Firebase CLI is globally installed
-          npm install  # Install project dependencies
+          npm install -g firebase-tools
+          npm install
 
-      # Deploy to Firebase
       - name: Deploy to Firebase Hosting
         run: npx firebase deploy --only hosting --token ${{ secrets.FIREBASE_TOKEN }}
