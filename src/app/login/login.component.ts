@@ -15,13 +15,18 @@ export class LoginComponent {
 
   login() {
     this.authService.login(this.email, this.password).subscribe(
-      (res) => {
-        console.log('User logged in:', res);
-        this.router.navigate(['/dashboard']); // Redirect to dashboard
+      ({ user, status }) => {
+        console.log('User logged in:', user, 'Status:', status);
+        if (status === 'active') {
+          this.router.navigate(['/dashboard']);
+        } else {
+          alert('Your account is inactive.');
+          this.authService.logout();
+        }
       },
       (err) => {
         console.error('Login failed:', err);
-        alert('Login failed: ' + err.message); // Show error to user
+        alert('Login failed: ' + err.message);
       }
     );
   }
