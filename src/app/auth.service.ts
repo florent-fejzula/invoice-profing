@@ -1,18 +1,22 @@
 import { Injectable } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, User } from '@angular/fire/auth';
 import { Firestore, doc, getDoc } from '@angular/fire/firestore';
 import { Observable, from } from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
+
+interface SubscriptionData {
+  status: 'active' | 'inactive';
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  constructor(private afAuth: AngularFireAuth, private firestore: Firestore) {}
+  constructor(private auth: Auth, private firestore: Firestore) {}
 
   // Login method with subscription status check
-  login(email: string, password: string): Observable<any> {
-    return from(this.afAuth.signInWithEmailAndPassword(email, password)).pipe(
+  login(email: string, password: string): Observable<{ user: User; status: 'active' | 'inactive' }> {
+    return from(signInWithEmailAndPassword(this.auth, email, password)).pipe(
       switchMap((res) => {
         const user = res.user;
         if (user) {
@@ -27,27 +31,29 @@ export class AuthService {
   }
 
   // Check subscription status
-  getSubscriptionStatus(userId: string): Promise<'active' | 'inactive'> {
+  async getSubscriptionStatus(userId: string): Promise<'active' | 'inactive'> {
     const userRef = doc(this.firestore, `subscriptions/${userId}`);
-    return getDoc(userRef).then((docSnap) =>
-      docSnap.exists()
-        ? (docSnap.data()['status'] as 'active' | 'inactive')
-        : 'inactive'
-    );
+    const docSnap = await getDoc(userRef);
+    const data = docSnap.data() as SubscriptionData | undefined;
+    return data?.status ?? 'inactive';
   }
 
-  // Register method (optional)
+  // Register method
   register(email: string, password: string): Observable<any> {
-    return from(this.afAuth.createUserWithEmailAndPassword(email, password));
+    return from(createUserWithEmailAndPassword(this.auth, email, password));
   }
 
   // Logout method
-  logout(): void {
-    this.afAuth.signOut();
+  logout(): Observable<void> {
+    return from(signOut(this.auth));
   }
 
-  // Get current user
-  getUser() {
-    return this.afAuth.authState;
+  // Get current user as observable
+  getUser(): Observable<User | null> {
+    return new Observable((observer) => {
+      onAuthStateChanged(this.auth, (user) => {
+        observer.next(user);
+      });
+    });
   }
 }
