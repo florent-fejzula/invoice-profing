@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Environment } from 'src/environments/environment.interface';
-import { DataService } from '../data.service';
+import { DataService } from '../services/data.service';
 import { environment } from 'src/environments/environment';
 import { EditModalComponent } from '../edit-modal/edit-modal.component';
 import { EntryModalComponent } from '../entry-modal/entry-modal.component';
-import { ExportService } from '../export.service';
+import { ExportService } from '../services/export.service';
 import { FileSaveDialogComponent } from '../file-save-dialog/file-save-dialog.component';
+import { CompanyService } from '../services/company.service';
 
 export interface InvoiceItem {
   opis: string;
@@ -26,6 +27,8 @@ export interface InvoiceItem {
 })
 export class DashboardComponent implements OnInit {
   environment: Environment = environment;
+
+  company: any;
 
   currentFontSize = 12;
   paddingSize = 5;
@@ -62,10 +65,14 @@ export class DashboardComponent implements OnInit {
   constructor(
     private dialog: MatDialog,
     private dataService: DataService,
-    private exportService: ExportService
+    private exportService: ExportService,
+    private companyService: CompanyService
   ) {}
 
   ngOnInit() {
+    this.companyService.getCompany().subscribe((data) => {
+      this.company = data;
+    });
     this.calculateSummaryData();
   }
 
@@ -140,7 +147,7 @@ export class DashboardComponent implements OnInit {
   openEditModal(): void {
     const dialogRef = this.dialog.open(EditModalComponent, {
       width: '400px',
-      data: { 
+      data: {
         datum: this.datum,
         valuta: this.valuta,
         fakturaTip: this.fakturaTip,
@@ -149,8 +156,8 @@ export class DashboardComponent implements OnInit {
         companyAddress: this.companyAddress,
         companyCity: this.companyCity,
         companyID: this.companyID,
-        slobodenOpis: this.slobodenOpis
-      }
+        slobodenOpis: this.slobodenOpis,
+      },
     });
 
     dialogRef.afterClosed().subscribe(() => {

@@ -1,44 +1,35 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { Observable } from 'rxjs';
+import { Auth, authState } from '@angular/fire/auth';
+import { Firestore, collection, collectionData, query, where } from '@angular/fire/firestore';
+import { Observable, of } from 'rxjs';
 import { map, tap, switchMap, take } from 'rxjs/operators';
-
-interface Subscription {
-  status: string;
-}
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthGuard implements CanActivate {
   constructor(
-    private afAuth: AngularFireAuth,
+    private auth: Auth,
     private router: Router,
-    private firestore: AngularFirestore
+    private firestore: Firestore
   ) {}
 
   canActivate(): Observable<boolean> {
-    return this.afAuth.authState.pipe(
-      take(1), // Take only the first emission to prevent multiple checks
+    return authState(this.auth).pipe(
+      take(1),
       switchMap(user => {
-        if (user) {
-          // Fetch the user's subscription status from Firestore
-          return this.firestore
-            .collection<Subscription>('subscriptions')
-            .doc(user.uid)  // Assuming the user's Firestore document is named by their UID
-            .valueChanges();
+        if (user && user.email) {
+          // Query companies collection by matching the email field
+          const companyQuery = query(
+            collection(this.firestore, 'companies'),
+            where('email', '==', user.email)
+          );
+          return collectionData(companyQuery, { idField: 'id' }).pipe(
+            map(companies => companies.length > 0 && companies[0]['status'] === 'active')
+          );
         } else {
-          return [null];
-        }
-      }),
-      map(subscription => {
-        if (subscription && subscription.status === 'active') {
-          return true; // Allow access if the user is active
-        } else {
-          console.log('User is inactive or no subscription found.');
-          return false; // Deny access if inactive
+          return of(false);
         }
       }),
       tap(loggedIn => {

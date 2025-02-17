@@ -17,21 +17,21 @@
   <div class="invoice">
     <div class="elementA">
       <div class="invoice-header">
-        <h2>{{ environment.company.name }}</h2>
+        <h2>{{ company?.name }}</h2>
         <div class="box-line"></div>
       </div>
   
       <div class="invoice-company-info">
         <div>
-          <span>{{ environment.company.address }}</span> *
-          <span>Тел.: {{ environment.company.phone }}</span>
+          <span>{{ company?.address }}</span> *
+          <span>Тел.: {{ company?.phone }}</span>
         </div>
         <div>
-          <span>Жиро сметка: {{ environment.company.accountNo }}</span> *
-          <span>Банка: {{ environment.company.bank }}</span> *
-          <span>ЕДБ: {{ environment.company.EDB }}</span>
+          <span>Жиро сметка: {{ company?.accountNo }}</span> *
+          <span>Банка: {{ company?.bank }}</span> *
+          <span>ЕДБ: {{ company?.EDB }}</span>
         </div>
-        <div>{{ environment.company.email }}</div>
+        <div>{{ company?.email }}</div>
       </div>
   
       <div class="pre-main-content">
@@ -226,7 +226,7 @@
         <div class="signatures-right">
           <p>
             Лице со овластување за потпишување фактури: <br />
-            {{ environment.company.ownerName }}
+            {{ company?.ownerName }}
           </p>
           <div></div>
         </div>

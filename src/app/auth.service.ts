@@ -1,12 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, User } from '@angular/fire/auth';
-import { Firestore, doc, getDoc } from '@angular/fire/firestore';
+import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, authState, User } from '@angular/fire/auth';
+import { Firestore, collection, getDocs, query, where } from '@angular/fire/firestore';
 import { Observable, from } from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
-
-interface SubscriptionData {
-  status: 'active' | 'inactive';
-}
 
 @Injectable({
   providedIn: 'root',
@@ -14,28 +10,34 @@ interface SubscriptionData {
 export class AuthService {
   constructor(private auth: Auth, private firestore: Firestore) {}
 
-  // Login method with subscription status check
+  // Login method with company status check
   login(email: string, password: string): Observable<{ user: User; status: 'active' | 'inactive' }> {
     return from(signInWithEmailAndPassword(this.auth, email, password)).pipe(
       switchMap((res) => {
         const user = res.user;
-        if (user) {
-          return from(this.getSubscriptionStatus(user.uid)).pipe(
+        if (user && user.email) {
+          return from(this.getCompanyStatus(user.email)).pipe(
             map((status) => ({ user, status }))
           );
         } else {
-          throw new Error('No user found.');
+          throw new Error('No user found or email is missing.');
         }
       })
     );
   }
 
-  // Check subscription status
-  async getSubscriptionStatus(userId: string): Promise<'active' | 'inactive'> {
-    const userRef = doc(this.firestore, `subscriptions/${userId}`);
-    const docSnap = await getDoc(userRef);
-    const data = docSnap.data() as SubscriptionData | undefined;
-    return data?.status ?? 'inactive';
+  // Check company status based on the user email
+  async getCompanyStatus(email: string): Promise<'active' | 'inactive'> {
+    const companyQuery = query(
+      collection(this.firestore, 'companies'),
+      where('email', '==', email)
+    );
+    const companySnapshot = await getDocs(companyQuery);
+    if (!companySnapshot.empty) {
+      const companyData = companySnapshot.docs[0].data() as { status: 'active' | 'inactive' };
+      return companyData.status;
+    }
+    return 'inactive';
   }
 
   // Register method
@@ -50,10 +52,6 @@ export class AuthService {
 
   // Get current user as observable
   getUser(): Observable<User | null> {
-    return new Observable((observer) => {
-      onAuthStateChanged(this.auth, (user) => {
-        observer.next(user);
-      });
-    });
+    return authState(this.auth);
   }
 }
