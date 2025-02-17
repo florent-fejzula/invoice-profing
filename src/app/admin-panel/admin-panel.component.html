@@ -1,0 +1,27 @@
+<div class="admin-panel">
+    <h1>Admin Panel - Companies</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>Company Email</th>
+          <th>Status</th>
+          <th>Toggle Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let company of companies$ | async">
+          <td>{{ company.email }}</td>
+          <!-- Apply classes based on the status -->
+          <td [ngClass]="company.status === 'active' ? 'active' : 'inactive'">
+            {{ company.status }}
+          </td>
+          <td>
+            <button (click)="toggleCompanyStatus(company)">
+              Set as {{ company.status === 'active' ? 'Inactive' : 'Active' }}
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  

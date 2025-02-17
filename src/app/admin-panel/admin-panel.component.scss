@@ -1,0 +1,49 @@
+.admin-panel {
+  padding: 20px;
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th,
+    td {
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f5f5f5;
+    }
+
+    /* Active status styling */
+    .active {
+      background-color: #52AA5E; /* Green */
+      color: white;
+      padding: 5px 10px;
+      border-radius: 4px;
+    }
+
+    /* Inactive status styling */
+    .inactive {
+      background-color: #E74C3C; /* Red */
+      color: white;
+      padding: 5px 10px;
+      border-radius: 4px;
+    }
+
+    button {
+      padding: 6px 10px;
+      cursor: pointer;
+      background-color: #388659; /* Sea Green */
+      color: white;
+      border: none;
+      border-radius: 4px;
+      margin-left: 10px;
+    }
+
+    button:hover {
+      background-color: #52AA5E; /* Slightly lighter green on hover */
+    }
+  }
+}
