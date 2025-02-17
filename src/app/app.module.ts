@@ -25,6 +25,7 @@ import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideAuth, getAuth } from '@angular/fire/auth';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { AdminPanelComponent } from './admin-panel/admin-panel.component';
+import { AutoRedirectComponent } from './auto-redirect/auto-redirect.component';
 
 @NgModule({
   declarations: [
@@ -34,7 +35,8 @@ import { AdminPanelComponent } from './admin-panel/admin-panel.component';
     EntryModalComponent,
     FileSaveDialogComponent,
     LoginComponent,
-    AdminPanelComponent
+    AdminPanelComponent,
+    AutoRedirectComponent
   ],
   imports: [
     BrowserModule,

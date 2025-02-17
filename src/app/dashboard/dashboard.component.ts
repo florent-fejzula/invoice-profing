@@ -8,6 +8,8 @@ import { EntryModalComponent } from '../entry-modal/entry-modal.component';
 import { ExportService } from '../services/export.service';
 import { FileSaveDialogComponent } from '../file-save-dialog/file-save-dialog.component';
 import { CompanyService } from '../services/company.service';
+import { Auth, onAuthStateChanged, signOut } from '@angular/fire/auth';
+import { Router } from '@angular/router';
 
 export interface InvoiceItem {
   opis: string;
@@ -29,6 +31,7 @@ export class DashboardComponent implements OnInit {
   environment: Environment = environment;
 
   company: any;
+  user: any = null; // Store logged-in user info
 
   currentFontSize = 12;
   paddingSize = 5;
@@ -63,6 +66,8 @@ export class DashboardComponent implements OnInit {
   items: InvoiceItem[] = [];
 
   constructor(
+    private auth: Auth,
+    private router: Router,
     private dialog: MatDialog,
     private dataService: DataService,
     private exportService: ExportService,
@@ -70,6 +75,9 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    onAuthStateChanged(this.auth, (user) => {
+      this.user = user;
+    });
     this.companyService.getCompany().subscribe((data) => {
       this.company = data;
     });
@@ -306,5 +314,10 @@ export class DashboardComponent implements OnInit {
 
   printThisPage() {
     window.print();
+  }
+
+  async logout() {
+    await this.auth.signOut();
+    this.router.navigate(['/login']); // ✅ Redirect to login after logout
   }
 }

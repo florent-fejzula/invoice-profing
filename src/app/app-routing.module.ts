@@ -5,20 +5,14 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { AuthGuard } from './guards/auth.guard';
 import { AdminPanelComponent } from './admin-panel/admin-panel.component';
 import { AdminGuard } from './guards/admin.guard';
+import { AutoRedirectComponent } from './auto-redirect/auto-redirect.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  { path: '', pathMatch: 'full', redirectTo: 'auto-redirect' }, // 👈 Handle auto-redirect logic
+  { path: 'auto-redirect', component: AutoRedirectComponent }, // 👈 New component to handle redirect logic
   { path: 'login', component: LoginComponent },
-  {
-    path: 'admin',
-    component: AdminPanelComponent,
-    canActivate: [AdminGuard], // Apply the guard here
-  },
-  {
-    path: 'dashboard',
-    component: DashboardComponent,
-    canActivate: [AuthGuard],
-  },
+  { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
+  { path: 'admin', component: AdminPanelComponent, canActivate: [AdminGuard] },
 ];
 
 @NgModule({
