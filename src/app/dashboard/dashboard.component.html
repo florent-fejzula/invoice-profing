@@ -151,7 +151,7 @@
           </tbody>
         </table>
   
-        <div class="invoice-total">
+        <div *ngIf="company?.settings?.showTaxCategories" class="invoice-total">
           <div class="invoice-total-titles">
             <div>Тарифа</div>
             <div>Износ без ДДВ</div>
