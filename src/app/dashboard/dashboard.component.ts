@@ -6,7 +6,6 @@ import { environment } from 'src/environments/environment';
 import { EditModalComponent } from '../edit-modal/edit-modal.component';
 import { EntryModalComponent } from '../entry-modal/entry-modal.component';
 import { ExportService } from '../services/export.service';
-import { FileSaveDialogComponent } from '../file-save-dialog/file-save-dialog.component';
 import { CompanyService } from '../services/company.service';
 import { Auth, onAuthStateChanged, signOut } from '@angular/fire/auth';
 import { Router } from '@angular/router';
@@ -84,11 +83,8 @@ export class DashboardComponent implements OnInit {
     this.calculateSummaryData();
   }
 
-  exportToJson(): void {
-    const textareaValue = (
-      document.querySelector('textarea') as HTMLTextAreaElement
-    ).value;
-
+  async exportToJson(): Promise<void> {
+    // Gather the data to export
     const dataToExport = {
       datum: this.datum,
       valuta: this.valuta,
@@ -100,7 +96,9 @@ export class DashboardComponent implements OnInit {
       companyCity: this.companyCity,
       companyID: this.companyID,
       slobodenOpis: this.slobodenOpis,
-      textareaValue: textareaValue,
+      textareaValue:
+        (document.querySelector('textarea') as HTMLTextAreaElement)?.value ||
+        '',
       napomena: this.napomena,
       vkupenIznosBezDDV: this.vkupenIznosBezDDV,
       vkupnoDDV: this.vkupnoDDV,
@@ -108,17 +106,41 @@ export class DashboardComponent implements OnInit {
       items: this.items,
     };
 
-    const dialogRef = this.dialog.open(FileSaveDialogComponent, {
-      width: '300px',
-      data: { fileName: this.exportFileName },
-    });
+    // Convert the data to a formatted JSON string
+    const jsonString = JSON.stringify(dataToExport, null, 2);
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.exportFileName = result;
-        this.exportService.exportToJsonFile(dataToExport, this.exportFileName);
+    // Use the File System Access API if available
+    if ('showSaveFilePicker' in window) {
+      try {
+        const options = {
+          suggestedName: 'invoice_data.json',
+          types: [
+            {
+              description: 'JSON Files',
+              accept: { 'application/json': ['.json'] },
+            },
+          ],
+        };
+        // @ts-ignore: TypeScript may not yet have this in its DOM typings.
+        const handle = await window.showSaveFilePicker(options);
+        const writable = await handle.createWritable();
+        await writable.write(jsonString);
+        await writable.close();
+      } catch (error) {
+        console.error('File save cancelled or failed:', error);
       }
-    });
+    } else {
+      // Fallback: Automatically download with a default name.
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'invoice_data.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
   }
 
   importJson(event: any): void {
@@ -126,26 +148,36 @@ export class DashboardComponent implements OnInit {
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        const importedData = JSON.parse(reader.result as string);
+        try {
+          const importedData = JSON.parse(reader.result as string);
 
-        this.datum = new Date(importedData.datum);
-        this.valuta = new Date(importedData.valuta);
-        this.selectedOption = importedData.selectedOption;
-        this.fakturaTip = importedData.fakturaTip;
-        this.fakturaBroj = importedData.fakturaBroj;
-        this.companyTitle = importedData.companyTitle;
-        this.companyAddress = importedData.companyAddress;
-        this.companyCity = importedData.companyCity;
-        this.companyID = importedData.companyID;
-        this.slobodenOpis = importedData.slobodenOpis;
-        const textareaValue = importedData.textareaValue;
-        (document.querySelector('textarea') as HTMLTextAreaElement).value =
-          textareaValue;
-        this.napomena = importedData.napomena;
-        this.vkupenIznosBezDDV = importedData.vkupenIznosBezDDV;
-        this.vkupnoDDV = importedData.vkupnoDDV;
-        this.soZborovi = importedData.soZborovi;
-        this.items = importedData.items;
+          this.datum = new Date(importedData.datum);
+          this.valuta = new Date(importedData.valuta);
+          this.selectedOption = importedData.selectedOption;
+          this.fakturaTip = importedData.fakturaTip;
+          this.fakturaBroj = importedData.fakturaBroj;
+          this.companyTitle = importedData.companyTitle;
+          this.companyAddress = importedData.companyAddress;
+          this.companyCity = importedData.companyCity;
+          this.companyID = importedData.companyID;
+          this.slobodenOpis = importedData.slobodenOpis;
+
+          // Ensure the textarea exists before setting its value
+          const textarea = document.querySelector(
+            'textarea'
+          ) as HTMLTextAreaElement;
+          if (textarea) {
+            textarea.value = importedData.textareaValue || '';
+          }
+
+          this.napomena = importedData.napomena;
+          this.vkupenIznosBezDDV = importedData.vkupenIznosBezDDV;
+          this.vkupnoDDV = importedData.vkupnoDDV;
+          this.soZborovi = importedData.soZborovi;
+          this.items = importedData.items;
+        } catch (error) {
+          console.error('Error parsing JSON file:', error);
+        }
       };
 
       reader.readAsText(file);

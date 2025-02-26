@@ -15,7 +15,6 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { EntryModalComponent } from './entry-modal/entry-modal.component';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
-import { FileSaveDialogComponent } from './file-save-dialog/file-save-dialog.component';
 import { LoginComponent } from './login/login.component';
 import { AppRoutingModule } from './app-routing.module';
 import { DashboardComponent } from './dashboard/dashboard.component';
@@ -33,7 +32,6 @@ import { AutoRedirectComponent } from './auto-redirect/auto-redirect.component';
     DashboardComponent,
     EditModalComponent,
     EntryModalComponent,
-    FileSaveDialogComponent,
     LoginComponent,
     AdminPanelComponent,
     AutoRedirectComponent
