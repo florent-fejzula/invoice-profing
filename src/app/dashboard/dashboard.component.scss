@@ -1,403 +1,414 @@
 .buttons {
+  display: flex;
+  justify-content: space-between;
+  margin: auto;
+  max-width: 960px;
+  margin-top: 40px;
+  margin-bottom: 16px;
+
+  .button {
     display: flex;
-    justify-content: space-between;
-    margin: auto;
-    max-width: 960px;
-    margin-top: 40px;
-    margin-bottom: 16px;
-  
-    .button {
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    color: #fff;
+    font-size: 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .print {
+    background-color: #007bff;
+  }
+
+  .print:hover {
+    background-color: #0056b3;
+  }
+
+  .font {
+    background-color: #2d8ff8;
+  }
+
+  .font:hover {
+    background-color: #146dcd;
+  }
+
+  .edit {
+    background-color: #00b630;
+  }
+
+  .edit:hover {
+    background-color: #008f07;
+  }
+
+  .export {
+    background-color: #b61b00;
+  }
+
+  .export:hover {
+    background-color: #8d1601;
+  }
+
+  .invisible {
+    visibility: hidden;
+    width: 110px;
+    height: 0;
+    padding: 0;
+    margin: 0;
+    border: none;
+    outline: none;
+  }
+}
+
+.textArea textarea {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+}
+
+.invoice {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  margin: auto;
+  max-width: 960px;
+
+  .elementA {
+    flex-grow: 1;
+
+    .invoice-header {
+      color: #000000;
+
+      .logo {
+        width: 132px;
+        display: inline-block;
+        margin-bottom: -3px;
+        margin-left: -12px;
+      }
+
+      h2 {
+        margin: 0;
+        display: inline-block;
+      }
+
+      .solucalcDiv {
+        display: inline-block;
+        width: 52%;
+        text-align: right;
+
+        .solucalc {
+          width: 80px;
+          padding-right: 14px;
+        }
+      }
+
+      .box-line {
+        border-top: 1px solid #000000;
+        border-bottom: 1px solid #000000;
+        border-left: none;
+        border-right: none;
+        width: 100%;
+        height: 4px;
+      }
+    }
+
+    .invoice-company-info {
+      color: #000000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 38px;
+      font-size: 12px;
+    }
+
+    .pre-main-content {
+      display: flex;
+      justify-content: center;
+
+      .date-invoice-number {
+        width: 100%;
+
+        .date-value {
+          .bold {
+            font-weight: bold;
+            padding-right: 8px;
+            display: inline-block;
+            min-width: 70px;
+            padding-bottom: 2px;
+          }
+        }
+
+        .invoice-number {
+          margin-top: 32px;
+          h2 {
+            margin: 0;
+            font-size: 18px;
+            margin-bottom: 6px;
+          }
+
+          .uppercase {
+            text-transform: uppercase;
+          }
+        }
+      }
+
+      .invoiced-company {
+        width: 100%;
+        border: 1px solid black;
+        padding: 4px;
+
+        h2 {
+          margin: 4px;
+          font-size: 18px;
+        }
+
+        p {
+          padding-left: 4px;
+          margin: 8px 0px;
+        }
+
+        :last-child {
+          margin-top: 14px;
+          margin-bottom: 0;
+        }
+      }
+    }
+
+    .add-button {
+      margin-bottom: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 10px 20px;
+      background-color: #00b630;
       color: #fff;
-      font-size: 20px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
-  
-    .print {
-      background-color: #007bff;
-    }
-  
-    .print:hover {
-      background-color: #0056b3;
-    }
-  
-    .font {
-      background-color: #2d8ff8;
-    }
-  
-    .font:hover {
-      background-color: #146dcd;
-    }
-  
-    .edit {
-      background-color: #00b630;
-    }
-  
-    .edit:hover {
+
+    .add-button:hover {
       background-color: #008f07;
     }
-  
-    .export {
-      background-color: #b61b00;
-    }
-  
-    .export:hover {
-      background-color: #8d1601;
-    }
-  
-    .invisible {
-      visibility: hidden;
-      width: 110px;
-      height: 0;
-      padding: 0;
-      margin: 0;
-      border: none;
-      outline: none;
-    }
-  }
-  
-  .textArea textarea {
-    font-family: Arial, sans-serif;
-    font-size: 14px;
-  }
-  
-  .invoice {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    font-family: Arial, sans-serif;
-    margin: auto;
-    max-width: 960px;
-  
-    .elementA {
-      flex-grow: 1;
-  
-      .invoice-header {
-        color: #000000;
-  
-        .logo {
-          width: 132px;
-          display: inline-block;
-          margin-bottom: -3px;
-          margin-left: -12px;
-        }
-  
-        h2 {
-          margin: 0;
-          display: inline-block;
-        }
-  
-        .solucalcDiv {
-          display: inline-block;
-          width: 52%;
-          text-align: right;
-  
-          .solucalc {
-            width: 80px;
-            padding-right: 14px;
-          }
-        }
-  
-        .box-line {
-          border-top: 1px solid #000000;
-          border-bottom: 1px solid #000000;
-          border-left: none;
-          border-right: none;
-          width: 100%;
-          height: 4px;
-        }
-      }
-  
-      .invoice-company-info {
-        color: #000000;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-bottom: 38px;
-        font-size: 12px;
-      }
-  
-      .pre-main-content {
-        display: flex;
-        justify-content: center;
-  
-        .date-invoice-number {
-          width: 100%;
-  
-          .date-value {
-            .bold {
-              font-weight: bold;
-              padding-right: 8px;
-              display: inline-block;
-              min-width: 70px;
-              padding-bottom: 2px;
-            }
-          }
-  
-          .invoice-number {
-            margin-top: 32px;
-            h2 {
-              margin: 0;
-              font-size: 18px;
-              margin-bottom: 6px;
-            }
-  
-            .uppercase {
-              text-transform: uppercase;
-            }
-          }
-        }
-  
-        .invoiced-company {
-          width: 100%;
-          border: 1px solid black;
-          padding: 4px;
-  
-          h2 {
-            margin: 4px;
-            font-size: 18px;
-          }
-  
-          p {
-            padding-left: 4px;
-            margin: 8px 0px;
-          }
-  
-          :last-child {
-            margin-top: 14px;
-            margin-bottom: 0;
-          }
-        }
-      }
-  
-      .add-button {
-        margin-bottom: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: #00b630;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
-  
-      .add-button:hover {
-        background-color: #008f07;
-      }
-  
-      .invoice-content {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-  
-        .invoice-table {
-          width: 100%;
-          border-collapse: collapse;
-          margin-bottom: 20px;
-  
-          thead,
-          tbody {
-            font-size: 12px;
-          }
-  
-          th,
-          td {
-            border: 1px solid #000;
-            padding: 0px 8px;
-            width: 100%;
-          }
-  
-          td {
-            vertical-align: top;
-          }
-  
-          th:first-child,
-          td:first-child {
-            width: 5%;
-          }
-  
-          th:nth-child(2),
-          td:nth-child(2) {
-            max-width: 41%;
-          }
-  
-          th:nth-child(3),
-          td:nth-child(3),
-          th:nth-child(4),
-          td:nth-child(4) {
-            max-width: 6%;
-          }
-  
-          td:nth-child(4),
-          td:nth-child(5),
-          td:nth-child(6),
-          td:nth-child(7),
-          td:nth-child(8),
-          td:nth-child(9) {
-            text-align: right;
-          }
-  
-          td:nth-child(3),
-          td:nth-child(8) {
-            text-align: center;
-          }
-  
-          th:nth-child(5),
-          td:nth-child(5) {
-            max-width: 14%;
-          }
-  
-          th:nth-child(6),
-          td:nth-child(6),
-          th:nth-child(7),
-          td:nth-child(7),
-          th:nth-child(8),
-          td:nth-child(8) {
-            max-width: 6%;
-          }
-          
-          th:nth-child(9),
-          td:nth-child(9) {
-            max-width: 14%;
-          }
-        }
-  
-        .invoice-total {
-          width: 48%;
-          font-size: 12px;
-          font-weight: bold;
-          page-break-inside: avoid;
-  
-          .invoice-total-titles,
-          .invoice-total-values {
-            display: flex;
-            border: 1px solid black;
-            padding: 6px;
-            margin-bottom: 4px;
-            text-align: center;
-  
-            div {
-              width: 25%;
-            }
-          }
-        }
-      }
-    }
-  
-    .invoice-total-down {
-      font-size: 12px;
-      margin-bottom: 6px;
-      width: 100%;
-      display: flex;
-      justify-content: flex-end;
-      page-break-inside: avoid;
-  
-      .slobodenOpis {
-        flex-grow: 1;
-        display: flex;
-        align-items: flex-end;
-      }
-  
-      .totals {
-        display: flex;
-      }
-    }
-  
-    .invoice-total-payment {
-      font-size: 12px;
-      width: 100%;
-      display: flex;
-      justify-content: flex-end;
-      page-break-inside: avoid;
-    }
-  
-    .down-first,
-    .down-second,
-    .payment-first,
-    .payment-second {
-      border: 1px solid black;
+
+    .invoice-content {
       display: flex;
       flex-direction: column;
-      align-items: flex-end;
-      padding: 6px;
-      min-width: 120px;
-    }
-  
-    .payment-first {
-      font-weight: bold;
-    }
-  
-    .declarations {
-      font-size: 12px;
-  
-      .soZboroviInput {
-        width: 600px;
+      width: 100%;
+
+      .invoice-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+
+        thead,
+        tbody {
+          font-size: 12px;
+        }
+
+        th,
+        td {
+          border: 1px solid #000;
+          padding: 0px 8px;
+          width: 100%;
+        }
+
+        td {
+          vertical-align: top;
+        }
+
+        th:first-child,
+        td:first-child {
+          width: 5%;
+        }
+
+        th:nth-child(2),
+        td:nth-child(2) {
+          max-width: 41%;
+        }
+
+        th:nth-child(3),
+        td:nth-child(3),
+        th:nth-child(4),
+        td:nth-child(4) {
+          max-width: 6%;
+        }
+
+        td:nth-child(4),
+        td:nth-child(5),
+        td:nth-child(6),
+        td:nth-child(7),
+        td:nth-child(8),
+        td:nth-child(9) {
+          text-align: right;
+        }
+
+        td:nth-child(3),
+        td:nth-child(8) {
+          text-align: center;
+        }
+
+        th:nth-child(5),
+        td:nth-child(5) {
+          max-width: 14%;
+        }
+
+        th:nth-child(6),
+        td:nth-child(6),
+        th:nth-child(7),
+        td:nth-child(7),
+        th:nth-child(8),
+        td:nth-child(8) {
+          max-width: 6%;
+        }
+
+        th:nth-child(9),
+        td:nth-child(9) {
+          max-width: 14%;
+        }
+      }
+
+      .invoice-total {
+        width: 48%;
+        font-size: 12px;
+        font-weight: bold;
+        page-break-inside: avoid;
+
+        .invoice-total-titles,
+        .invoice-total-values {
+          display: flex;
+          border: 1px solid black;
+          padding: 6px;
+          margin-bottom: 4px;
+          text-align: center;
+
+          div {
+            width: 25%;
+          }
+        }
       }
     }
   }
-  
-  .signatures {
-    margin-top: 16px;
+
+  .invoice-total-down {
+    font-size: 12px;
+    margin-bottom: 6px;
+    width: 100%;
     display: flex;
-    justify-content: space-between;
-  
-    .signatures-left {
-      text-align: center;
-  
-      // p {
-      //   margin: 12px;
-      // }
+    justify-content: flex-end;
+    page-break-inside: avoid;
+
+    .slobodenOpis {
+      flex-grow: 1;
+      display: flex;
+      align-items: flex-end;
     }
-  
-    .signatures-middle {
-      padding-top: 52px;
-      text-align: center;
-    }
-  
-    .signatures-right {
-      text-align: right;
-      font-size: 14px;
-      // padding-top: 10px;
+
+    .totals {
+      display: flex;
     }
   }
-  
-  input.mat-input-element {
-    width: 440px;
-  }
-  
-  .deleteEntry {
+
+  .invoice-total-payment {
+    font-size: 12px;
+    width: 100%;
     display: flex;
-    border: none !important;
-    padding: 0 !important;
+    justify-content: flex-end;
+    page-break-inside: avoid;
   }
-  
-  @media print {
-    .buttons,
-    .addButton,
-    .deleteEntry,
-    .zabeleshkaHide,
-    .hidden-on-print,
-    .toggleButton {
-      display: none;
-    }
-  
-    .soZboroviInput,
-    .slobodenOpisInput,
-    .napomenaInput,
-    .textArea textarea {
-      border: none;
-    }
-  
-    textArea {
-      resize: none;
+
+  .down-first,
+  .down-second,
+  .payment-first,
+  .payment-second {
+    border: 1px solid black;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    padding: 6px;
+    min-width: 120px;
+  }
+
+  .payment-first {
+    font-weight: bold;
+  }
+
+  .declarations {
+    font-size: 12px;
+
+    .soZboroviInput {
+      width: 600px;
     }
   }
-  
+}
+
+.signatures {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+
+  .signatures-left {
+    text-align: center;
+
+    // p {
+    //   margin: 12px;
+    // }
+  }
+
+  .signatures-middle {
+    padding-top: 52px;
+    text-align: center;
+  }
+
+  .signatures-right {
+    text-align: right;
+    font-size: 14px;
+    // padding-top: 10px;
+  }
+}
+
+input.mat-input-element {
+  width: 440px;
+}
+
+.deleteEntry {
+  display: flex;
+  border: none !important;
+  padding: 0 !important;
+}
+
+/* Default: Hide the text span when editing */
+.print-text {
+  display: none;
+}
+
+@media print {
+  .buttons,
+  .addButton,
+  .deleteEntry,
+  .zabeleshkaHide,
+  .hidden-on-print,
+  .toggleButton {
+    display: none;
+  }
+
+  .soZboroviInput,
+  .slobodenOpisInput,
+  .napomenaInput,
+  .textArea textarea {
+    border: none;
+  }
+
+  .soZboroviInput {
+    display: none !important; /* Hide input field in print mode */
+  }
+  .print-text {
+    display: inline !important; /* Ensure text is visible when printed */
+  }
+
+  textArea {
+    resize: none;
+  }
+}
