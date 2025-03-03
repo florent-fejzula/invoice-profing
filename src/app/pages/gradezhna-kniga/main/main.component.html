@@ -1,0 +1,173 @@
+<div class="buttons">
+  <button class="button print" (click)="printThisPage()">Print</button>
+  <button class="button export" (click)="exportToJson()">Save</button>
+  <input
+    type="file"
+    (change)="importJson($event)"
+    style="display: none"
+    #fileInput
+  />
+  <button class="button export" (click)="fileInput.click()">Open</button>
+  <button class="button edit" (click)="increaseFontSize()">Font +</button>
+  <button class="button edit" (click)="decreaseFontSize()">Font -</button>
+  <button class="invisible"></button>
+  <button class="invisible"></button>
+</div>
+
+<div class="wrapper">
+  <div class="top_part">
+    <div class="row">
+      <div class="column gradbaBroj">
+        <b>ГРАДЕЖНА КНИГА</b>
+        <br />
+        <br />
+        <div>
+          Бр.
+          <input class="gradbaBrojInput" matInput [(ngModel)]="gradbaBroj" />
+        </div>
+      </div>
+      <div class="column wide">
+        <div class="gradba">
+          <div>градба:</div>
+          <input matInput [(ngModel)]="gradbaInputValue" />
+        </div>
+        <div class="izveduvac">
+          <div>изведувач:</div>
+          <!-- <h2 class="izveduvacTitle">ТИЛ КЕРАМИК 2014 ДООЕЛ</h2> -->
+          <h2 class="izveduvacTitle">ПРОФИНГ АРТ ДООЕЛ</h2>
+        </div>
+      </div>
+      <div class="column datum">
+        <div class="gradba">
+          <div>книга бр.</div>
+          <input matInput [(ngModel)]="knigaInputValue" class="knigaInput" />
+        </div>
+        <div class="izveduvac">
+          <div>ден / датум:</div>
+          <input matInput [(ngModel)]="datumInputValue" class="datumInput" />
+        </div>
+      </div>
+    </div>
+    <div class="row rowMid">
+      <div class="investor">инвестор</div>
+      <div class="investor_blank">
+        <input matInput [(ngModel)]="investorInputValue" />
+      </div>
+    </div>
+    <div class="row rowMid">
+      <div class="adresa">адреса и назив на градилиште</div>
+      <div class="adresa_blank">
+        <input matInput [(ngModel)]="adresaInputValue" />
+      </div>
+    </div>
+    <div class="row">
+      <div class="pozicija">
+        ГРАДЕЖНА ПОЗИЦИЈА:
+        <button (click)="increasePozicijaFontSize()">+</button>
+        <button (click)="decreasePozicijaFontSize()">-</button>
+        <textarea
+          cdkTextareaAutosize
+          [(ngModel)]="pozicijaInputValue"
+          [style.font-size.px]="fontSizePozicija"
+        ></textarea>
+      </div>
+      <div class="merka">
+        мерка
+        <input matInput [(ngModel)]="merkaInputValue" />
+      </div>
+      <div class="cena">
+        цена
+        <input matInput [(ngModel)]="cenaInputValue" />
+      </div>
+    </div>
+    <button class="new-row-button" (click)="addNewRow()">New Row</button>
+    <table class="mainTable">
+      <thead>
+        <tr class="headerRow">
+          <th class="tRedenBroj">Реден број</th>
+          <th class="tSostav"></th>
+          <th class="tKolicina">количина</th>
+          <th class="tMerka">мерка</th>
+          <th class="tCena">цена</th>
+          <th class="tVkupno">вкупно</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of tableData; let i = index">
+          <td>
+            <textarea
+              cdkTextareaAutosize
+              [(ngModel)]="row.redenBrojArea"
+              class="redenBrojArea"
+              [style.font-size.px]="fontSize"
+            ></textarea>
+          </td>
+          <td>
+            <textarea
+              cdkTextareaAutosize
+              [(ngModel)]="row.textAreaInput"
+              class="textArea"
+              [style.font-size.px]="fontSize"
+            ></textarea>
+          </td>
+          <td>
+            <textarea
+              cdkTextareaAutosize
+              [(ngModel)]="row.kolicinaArea"
+              class="kolicinaArea"
+              [style.font-size.px]="fontSize"
+              (ngModelChange)="calculateVkupnoArea(row)"
+            ></textarea>
+          </td>
+          <td>
+            <textarea
+              cdkTextareaAutosize
+              [(ngModel)]="row.merkaArea"
+              class="merkaArea"
+              [style.font-size.px]="fontSize"
+            ></textarea>
+          </td>
+          <td>
+            <textarea
+              cdkTextareaAutosize
+              [(ngModel)]="row.cenaArea"
+              class="cenaArea"
+              [style.font-size.px]="fontSize"
+              (ngModelChange)="calculateVkupnoArea(row)"
+            ></textarea>
+          </td>
+          <td>
+            <textarea
+              cdkTextareaAutosize
+              [(ngModel)]="row.vkupnoArea"
+              class="vkupnoArea"
+              [style.font-size.px]="fontSize"
+              disabled
+            ></textarea>
+          </td>
+          <button (click)="removeRow(i)" mat-icon-button class="delete-button">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="bottom_part">
+    <div class="prenos">
+      <div class="div1">за пренос / вкупно =</div>
+      <div class="div4">
+        <input
+          matInput
+          [(ngModel)]="div4InputValue"
+          [disabled]="isDiv4InputDisabled"
+        />
+      </div>
+    </div>
+
+    <div class="fullBottom">
+      <div class="fullBottomIzveduvac">изведувач:</div>
+      <div class="fullBottomInzener">надзорниот инженер</div>
+    </div>
+  </div>
+</div>
+<div class="pageEnd"></div>

@@ -1,21 +1,25 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Auth, onAuthStateChanged } from '@angular/fire/auth';
+import { Auth } from '@angular/fire/auth';
+import { authState } from 'rxfire/auth';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-auto-redirect',
-  template: '', // No UI needed
+  template: '',
 })
 export class AutoRedirectComponent implements OnInit {
   constructor(private auth: Auth, private router: Router) {}
 
   ngOnInit() {
-    onAuthStateChanged(this.auth, (user) => {
-      if (user) {
-        this.router.navigate(['/dashboard']); // ✅ Send logged-in users to dashboard
-      } else {
-        this.router.navigate(['/login']); // 🚪 Send guests to login
-      }
-    });
+    authState(this.auth)
+      .pipe(take(1))
+      .subscribe((user) => {
+        if (user) {
+          this.router.navigate(['/invoice']); // ✅ Redirect to Invoice App
+        } else {
+          this.router.navigate(['/login']);
+        }
+      });
   }
 }

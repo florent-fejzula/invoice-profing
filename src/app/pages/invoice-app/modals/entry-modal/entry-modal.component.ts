@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { InvoiceItem } from '../dashboard/dashboard.component';
+import { InvoiceItem } from 'src/app/models/invoice-item.model';
 
 @Component({
   selector: 'app-entry-modal',

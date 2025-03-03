@@ -1,25 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Environment } from 'src/environments/environment.interface';
-import { DataService } from '../services/data.service';
+import { DataService } from '../../../services/data.service';
 import { environment } from 'src/environments/environment';
-import { EditModalComponent } from '../edit-modal/edit-modal.component';
-import { EntryModalComponent } from '../entry-modal/entry-modal.component';
-import { ExportService } from '../services/export.service';
-import { CompanyService } from '../services/company.service';
-import { Auth, onAuthStateChanged, signOut } from '@angular/fire/auth';
+import { EntryModalComponent } from '../modals/entry-modal/entry-modal.component';
+import { CompanyService } from '../../../services/company.service';
+import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 import { Router } from '@angular/router';
-
-export interface InvoiceItem {
-  opis: string;
-  em: string;
-  kolicina: number;
-  cenaBezDanok: number;
-  rabatProcent: number;
-  rabat: number;
-  ddv: number;
-  iznosSoDDV: number;
-}
+import { EditModalComponent } from '../modals/edit-modal/edit-modal.component';
+import { InvoiceItem } from 'src/app/models/invoice-item.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -69,7 +58,6 @@ export class DashboardComponent implements OnInit {
     private router: Router,
     private dialog: MatDialog,
     private dataService: DataService,
-    private exportService: ExportService,
     private companyService: CompanyService
   ) {}
 
