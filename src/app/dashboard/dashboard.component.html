@@ -18,6 +18,7 @@
 <div class="invoice">
   <div class="elementA">
     <div class="invoice-header">
+      <img *ngIf="company?.logoUrl" [src]="company.logoUrl" alt="Company Logo" class="logo" />
       <h2>{{ company?.name }}</h2>
       <div class="box-line"></div>
     </div>
