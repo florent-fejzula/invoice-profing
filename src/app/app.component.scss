@@ -1,0 +1,36 @@
+.content {
+  padding: 20px;
+  transition: margin-left 0.3s ease-in-out; // Smooth transition when sidebar appears/disappears
+}
+
+// ✅ When the sidebar is visible, keep the margin
+.show-sidebar .content {
+  margin-left: 250px;
+}
+
+.center-login {
+  display: flex;
+  justify-content: center;
+  height: 100vh; // Full height
+}
+
+@media print {
+  .content {
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding: 0;
+  }
+
+  // Ensure the print area is confined to one page
+  body {
+    margin: 0;
+    padding: 0;
+    height: auto;
+    overflow: visible;
+  }
+
+  .invoice, .gradezhna-kniga {
+    page-break-before: always;
+    page-break-after: always;
+  }
+}

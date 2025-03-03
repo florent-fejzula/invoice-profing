@@ -1,4 +1,6 @@
-<nav class="sidebar">
-  <button routerLink="/invoice">Invoice App</button>
-  <button routerLink="/gradezhna-kniga">Gradezhna Kniga</button>
-</nav>
+<div class="sidebar">
+  <h2>Navigation</h2>
+  <button (click)="navigateTo('/invoice')" class="nav-button">📄 Faktura</button>
+  <button (click)="navigateTo('/gradezhna-kniga')" class="nav-button">📖 Gradezhna Kniga</button>
+  <button (click)="logout()" class="logout-button">🚪 Logout</button>
+</div>

@@ -1,1 +1,6 @@
-<router-outlet></router-outlet>
+<div [ngClass]="{ 'show-sidebar': showSidebar, 'center-login': !showSidebar }">
+  <app-sidebar *ngIf="showSidebar"></app-sidebar>
+  <div class="content">
+    <router-outlet></router-outlet>
+  </div>
+</div>

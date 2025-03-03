@@ -18,7 +18,7 @@ export class LoginComponent {
       ({ user, status }) => {
         console.log('User logged in:', user, 'Status:', status);
         if (status === 'active') {
-          this.router.navigate(['/dashboard']);
+          this.router.navigate(['/invoice']);
         } else {
           alert('Your account is inactive.');
           this.authService.logout();
