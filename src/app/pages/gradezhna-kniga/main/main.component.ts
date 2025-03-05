@@ -1,5 +1,8 @@
-import { Component } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { Component, OnInit } from '@angular/core';
+import { Auth, onAuthStateChanged } from '@angular/fire/auth';
+import { collectionData, Firestore } from '@angular/fire/firestore';
+import { collection, query, where } from 'firebase/firestore';
+import { map } from 'rxjs';
 
 interface TableRow {
   redenBrojArea: string;
@@ -15,7 +18,10 @@ interface TableRow {
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.scss'],
 })
-export class MainComponent {
+export class MainComponent implements OnInit {
+  company: any = null;
+  user: any = null;
+
   gradbaBroj: string = '';
   gradbaInputValue: string = '';
   knigaInputValue: string = '';
@@ -25,12 +31,6 @@ export class MainComponent {
   pozicijaInputValue: string = '';
   merkaInputValue: string = '';
   cenaInputValue: number | undefined;
-  // redenBrojArea: string = '';
-  // textAreaInput: string = '';
-  // kolicinaArea: string = '';
-  // merkaArea: string = '';
-  // cenaArea: string = '';
-  // vkupnoArea: string = '';
   exportFileName: string = 'exported-data.json'; // Default file name
 
   fontSize: number = 16;
@@ -50,7 +50,31 @@ export class MainComponent {
   div4InputValue: number = 0;
   isDiv4InputDisabled: boolean = true;
 
-  constructor(public dialog: MatDialog) {}
+  constructor(private auth: Auth, private firestore: Firestore) {}
+
+  ngOnInit() {
+    onAuthStateChanged(this.auth, (user) => {
+      if (user && user.email) {
+        this.user = user;
+        this.loadCompanyData(user.email);
+      }
+    });
+  }
+
+  loadCompanyData(email: string | null) {
+    if (!email) return; // ✅ If email is null, exit the function
+
+    const companyQuery = query(
+      collection(this.firestore, 'companies'),
+      where('email', '==', email)
+    );
+
+    collectionData(companyQuery, { idField: 'id' })
+      .pipe(map((companies) => companies[0] || { name: 'Company Not Found' }))
+      .subscribe((companyData) => {
+        this.company = companyData;
+      });
+  }
 
   increaseFontSize() {
     this.fontSize += 1;
