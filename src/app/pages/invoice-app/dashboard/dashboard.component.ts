@@ -6,6 +6,7 @@ import { environment } from 'src/environments/environment';
 import { DataService } from '../../../services/data.service';
 import { CompanyService } from '../../../services/company.service';
 import { InvoicesService } from 'src/app/services/invoices.service';
+import { ClientsService } from 'src/app/services/clients.service';
 
 import { EntryModalComponent } from '../modals/entry-modal/entry-modal.component';
 import { EditModalComponent } from '../modals/edit-modal/edit-modal.component';
@@ -20,6 +21,12 @@ import {
   SummaryRow,
 } from 'src/app/utils/compute-totals';
 
+// client picker
+import { FormControl } from '@angular/forms';
+import { Observable, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { ClientDoc } from 'src/app/models/client.model';
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -30,6 +37,9 @@ export class DashboardComponent implements OnInit {
 
   company: any;
   user: any = null; // logged-in user
+
+  // TEMP: hardcode your company doc id for now (replace with CompanyService id later)
+  companyId: string = 'GLp2xLv3ZzX6ktQZUsyU';
 
   currentFontSize = 12;
   paddingSize = 5;
@@ -59,13 +69,19 @@ export class DashboardComponent implements OnInit {
 
   items: InvoiceItem[] = [];
 
+  // -------- Client picker (typeahead) ----------
+  clientCtrl = new FormControl('');
+  clientOptions$: Observable<ClientDoc[]> = of([]);
+  selectedClient?: ClientDoc;
+
   constructor(
     private auth: Auth,
     private router: Router,
     private dialog: MatDialog,
     private dataService: DataService,
     private companyService: CompanyService,
-    private invoicesSvc: InvoicesService
+    private invoicesSvc: InvoicesService,
+    private clientsSvc: ClientsService
   ) {}
 
   ngOnInit() {
@@ -73,11 +89,27 @@ export class DashboardComponent implements OnInit {
       this.user = user;
     });
 
+    // If your companyService returns the active company doc, you can pull its id here later.
     this.companyService.getCompany().subscribe((data) => {
       this.company = data;
+      // Example (uncomment when your service returns an id):
+      // if (data?.id) this.companyId = data.id;
     });
 
     this.recompute();
+
+    // wire typeahead
+    this.clientOptions$ = this.clientCtrl.valueChanges.pipe(
+      debounceTime(200),
+      distinctUntilChanged(),
+      switchMap((val) => {
+        // val can be a string (typing) OR a ClientDoc (after selection)
+        const term = typeof val === 'string' ? val.trim() : val?.name ?? '';
+        return term
+          ? this.clientsSvc.searchByName(this.companyId, term, 10)
+          : of([]);
+      })
+    );
   }
 
   /** ---------- FILE IMPORT / EXPORT (local JSON) ---------- */
@@ -237,7 +269,7 @@ export class DashboardComponent implements OnInit {
     this.recompute();
   }
 
-  /** ---------- CALC & SUMMARY (now using util) ---------- */
+  /** ---------- CALC & SUMMARY (using util) ---------- */
 
   private recompute() {
     this.summaryData = computeSummaryByDDV(this.items);
@@ -258,18 +290,47 @@ export class DashboardComponent implements OnInit {
     return cenaSoPresmetanRabat + iznosDDV;
   }
 
+  /** ---------- CLIENT PICKER ---------- */
+
+  onSelectClient(c: ClientDoc) {
+    this.selectedClient = c;
+
+    // map to your current invoice fields
+    this.companyTitle = c.name ?? '';
+    this.companyID = c.taxId ?? '';
+    this.companyAddress = c.address ?? '';
+    this.companyCity = ''; // optional split later
+
+    // show the chosen name in the input without re-triggering search
+    this.clientCtrl.setValue(c.name ?? '', { emitEvent: false });
+  }
+
+  async addQuickClient() {
+    const name = prompt('Име на клиент');
+    if (!name) return;
+    const taxId = prompt('ЕДБ (опционално)') || undefined;
+    const address = prompt('Адреса (опционално)') || undefined;
+
+    const id = await this.clientsSvc.create(this.companyId, {
+      name,
+      taxId,
+      address,
+    });
+    const c = await this.clientsSvc.get(this.companyId, id);
+    if (c) this.onSelectClient(c);
+  }
+
+  displayClient = (v: ClientDoc | string | null | undefined) =>
+    typeof v === 'object' && v ? v.name : v ?? '';
+
   /** ---------- SAVE TO CLOUD (Firestore) ---------- */
 
   async saveToFirestore() {
     if (!this.user) return;
-
-    const companyId =
-      this.company?.id || this.company?.companyId || 'default-company';
-
     const t = computeTotals(this.items);
 
-    await this.invoicesSvc.create(companyId, {
-      companyId,
+    await this.invoicesSvc.create(this.companyId, {
+      companyId: this.companyId,
       broj: this.fakturaBroj || '',
       status: 'draft',
       datumIzdavanje: this.datum?.getTime?.() ?? new Date(this.datum).getTime(),
@@ -277,7 +338,7 @@ export class DashboardComponent implements OnInit {
         ? (this.valuta as Date).getTime?.() ?? new Date(this.valuta).getTime()
         : undefined,
 
-      // For now we snapshot what you currently input as "client"
+      // snapshot of chosen/typed client
       klientIme: this.companyTitle || '',
       klientEDB: this.companyID || '',
       klientAdresa: `${this.companyAddress ?? ''} ${

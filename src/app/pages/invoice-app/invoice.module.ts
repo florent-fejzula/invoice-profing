@@ -12,11 +12,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 // ✅ Import Edit & Entry Modals
 import { EditModalComponent } from './modals/edit-modal/edit-modal.component';
 import { EntryModalComponent } from './modals/entry-modal/entry-modal.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -35,7 +36,9 @@ import { FormsModule } from '@angular/forms';
     MatInputModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatSelectModule
+    MatSelectModule,
+    ReactiveFormsModule,
+    MatAutocompleteModule,
   ]
 })
 export class InvoiceModule { }
