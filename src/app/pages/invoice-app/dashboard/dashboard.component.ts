@@ -1,14 +1,24 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Environment } from 'src/environments/environment.interface';
-import { DataService } from '../../../services/data.service';
 import { environment } from 'src/environments/environment';
-import { EntryModalComponent } from '../modals/entry-modal/entry-modal.component';
+
+import { DataService } from '../../../services/data.service';
 import { CompanyService } from '../../../services/company.service';
+import { InvoicesService } from 'src/app/services/invoices.service';
+
+import { EntryModalComponent } from '../modals/entry-modal/entry-modal.component';
+import { EditModalComponent } from '../modals/edit-modal/edit-modal.component';
+
 import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 import { Router } from '@angular/router';
-import { EditModalComponent } from '../modals/edit-modal/edit-modal.component';
+
 import { InvoiceItem } from 'src/app/models/invoice-item.model';
+import {
+  computeTotals,
+  computeSummaryByDDV,
+  SummaryRow,
+} from 'src/app/utils/compute-totals';
 
 @Component({
   selector: 'app-dashboard',
@@ -19,7 +29,7 @@ export class DashboardComponent implements OnInit {
   environment: Environment = environment;
 
   company: any;
-  user: any = null; // Store logged-in user info
+  user: any = null; // logged-in user
 
   currentFontSize = 12;
   paddingSize = 5;
@@ -36,20 +46,16 @@ export class DashboardComponent implements OnInit {
   slobodenOpis = '';
   napomena = '';
 
-  vkupenIznosBezDDV: number = 0;
-  vkupnoDDV: number = 0;
+  // totals
+  vkupenIznosBezDDV = 0;
+  vkupnoDDV = 0; // total DDV (VAT)
 
-  isNoteVisible: boolean = true;
+  isNoteVisible = true;
 
-  summaryData: {
-    ddvTarifa: number;
-    iznosBezDDV: number;
-    vkupnoDDV: number;
-    iznosSoDDV: number;
-  }[] = [];
+  summaryData: SummaryRow[] = [];
 
   soZborovi = '';
-  exportFileName: string = 'exported-data.json'; // Default file name
+  exportFileName = 'exported-data.json';
 
   items: InvoiceItem[] = [];
 
@@ -58,21 +64,25 @@ export class DashboardComponent implements OnInit {
     private router: Router,
     private dialog: MatDialog,
     private dataService: DataService,
-    private companyService: CompanyService
+    private companyService: CompanyService,
+    private invoicesSvc: InvoicesService
   ) {}
 
   ngOnInit() {
     onAuthStateChanged(this.auth, (user) => {
       this.user = user;
     });
+
     this.companyService.getCompany().subscribe((data) => {
       this.company = data;
     });
-    this.calculateSummaryData();
+
+    this.recompute();
   }
 
+  /** ---------- FILE IMPORT / EXPORT (local JSON) ---------- */
+
   async exportToJson(): Promise<void> {
-    // Gather the data to export
     const dataToExport = {
       datum: this.datum,
       valuta: this.valuta,
@@ -94,10 +104,8 @@ export class DashboardComponent implements OnInit {
       items: this.items,
     };
 
-    // Convert the data to a formatted JSON string
     const jsonString = JSON.stringify(dataToExport, null, 2);
 
-    // Use the File System Access API if available
     if ('showSaveFilePicker' in window) {
       try {
         const options = {
@@ -109,7 +117,7 @@ export class DashboardComponent implements OnInit {
             },
           ],
         };
-        // @ts-ignore: TypeScript may not yet have this in its DOM typings.
+        // @ts-ignore
         const handle = await window.showSaveFilePicker(options);
         const writable = await handle.createWritable();
         await writable.write(jsonString);
@@ -118,7 +126,6 @@ export class DashboardComponent implements OnInit {
         console.error('File save cancelled or failed:', error);
       }
     } else {
-      // Fallback: Automatically download with a default name.
       const blob = new Blob([jsonString], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -133,44 +140,43 @@ export class DashboardComponent implements OnInit {
 
   importJson(event: any): void {
     const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const importedData = JSON.parse(reader.result as string);
+    if (!file) return;
 
-          this.datum = new Date(importedData.datum);
-          this.valuta = new Date(importedData.valuta);
-          this.selectedOption = importedData.selectedOption;
-          this.fakturaTip = importedData.fakturaTip;
-          this.fakturaBroj = importedData.fakturaBroj;
-          this.companyTitle = importedData.companyTitle;
-          this.companyAddress = importedData.companyAddress;
-          this.companyCity = importedData.companyCity;
-          this.companyID = importedData.companyID;
-          this.slobodenOpis = importedData.slobodenOpis;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const importedData = JSON.parse(reader.result as string);
 
-          // Ensure the textarea exists before setting its value
-          const textarea = document.querySelector(
-            'textarea'
-          ) as HTMLTextAreaElement;
-          if (textarea) {
-            textarea.value = importedData.textareaValue || '';
-          }
+        this.datum = new Date(importedData.datum);
+        this.valuta = new Date(importedData.valuta);
+        this.selectedOption = importedData.selectedOption;
+        this.fakturaTip = importedData.fakturaTip;
+        this.fakturaBroj = importedData.fakturaBroj;
+        this.companyTitle = importedData.companyTitle;
+        this.companyAddress = importedData.companyAddress;
+        this.companyCity = importedData.companyCity;
+        this.companyID = importedData.companyID;
+        this.slobodenOpis = importedData.slobodenOpis;
 
-          this.napomena = importedData.napomena;
-          this.vkupenIznosBezDDV = importedData.vkupenIznosBezDDV;
-          this.vkupnoDDV = importedData.vkupnoDDV;
-          this.soZborovi = importedData.soZborovi;
-          this.items = importedData.items;
-        } catch (error) {
-          console.error('Error parsing JSON file:', error);
-        }
-      };
+        const textarea = document.querySelector(
+          'textarea'
+        ) as HTMLTextAreaElement;
+        if (textarea) textarea.value = importedData.textareaValue || '';
 
-      reader.readAsText(file);
-    }
+        this.napomena = importedData.napomena;
+        this.soZborovi = importedData.soZborovi;
+        this.items = importedData.items || [];
+
+        this.recompute();
+      } catch (error) {
+        console.error('Error parsing JSON file:', error);
+      }
+    };
+
+    reader.readAsText(file);
   }
+
+  /** ---------- MODALS / ITEM CRUD ---------- */
 
   openEditModal(): void {
     const dialogRef = this.dialog.open(EditModalComponent, {
@@ -210,111 +216,91 @@ export class DashboardComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((data: any) => {
-      if (data && data.newItem) {
-        var newItem = data.newItem;
-        if (item) {
-          const index = this.items.indexOf(item);
-          if (index !== -1) {
-            this.items[index] = newItem;
-          }
-        } else {
-          this.items.push(newItem);
-        }
-        this.calculateSummaryData();
-        this.updateVkupenIznosBezDDV();
-        this.updateVkupnoDDV();
+      if (!data || !data.newItem) return;
+
+      const newItem = data.newItem as InvoiceItem;
+
+      if (item) {
+        const index = this.items.indexOf(item);
+        if (index !== -1) this.items[index] = newItem;
+      } else {
+        this.items.push(newItem);
       }
+
+      this.recompute();
     });
-  }
-
-  cenaSoPresmetanRabat(item: any): number {
-    const cenaBezDanok = item.cenaBezDanok;
-    const rabatProcent = item.rabatProcent;
-
-    const popustVrednost = (cenaBezDanok * rabatProcent) / 100;
-    return popustVrednost;
-  }
-
-  cenaSoDDV(item: any) {
-    const cenaSoPresmetanRabat =
-      item.kolicina * item.cenaBezDanok * (1 - item.rabatProcent / 100);
-    const iznosDDV = cenaSoPresmetanRabat * (item.ddv / 100);
-    return cenaSoPresmetanRabat + iznosDDV;
   }
 
   removeItem(index: number): void {
-    if (index >= 0 && index < this.items.length) {
-      this.items.splice(index, 1);
-      this.calculateSummaryData();
-      this.updateVkupenIznosBezDDV();
-      this.updateVkupnoDDV();
-    }
+    if (index < 0 || index >= this.items.length) return;
+    this.items.splice(index, 1);
+    this.recompute();
   }
 
-  // calculateSummaryData() {
-  //   const unikatniDDV = Array.from(new Set(this.items.map((item) => item.ddv)));
+  /** ---------- CALC & SUMMARY (now using util) ---------- */
 
-  //   this.summaryData = unikatniDDV.map((ddvTarifa) => {
-  //     const itemsWithTariff = this.items.filter(
-  //       (item) => item.ddv === ddvTarifa
-  //     );
-  //     const iznosBezDDV = itemsWithTariff.reduce(
-  //       (total, item) => total + Number(item.cenaBezDanok) * item.kolicina,
-  //       0
-  //     );
-  //     const vkupnoDDV = itemsWithTariff.reduce(
-  //       (total, item) =>
-  //         total + (item.cenaBezDanok * ddvTarifa * item.kolicina) / 100,
-  //       0
-  //     );
-  //     const iznosSoDDV = Number(iznosBezDDV) + Number(vkupnoDDV);
+  private recompute() {
+    this.summaryData = computeSummaryByDDV(this.items);
+    const t = computeTotals(this.items);
+    this.vkupenIznosBezDDV = t.iznosBezDDV;
+    this.vkupnoDDV = t.vkupnoDDV;
+  }
 
-  //     return { ddvTarifa, iznosBezDDV, vkupnoDDV, iznosSoDDV };
-  //   });
-  // }
+  cenaSoPresmetanRabat(item: InvoiceItem): number {
+    const popustVrednost = (item.cenaBezDanok * (item.rabatProcent ?? 0)) / 100;
+    return popustVrednost;
+  }
 
-  calculateSummaryData() {
-    const unikatniDDV = Array.from(new Set(this.items.map((item) => item.ddv)));
+  cenaSoDDV(item: InvoiceItem) {
+    const cenaSoPresmetanRabat =
+      item.kolicina * item.cenaBezDanok * (1 - (item.rabatProcent ?? 0) / 100);
+    const iznosDDV = cenaSoPresmetanRabat * ((item.ddv ?? 0) / 100);
+    return cenaSoPresmetanRabat + iznosDDV;
+  }
 
-    this.summaryData = unikatniDDV.map((ddvTarifa) => {
-      const itemsWithTariff = this.items.filter(
-        (item) => item.ddv === ddvTarifa
-      );
-      const iznosBezDDV = itemsWithTariff.reduce(
-        (total, item) => total + Number(item.cenaBezDanok * item.kolicina),
-        0
-      );
-      const vkupnoDDV = itemsWithTariff.reduce(
-        (total, item) =>
-          total +
-          (item.cenaBezDanok *
-            ddvTarifa *
-            item.kolicina *
-            (1 - item.rabatProcent / 100)) /
-            100,
-        0
-      );
-      const iznosSoDDV = Number(iznosBezDDV) + Number(vkupnoDDV);
+  /** ---------- SAVE TO CLOUD (Firestore) ---------- */
 
-      return { ddvTarifa, iznosBezDDV, vkupnoDDV, iznosSoDDV };
+  async saveToFirestore() {
+    if (!this.user) return;
+
+    const companyId =
+      this.company?.id || this.company?.companyId || 'default-company';
+
+    const t = computeTotals(this.items);
+
+    await this.invoicesSvc.create(companyId, {
+      companyId,
+      broj: this.fakturaBroj || '',
+      status: 'draft',
+      datumIzdavanje: this.datum?.getTime?.() ?? new Date(this.datum).getTime(),
+      datumValuta: this.valuta
+        ? (this.valuta as Date).getTime?.() ?? new Date(this.valuta).getTime()
+        : undefined,
+
+      // For now we snapshot what you currently input as "client"
+      klientIme: this.companyTitle || '',
+      klientEDB: this.companyID || '',
+      klientAdresa: `${this.companyAddress ?? ''} ${
+        this.companyCity ?? ''
+      }`.trim(),
+      klientEmail: '',
+      klientTelefon: '',
+
+      valuta: 'MKD',
+      stavki: this.items,
+
+      iznosBezDDV: t.iznosBezDDV,
+      ddvVkupno: t.vkupnoDDV,
+      vkupno: t.vkupno,
+
+      zabeleshka: this.napomena || '',
+      createdByUid: this.user.uid,
     });
+
+    console.log('✅ Invoice saved to Firestore');
   }
 
-  updateVkupenIznosBezDDV() {
-    this.vkupenIznosBezDDV = this.items.reduce((total, item) => {
-      const priceWithDiscount =
-        item.cenaBezDanok * (1 - item.rabatProcent / 100);
-      return total + priceWithDiscount * item.kolicina;
-    }, 0);
-  }
-
-  updateVkupnoDDV() {
-    this.vkupnoDDV = this.items.reduce((total, item) => {
-      const discountedPrice = item.cenaBezDanok * (1 - item.rabatProcent / 100);
-      const taxAmount = ((discountedPrice * item.ddv) / 100) * item.kolicina;
-      return total + taxAmount;
-    }, 0);
-  }
+  /** ---------- UI MISC ---------- */
 
   increaseFontSize(): void {
     this.currentFontSize++;
@@ -325,11 +311,11 @@ export class DashboardComponent implements OnInit {
   }
 
   adjustPaddingSize(): void {
-    this.paddingSize = this.currentFontSize / 5; // Adjust padding size according to your preference
+    this.paddingSize = this.currentFontSize / 5;
   }
 
   toggleNoteVisibility() {
-    this.isNoteVisible = !this.isNoteVisible; // Toggle the visibility
+    this.isNoteVisible = !this.isNoteVisible;
   }
 
   printThisPage() {
@@ -338,6 +324,6 @@ export class DashboardComponent implements OnInit {
 
   async logout() {
     await this.auth.signOut();
-    this.router.navigate(['/login']); // ✅ Redirect to login after logout
+    this.router.navigate(['/login']);
   }
 }

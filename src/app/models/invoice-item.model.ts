@@ -1,10 +1,10 @@
 export interface InvoiceItem {
-  opis: string;
-  em: string;
-  kolicina: number;
-  cenaBezDanok: number;
-  rabatProcent: number;
-  rabat: number;
-  ddv: number;
-  iznosSoDDV: number;
+  opis: string;              // description
+  em?: string;               // unit (Е М)
+  kolicina: number;          // qty
+  cenaBezDanok: number;      // unit price (no VAT)
+  rabatProcent?: number;     // % discount
+  rabat?: number;            // fixed discount (MKD)
+  ddv?: number;              // VAT %
+  iznosSoDDV?: number;       // (optional, UI convenience)
 }

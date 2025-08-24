@@ -46,16 +46,16 @@ export class AppComponent implements OnInit {
   //   const companiesCollection = collection(this.firestore, 'companies');
 
   //   const companyData = {
-  //     EDB: "MK4038010502022",
-  //     accountNo: "300000003033323",
-  //     address: "ЃОЦЕ СТОЈЧЕВСКИ 3/3-12 СКОПЈЕ - БУТЕЛ",
-  //     bank: "КОМЕРЦИЈАЛНА БАНКА",
-  //     email: "intel.ofis@hotmail.com",
-  //     name: "ИНТЕЛ ОФИС ДООЕЛ",
-  //     ownerName: "Хабил Фејзула",
-  //     phone: "070302375",
+  //     EDB: "MK4082013512249",
+  //     accountNo: "200002667032549",
+  //     address: "Ул. Павле Илич бр.37/1-7, 1000 Скопје",
+  //     bank: "СТОПАНСКА БАНКА А.Д. СКОПЈЕ",
+  //     email: "kimielektrik@yahoo.com",
+  //     name: "КИМИ ЕЛЕКТРИК ДООЕЛ",
+  //     ownerName: "Башким Мифтари",
+  //     phone: "072 554 650",
   //     settings: {
-  //       logo: true,
+  //       logo: false,
   //       showTaxCategories: true
   //     },
   //     status: "active"
