@@ -327,38 +327,70 @@ export class DashboardComponent implements OnInit {
 
   async saveToFirestore() {
     if (!this.user) return;
+
+    // 1) Allocate the next invoice number (safe per company, yearly reset)
+    let broj = this.fakturaBroj || '';
+    let seq = 0,
+      year = new Date().getFullYear(),
+      month = new Date().getMonth() + 1;
+
+    try {
+      const alloc = await this.invoicesSvc.allocateNumberTx(this.companyId);
+      broj = alloc.broj;
+      seq = alloc.seq;
+      year = alloc.year;
+      month = alloc.month;
+      this.fakturaBroj = broj; // reflect in UI if you show it
+    } catch (err) {
+      console.error('❌ Number allocation failed:', err);
+      if (!broj) return; // no manual broj -> abort
+    }
+
+    // 2) Compute totals
     const t = computeTotals(this.items);
 
-    await this.invoicesSvc.create(this.companyId, {
-      companyId: this.companyId,
-      broj: this.fakturaBroj || '',
-      status: 'draft',
-      datumIzdavanje: this.datum?.getTime?.() ?? new Date(this.datum).getTime(),
-      datumValuta: this.valuta
-        ? (this.valuta as Date).getTime?.() ?? new Date(this.valuta).getTime()
-        : undefined,
+    // 3) Save invoice
+    try {
+      await this.invoicesSvc.create(this.companyId, {
+        companyId: this.companyId,
 
-      // snapshot of chosen/typed client
-      klientIme: this.companyTitle || '',
-      klientEDB: this.companyID || '',
-      klientAdresa: `${this.companyAddress ?? ''} ${
-        this.companyCity ?? ''
-      }`.trim(),
-      klientEmail: '',
-      klientTelefon: '',
+        // numbering
+        broj,
+        seq,
+        year,
+        month,
 
-      valuta: 'MKD',
-      stavki: this.items,
+        status: 'draft',
+        datumIzdavanje:
+          this.datum?.getTime?.() ?? new Date(this.datum).getTime(),
+        datumValuta: this.valuta
+          ? (this.valuta as Date).getTime?.() ?? new Date(this.valuta).getTime()
+          : undefined,
 
-      iznosBezDDV: t.iznosBezDDV,
-      ddvVkupno: t.vkupnoDDV,
-      vkupno: t.vkupno,
+        // snapshot of chosen/typed client
+        klientIme: this.companyTitle || '',
+        klientEDB: this.companyID || '',
+        klientAdresa: `${this.companyAddress ?? ''} ${
+          this.companyCity ?? ''
+        }`.trim(),
+        klientEmail: '',
+        klientTelefon: '',
 
-      zabeleshka: this.napomena || '',
-      createdByUid: this.user.uid,
-    });
+        valuta: 'MKD',
+        stavki: this.items,
 
-    console.log('✅ Invoice saved to Firestore');
+        iznosBezDDV: t.iznosBezDDV,
+        ddvVkupno: t.vkupnoDDV,
+        vkupno: t.vkupno,
+
+        zabeleshka: this.napomena || '',
+        createdByUid: this.user.uid,
+      });
+
+      console.log('✅ Invoice saved to Firestore with broj:', broj);
+    } catch (err) {
+      console.error('❌ Failed saving invoice:', err);
+    }
   }
 
   /** ---------- UI MISC ---------- */

@@ -3,16 +3,21 @@ import { InvoiceItem } from './invoice-item.model';
 export type Valuta = 'MKD' | 'EUR';
 
 export interface InvoiceDoc {
-  id?: string;                      // Firestore id (filled when reading)
+  id?: string;
   companyId: string;
 
-  broj: string;                     // invoice number (manual for now)
+  // numbering
+  broj: string;
+  seq?: number;     // ← add
+  year?: number;    // ← add
+  month?: number;   // ← add
+
   status: 'draft' | 'sent' | 'paid' | 'void';
 
-  datumIzdavanje: number;           // Date.getTime()
-  datumValuta?: number;             // due date (optional)
+  datumIzdavanje: number;   // ms since epoch
+  datumValuta?: number;
 
-  // minimal client snapshot (we’ll add clients DB in Step 2)
+  // client snapshot
   klientIme: string;
   klientEDB?: string;
   klientAdresa?: string;
@@ -20,13 +25,12 @@ export interface InvoiceDoc {
   klientTelefon?: string;
 
   valuta: Valuta;
-
   stavki: InvoiceItem[];
 
-  // totals (computed on client before save)
-  iznosBezDDV: number;              // subtotal (no VAT)
-  ddvVkupno: number;                 // total VAT
-  vkupno: number;                    // grand total (with VAT)
+  // totals
+  iznosBezDDV: number;
+  ddvVkupno: number;
+  vkupno: number;
 
   zabeleshka?: string;
 
