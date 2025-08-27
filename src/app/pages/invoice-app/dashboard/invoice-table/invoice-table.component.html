@@ -1,0 +1,33 @@
+<table class="invoice-table">
+  <thead>
+    <tr>
+      <th>Р.б</th>
+      <th>Опис</th>
+      <th>Е М</th>
+      <th>Количина</th>
+      <th>Цена без данок</th>
+      <th>Рабат %</th>
+      <th>Рабат</th>
+      <th>ДДВ %</th>
+      <th>Износ со ДДВ</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of items; let i = index">
+      <td [style.font-size.px]="currentFontSize" [style.padding.px]="paddingSize">{{ i + 1 }}.</td>
+      <td [style.font-size.px]="currentFontSize" [style.padding.px]="paddingSize">{{ item.opis }}</td>
+      <td [style.font-size.px]="currentFontSize" [style.padding.px]="paddingSize">{{ item.em }}</td>
+      <td [style.font-size.px]="currentFontSize" [style.padding.px]="paddingSize">{{ item.kolicina | number : '1.2-2' }}</td>
+      <td [style.font-size.px]="currentFontSize" [style.padding.px]="paddingSize">{{ item.cenaBezDanok | number : '1.2-2' }}</td>
+      <td [style.font-size.px]="currentFontSize" [style.padding.px]="paddingSize">{{ item.rabatProcent }}</td>
+      <td [style.font-size.px]="currentFontSize" [style.padding.px]="paddingSize">{{ cenaSoPresmetanRabat(item) | number : '1.2-2' }}</td>
+      <td [style.font-size.px]="currentFontSize" [style.padding.px]="paddingSize">{{ item.ddv }}</td>
+      <td [style.font-size.px]="currentFontSize" [style.padding.px]="paddingSize">{{ cenaSoDDV(item) | number : '1.2-2' }}</td>
+      <td class="deleteEntry">
+        <button mat-icon-button (click)="remove.emit(i)"><mat-icon>delete</mat-icon></button>
+        <button mat-icon-button (click)="edit.emit(item)"><mat-icon>edit</mat-icon></button>
+      </td>
+    </tr>
+  </tbody>
+</table>

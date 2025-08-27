@@ -1,0 +1,90 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+
+  thead,
+  tbody {
+    font-size: 12px;
+  }
+
+  th,
+  td {
+    border: 1px solid #000;
+    padding: 0 8px;
+    width: 100%;
+  }
+
+  td {
+    vertical-align: top;
+  }
+
+  /* Column widths / alignment (kept 1:1 with original) */
+  th:first-child,
+  td:first-child {
+    width: 5%;
+  }
+
+  th:nth-child(2),
+  td:nth-child(2) {
+    max-width: 41%;
+  }
+
+  th:nth-child(3),
+  td:nth-child(3),
+  th:nth-child(4),
+  td:nth-child(4) {
+    max-width: 6%;
+  }
+
+  td:nth-child(4),
+  td:nth-child(5),
+  td:nth-child(6),
+  td:nth-child(7),
+  td:nth-child(8),
+  td:nth-child(9) {
+    text-align: right;
+  }
+
+  td:nth-child(3),
+  td:nth-child(8) {
+    text-align: center;
+  }
+
+  th:nth-child(5),
+  td:nth-child(5) {
+    max-width: 14%;
+  }
+
+  th:nth-child(6),
+  td:nth-child(6),
+  th:nth-child(7),
+  td:nth-child(7),
+  th:nth-child(8),
+  td:nth-child(8) {
+    max-width: 6%;
+  }
+
+  th:nth-child(9),
+  td:nth-child(9) {
+    max-width: 14%;
+  }
+}
+
+/* action cell (delete/edit buttons) */
+.deleteEntry {
+  display: flex;
+  border: none !important;
+  padding: 0 !important;
+}
+
+@media print {
+  .deleteEntry {
+    display: none;
+  }
+}

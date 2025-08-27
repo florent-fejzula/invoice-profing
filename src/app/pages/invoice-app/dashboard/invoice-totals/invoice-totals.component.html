@@ -1,0 +1,55 @@
+<div class="invoice-total-down">
+  <div class="slobodenOpis">
+    <span class="zabeleshkaHide">Забелешка: </span>
+    <input
+      class="slobodenOpisInput"
+      [ngModel]="slobodenOpis"
+      (ngModelChange)="onSlobodenOpis($event)" />
+  </div>
+
+  <div class="totals">
+    <div class="down-first">
+      <span>Износ без ДДВ:</span>
+      <span>ДДВ +</span>
+      <span>Вкупен износ со ДДВ</span>
+    </div>
+    <div class="down-second">
+      <span>{{ vkupenIznosBezDDV | number: '1.2-2' }}</span>
+      <span>{{ vkupnoDDV | number: '1.2-2' }}</span>
+      <span>{{ vkupenIznosBezDDV + vkupnoDDV | number: '1.2-2' }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="invoice-total-payment">
+  <div class="payment-first"><span>За наплата</span></div>
+  <div class="payment-second">
+    <span><b>{{ vkupenIznosBezDDV + vkupnoDDV | number: '1.2-2' }}</b></span>
+  </div>
+</div>
+
+<div class="declarations">
+  <button class="toggleButton" (click)="toggleNoteVisibility.emit()">Даночна обврска</button>
+
+  <p *ngIf="isNoteVisible">
+    Напомена: Пренесување на даночна обврска согласно член 32а, <br />
+    став 1, точка 1 и член 53 став 6 од Закон за ДДВ <br />
+    За ненавремено плаќање се пресметува законска затезна камата <br />
+  </p>
+
+  <!-- Optional extra note field (you bound [napomena]) -->
+  <div style="margin: 8px 0;">
+    <input
+      class="napomenaInput"
+      placeholder="Напомена…"
+      [ngModel]="napomena"
+      (ngModelChange)="onNapomena($event)" />
+  </div>
+
+  <p [ngClass]="{ 'hidden-on-print': soZborovi === '' }">
+    Со зборови: <span class="print-text">{{ soZborovi }}</span>
+    <input class="soZboroviInput" type="text"
+           [ngModel]="soZborovi"
+           (ngModelChange)="onSoZborovi($event)" />
+  </p>
+</div>

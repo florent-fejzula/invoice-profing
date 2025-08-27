@@ -1,0 +1,65 @@
+<div class="invoice-header">
+  <img *ngIf="company?.logoUrl" [src]="company.logoUrl" alt="Company Logo" class="logo" />
+  <h2>{{ company?.name }}</h2>
+  <div class="box-line"></div>
+</div>
+
+<div class="invoice-company-info">
+  <div>
+    <span>{{ company?.address }}</span> *
+    <span>Тел.: {{ company?.phone }}</span>
+  </div>
+  <div>
+    <span>Жиро сметка: {{ company?.accountNo }}</span> *
+    <span>Банка: {{ company?.bank }}</span> *
+    <span>ЕДБ: {{ company?.EDB }}</span>
+  </div>
+  <div>{{ company?.email }}</div>
+</div>
+
+<div class="pre-main-content">
+  <div class="date-invoice-number">
+    <div class="date-value">
+      <div class="date">
+        <span class="bold">Датум</span>
+        <span>{{ state.datum | date: 'dd/MM/yyyy' }}</span>
+      </div>
+      <div class="value">
+        <span class="bold">Валута</span>
+        <span>{{ state.valuta | date: 'dd/MM/yyyy' }}</span>
+      </div>
+    </div>
+    <div class="invoice-number">
+      <h2 class="uppercase">{{ state.fakturaTip }}</h2>
+      <h2>број: {{ state.fakturaBroj }}</h2>
+    </div>
+  </div>
+
+  <!-- Client picker -->
+  <div class="client-picker">
+    <mat-form-field appearance="outline" style="max-width:420px; width:100%;">
+      <mat-label>Одбери клиент</mat-label>
+      <input
+        type="text"
+        matInput
+        [formControl]="clientCtrl"
+        [matAutocomplete]="autoClients"
+        placeholder="Почни да куцаш име..." />
+      <mat-autocomplete
+        #autoClients="matAutocomplete"
+        [displayWith]="displayClient"
+        (optionSelected)="onSelectClient($event.option.value)">
+        <mat-option *ngFor="let c of (clientOptions$ | async)" [value]="c">
+          {{ c.name }} <small *ngIf="c.taxId">&nbsp;— {{ c.taxId }}</small>
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+  </div>
+
+  <div class="invoiced-company">
+    <h2>{{ state.companyTitle }}</h2>
+    <p>{{ state.companyAddress }}</p>
+    <p>{{ state.companyCity }}</p>
+    <p *ngIf="state.companyID">Даночен Број (ЕМБГ): {{ state.companyID }}</p>
+  </div>
+</div>

@@ -1,0 +1,70 @@
+:host {
+  display: block;
+}
+
+/* top row: note + totals (right) */
+.invoice-total-down {
+  font-size: 12px;
+  margin-bottom: 6px;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  page-break-inside: avoid;
+
+  .slobodenOpis {
+    flex-grow: 1;
+    display: flex;
+    align-items: flex-end;
+
+    .slobodenOpisInput {
+      width: 100%;
+    }
+  }
+
+  .totals {
+    display: flex;
+  }
+}
+
+/* second row: “За наплата” */
+.invoice-total-payment {
+  font-size: 12px;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  page-break-inside: avoid;
+}
+
+/* shared total boxes */
+.down-first,
+.down-second,
+.payment-first,
+.payment-second {
+  border: 1px solid black;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 6px;
+  min-width: 120px;
+}
+
+.payment-first {
+  font-weight: bold;
+}
+
+/* declarations + “Со зборови” */
+.declarations {
+  font-size: 12px;
+
+  .soZboroviInput {
+    width: 600px;
+  }
+}
+
+@media print {
+  .toggleButton,
+  .soZboroviInput,
+  .slobodenOpisInput {
+    display: none !important;
+  }
+}

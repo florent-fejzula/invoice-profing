@@ -1,0 +1,62 @@
+:host { display:block; }
+
+.invoice-header {
+  color: #000;
+
+  .logo {
+    width: 100px;
+    display: inline-block;
+    margin-bottom: -8px;
+    margin-right: 12px;
+  }
+  h2 { margin: 0; display: inline-block; }
+
+  .box-line {
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
+    width: 100%;
+    height: 4px;
+  }
+}
+
+.invoice-company-info {
+  color: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 38px;
+  font-size: 12px;
+}
+
+.pre-main-content {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+
+  .date-invoice-number {
+    width: 100%;
+    .date-value .bold {
+      font-weight: bold;
+      padding-right: 8px;
+      display: inline-block;
+      min-width: 70px;
+      padding-bottom: 2px;
+    }
+    .invoice-number {
+      margin-top: 32px;
+      h2 { margin: 0; font-size: 18px; margin-bottom: 6px; }
+      .uppercase { text-transform: uppercase; }
+    }
+  }
+
+  .client-picker { display: flex; flex-direction: column; gap: 8px; }
+
+  .invoiced-company {
+    width: 100%;
+    border: 1px solid black;
+    padding: 4px;
+    h2 { margin: 4px; font-size: 18px; }
+    p { padding-left: 4px; margin: 8px 0; }
+    :last-child { margin-top: 14px; margin-bottom: 0; }
+  }
+}

@@ -6,7 +6,6 @@ import { environment } from 'src/environments/environment';
 import { DataService } from '../../../services/data.service';
 import { CompanyService } from '../../../services/company.service';
 import { InvoicesService } from 'src/app/services/invoices.service';
-import { ClientsService } from 'src/app/services/clients.service';
 
 import { EntryModalComponent } from '../modals/entry-modal/entry-modal.component';
 import { EditModalComponent } from '../modals/edit-modal/edit-modal.component';
@@ -21,11 +20,7 @@ import {
   SummaryRow,
 } from 'src/app/utils/compute-totals';
 
-// client picker
-import { FormControl } from '@angular/forms';
-import { Observable, of } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
-import { ClientDoc } from 'src/app/models/client.model';
+import { InvoiceHeaderState } from './invoice-header/invoice-header.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -36,43 +31,38 @@ export class DashboardComponent implements OnInit {
   environment: Environment = environment;
 
   company: any;
-  user: any = null; // logged-in user
+  user: any = null;
 
-  // TEMP: hardcode your company doc id for now (replace with CompanyService id later)
-  companyId: string = 'GLp2xLv3ZzX6ktQZUsyU';
+  // TEMP: replace with real ID from CompanyService
+  companyId = 'GLp2xLv3ZzX6ktQZUsyU';
+
+  // consolidated header
+  header: InvoiceHeaderState = {
+    datum: new Date(),
+    valuta: new Date(),
+    fakturaTip: '',
+    fakturaBroj: '',
+    companyTitle: '',
+    companyAddress: '',
+    companyCity: '',
+    companyID: '',
+  };
 
   currentFontSize = 12;
   paddingSize = 5;
 
-  datum = new Date();
-  valuta = new Date();
-  selectedOption = '';
-  fakturaTip = '';
-  fakturaBroj = '';
-  companyTitle = '';
-  companyAddress = '';
-  companyCity = '';
-  companyID = '';
   slobodenOpis = '';
   napomena = '';
 
-  // totals
   vkupenIznosBezDDV = 0;
-  vkupnoDDV = 0; // total DDV (VAT)
+  vkupnoDDV = 0;
 
   isNoteVisible = true;
-
-  summaryData: SummaryRow[] = [];
-
   soZborovi = '';
   exportFileName = 'exported-data.json';
 
+  summaryData: SummaryRow[] = [];
   items: InvoiceItem[] = [];
-
-  // -------- Client picker (typeahead) ----------
-  clientCtrl = new FormControl('');
-  clientOptions$: Observable<ClientDoc[]> = of([]);
-  selectedClient?: ClientDoc;
 
   constructor(
     private auth: Auth,
@@ -80,55 +70,29 @@ export class DashboardComponent implements OnInit {
     private dialog: MatDialog,
     private dataService: DataService,
     private companyService: CompanyService,
-    private invoicesSvc: InvoicesService,
-    private clientsSvc: ClientsService
+    private invoicesSvc: InvoicesService
   ) {}
 
   ngOnInit() {
-    onAuthStateChanged(this.auth, (user) => {
-      this.user = user;
-    });
+    onAuthStateChanged(this.auth, (user) => (this.user = user));
 
-    // If your companyService returns the active company doc, you can pull its id here later.
     this.companyService.getCompany().subscribe((data) => {
       this.company = data;
-      // Example (uncomment when your service returns an id):
-      // if (data?.id) this.companyId = data.id;
     });
 
     this.recompute();
-
-    // wire typeahead
-    this.clientOptions$ = this.clientCtrl.valueChanges.pipe(
-      debounceTime(200),
-      distinctUntilChanged(),
-      switchMap((val) => {
-        // val can be a string (typing) OR a ClientDoc (after selection)
-        const term = typeof val === 'string' ? val.trim() : val?.name ?? '';
-        return term
-          ? this.clientsSvc.searchByName(this.companyId, term, 10)
-          : of([]);
-      })
-    );
   }
 
-  /** ---------- FILE IMPORT / EXPORT (local JSON) ---------- */
+  // child event handler
+  onHeaderChange(patch: Partial<InvoiceHeaderState>) {
+    this.header = { ...this.header, ...patch };
+  }
 
+  /** ---------- FILE IMPORT / EXPORT ---------- */
   async exportToJson(): Promise<void> {
     const dataToExport = {
-      datum: this.datum,
-      valuta: this.valuta,
-      selectedOption: this.selectedOption,
-      fakturaTip: this.fakturaTip,
-      fakturaBroj: this.fakturaBroj,
-      companyTitle: this.companyTitle,
-      companyAddress: this.companyAddress,
-      companyCity: this.companyCity,
-      companyID: this.companyID,
+      ...this.header,
       slobodenOpis: this.slobodenOpis,
-      textareaValue:
-        (document.querySelector('textarea') as HTMLTextAreaElement)?.value ||
-        '',
       napomena: this.napomena,
       vkupenIznosBezDDV: this.vkupenIznosBezDDV,
       vkupnoDDV: this.vkupnoDDV,
@@ -142,12 +106,7 @@ export class DashboardComponent implements OnInit {
       try {
         const options = {
           suggestedName: 'invoice_data.json',
-          types: [
-            {
-              description: 'JSON Files',
-              accept: { 'application/json': ['.json'] },
-            },
-          ],
+          types: [{ description: 'JSON Files', accept: { 'application/json': ['.json'] } }],
         };
         // @ts-ignore
         const handle = await window.showSaveFilePicker(options);
@@ -177,27 +136,23 @@ export class DashboardComponent implements OnInit {
     const reader = new FileReader();
     reader.onload = () => {
       try {
-        const importedData = JSON.parse(reader.result as string);
+        const imported = JSON.parse(reader.result as string);
 
-        this.datum = new Date(importedData.datum);
-        this.valuta = new Date(importedData.valuta);
-        this.selectedOption = importedData.selectedOption;
-        this.fakturaTip = importedData.fakturaTip;
-        this.fakturaBroj = importedData.fakturaBroj;
-        this.companyTitle = importedData.companyTitle;
-        this.companyAddress = importedData.companyAddress;
-        this.companyCity = importedData.companyCity;
-        this.companyID = importedData.companyID;
-        this.slobodenOpis = importedData.slobodenOpis;
+        this.header = {
+          datum: new Date(imported.datum),
+          valuta: new Date(imported.valuta),
+          fakturaTip: imported.fakturaTip,
+          fakturaBroj: imported.fakturaBroj,
+          companyTitle: imported.companyTitle,
+          companyAddress: imported.companyAddress,
+          companyCity: imported.companyCity,
+          companyID: imported.companyID,
+        };
 
-        const textarea = document.querySelector(
-          'textarea'
-        ) as HTMLTextAreaElement;
-        if (textarea) textarea.value = importedData.textareaValue || '';
-
-        this.napomena = importedData.napomena;
-        this.soZborovi = importedData.soZborovi;
-        this.items = importedData.items || [];
+        this.slobodenOpis = imported.slobodenOpis;
+        this.napomena = imported.napomena;
+        this.soZborovi = imported.soZborovi;
+        this.items = imported.items || [];
 
         this.recompute();
       } catch (error) {
@@ -208,35 +163,24 @@ export class DashboardComponent implements OnInit {
     reader.readAsText(file);
   }
 
-  /** ---------- MODALS / ITEM CRUD ---------- */
-
+  /** ---------- MODALS ---------- */
   openEditModal(): void {
     const dialogRef = this.dialog.open(EditModalComponent, {
       width: '400px',
-      data: {
-        datum: this.datum,
-        valuta: this.valuta,
-        fakturaTip: this.fakturaTip,
-        fakturaBroj: this.fakturaBroj,
-        companyTitle: this.companyTitle,
-        companyAddress: this.companyAddress,
-        companyCity: this.companyCity,
-        companyID: this.companyID,
-        slobodenOpis: this.slobodenOpis,
-      },
+      data: { ...this.header },
     });
 
     dialogRef.afterClosed().subscribe(() => {
-      this.datum = this.dataService.datum;
-      this.valuta = this.dataService.valuta;
-      this.selectedOption = this.dataService.selectedOption;
-      this.fakturaTip = this.dataService.fakturaTip;
-      this.fakturaBroj = this.dataService.fakturaBroj;
-      this.companyTitle = this.dataService.companyTitle;
-      this.companyAddress = this.dataService.companyAddress;
-      this.companyCity = this.dataService.companyCity;
-      this.companyID = this.dataService.companyID;
-      this.slobodenOpis = this.dataService.slobodenOpis;
+      this.header = {
+        datum: this.dataService.datum,
+        valuta: this.dataService.valuta,
+        fakturaTip: this.dataService.fakturaTip,
+        fakturaBroj: this.dataService.fakturaBroj,
+        companyTitle: this.dataService.companyTitle,
+        companyAddress: this.dataService.companyAddress,
+        companyCity: this.dataService.companyCity,
+        companyID: this.dataService.companyID,
+      };
     });
   }
 
@@ -249,7 +193,6 @@ export class DashboardComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((data: any) => {
       if (!data || !data.newItem) return;
-
       const newItem = data.newItem as InvoiceItem;
 
       if (item) {
@@ -269,8 +212,7 @@ export class DashboardComponent implements OnInit {
     this.recompute();
   }
 
-  /** ---------- CALC & SUMMARY (using util) ---------- */
-
+  /** ---------- CALC ---------- */
   private recompute() {
     this.summaryData = computeSummaryByDDV(this.items);
     const t = computeTotals(this.items);
@@ -278,61 +220,12 @@ export class DashboardComponent implements OnInit {
     this.vkupnoDDV = t.vkupnoDDV;
   }
 
-  cenaSoPresmetanRabat(item: InvoiceItem): number {
-    const popustVrednost = (item.cenaBezDanok * (item.rabatProcent ?? 0)) / 100;
-    return popustVrednost;
-  }
-
-  cenaSoDDV(item: InvoiceItem) {
-    const cenaSoPresmetanRabat =
-      item.kolicina * item.cenaBezDanok * (1 - (item.rabatProcent ?? 0) / 100);
-    const iznosDDV = cenaSoPresmetanRabat * ((item.ddv ?? 0) / 100);
-    return cenaSoPresmetanRabat + iznosDDV;
-  }
-
-  /** ---------- CLIENT PICKER ---------- */
-
-  onSelectClient(c: ClientDoc) {
-    this.selectedClient = c;
-
-    // map to your current invoice fields
-    this.companyTitle = c.name ?? '';
-    this.companyID = c.taxId ?? '';
-    this.companyAddress = c.address ?? '';
-    this.companyCity = ''; // optional split later
-
-    // show the chosen name in the input without re-triggering search
-    this.clientCtrl.setValue(c.name ?? '', { emitEvent: false });
-  }
-
-  async addQuickClient() {
-    const name = prompt('Име на клиент');
-    if (!name) return;
-    const taxId = prompt('ЕДБ (опционално)') || undefined;
-    const address = prompt('Адреса (опционално)') || undefined;
-
-    const id = await this.clientsSvc.create(this.companyId, {
-      name,
-      taxId,
-      address,
-    });
-    const c = await this.clientsSvc.get(this.companyId, id);
-    if (c) this.onSelectClient(c);
-  }
-
-  displayClient = (v: ClientDoc | string | null | undefined) =>
-    typeof v === 'object' && v ? v.name : v ?? '';
-
-  /** ---------- SAVE TO CLOUD (Firestore) ---------- */
-
+  /** ---------- SAVE TO CLOUD ---------- */
   async saveToFirestore() {
     if (!this.user) return;
 
-    // 1) Allocate the next invoice number (safe per company, yearly reset)
-    let broj = this.fakturaBroj || '';
-    let seq = 0,
-      year = new Date().getFullYear(),
-      month = new Date().getMonth() + 1;
+    let broj = this.header.fakturaBroj || '';
+    let seq = 0, year = new Date().getFullYear(), month = new Date().getMonth() + 1;
 
     try {
       const alloc = await this.invoicesSvc.allocateNumberTx(this.companyId);
@@ -340,49 +233,33 @@ export class DashboardComponent implements OnInit {
       seq = alloc.seq;
       year = alloc.year;
       month = alloc.month;
-      this.fakturaBroj = broj; // reflect in UI if you show it
+      this.header.fakturaBroj = broj;
     } catch (err) {
       console.error('❌ Number allocation failed:', err);
-      if (!broj) return; // no manual broj -> abort
+      if (!broj) return;
     }
 
-    // 2) Compute totals
     const t = computeTotals(this.items);
 
-    // 3) Save invoice
     try {
       await this.invoicesSvc.create(this.companyId, {
         companyId: this.companyId,
-
-        // numbering
-        broj,
-        seq,
-        year,
-        month,
-
+        broj, seq, year, month,
         status: 'draft',
-        datumIzdavanje:
-          this.datum?.getTime?.() ?? new Date(this.datum).getTime(),
-        datumValuta: this.valuta
-          ? (this.valuta as Date).getTime?.() ?? new Date(this.valuta).getTime()
+        datumIzdavanje: this.header.datum?.getTime?.() ?? new Date(this.header.datum).getTime(),
+        datumValuta: this.header.valuta
+          ? this.header.valuta.getTime?.() ?? new Date(this.header.valuta).getTime()
           : undefined,
-
-        // snapshot of chosen/typed client
-        klientIme: this.companyTitle || '',
-        klientEDB: this.companyID || '',
-        klientAdresa: `${this.companyAddress ?? ''} ${
-          this.companyCity ?? ''
-        }`.trim(),
+        klientIme: this.header.companyTitle || '',
+        klientEDB: this.header.companyID || '',
+        klientAdresa: `${this.header.companyAddress ?? ''} ${this.header.companyCity ?? ''}`.trim(),
         klientEmail: '',
         klientTelefon: '',
-
         valuta: 'MKD',
         stavki: this.items,
-
         iznosBezDDV: t.iznosBezDDV,
         ddvVkupno: t.vkupnoDDV,
         vkupno: t.vkupno,
-
         zabeleshka: this.napomena || '',
         createdByUid: this.user.uid,
       });
@@ -393,27 +270,12 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  /** ---------- UI MISC ---------- */
-
-  increaseFontSize(): void {
-    this.currentFontSize++;
-  }
-
-  decreaseFontSize(): void {
-    this.currentFontSize--;
-  }
-
-  adjustPaddingSize(): void {
-    this.paddingSize = this.currentFontSize / 5;
-  }
-
-  toggleNoteVisibility() {
-    this.isNoteVisible = !this.isNoteVisible;
-  }
-
-  printThisPage() {
-    window.print();
-  }
+  /** ---------- UI misc ---------- */
+  increaseFontSize(): void { this.currentFontSize++; }
+  decreaseFontSize(): void { this.currentFontSize--; }
+  adjustPaddingSize(): void { this.paddingSize = this.currentFontSize / 5; }
+  toggleNoteVisibility() { this.isNoteVisible = !this.isNoteVisible; }
+  printThisPage() { window.print(); }
 
   async logout() {
     await this.auth.signOut();
