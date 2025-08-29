@@ -54,9 +54,21 @@
         </mat-option>
       </mat-autocomplete>
     </mat-form-field>
+
+    <button mat-stroked-button type="button" (click)="openClientModal()">
+    + Нов клиент
+  </button>
   </div>
 
   <div class="invoiced-company">
+    <button
+    mat-icon-button
+    aria-label="Edit client"
+    class="edit-client-btn"
+    (click)="openEditClientModal()">
+    <mat-icon>edit</mat-icon>
+  </button>
+
     <h2>{{ state.companyTitle }}</h2>
     <p>{{ state.companyAddress }}</p>
     <p>{{ state.companyCity }}</p>

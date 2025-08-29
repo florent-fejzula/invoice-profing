@@ -7,8 +7,8 @@ import { DataService } from '../../../services/data.service';
 import { CompanyService } from '../../../services/company.service';
 import { InvoicesService } from 'src/app/services/invoices.service';
 
-import { EntryModalComponent } from '../modals/entry-modal/entry-modal.component';
-import { EditModalComponent } from '../modals/edit-modal/edit-modal.component';
+import { InvoiceItemModalComponent } from '../modals/invoice-item-modal/invoice-item-modal.component';
+import { InvoiceMetaModalComponent } from '../modals/invoice-meta-modal/invoice-meta-modal.component';
 
 import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 import { Router } from '@angular/router';
@@ -164,8 +164,8 @@ export class DashboardComponent implements OnInit {
   }
 
   /** ---------- MODALS ---------- */
-  openEditModal(): void {
-    const dialogRef = this.dialog.open(EditModalComponent, {
+  openInvoiceMetaModal(): void {
+    const dialogRef = this.dialog.open(InvoiceMetaModalComponent, {
       width: '400px',
       data: { ...this.header },
     });
@@ -184,8 +184,8 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  openEntryModal(item?: InvoiceItem): void {
-    const dialogRef = this.dialog.open(EntryModalComponent, {
+  openInvoiceItemModal(item?: InvoiceItem): void {
+    const dialogRef = this.dialog.open(InvoiceItemModalComponent, {
       width: '400px',
       data: { item },
       disableClose: true,

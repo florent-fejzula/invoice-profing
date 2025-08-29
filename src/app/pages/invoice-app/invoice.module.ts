@@ -15,21 +15,23 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 // ✅ Import Edit & Entry Modals
-import { EditModalComponent } from './modals/edit-modal/edit-modal.component';
-import { EntryModalComponent } from './modals/entry-modal/entry-modal.component';
+import { InvoiceMetaModalComponent } from './modals/invoice-meta-modal/invoice-meta-modal.component';
+import { InvoiceItemModalComponent } from './modals/invoice-item-modal/invoice-item-modal.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { InvoiceTableComponent } from './dashboard/invoice-table/invoice-table.component';
 import { InvoiceTotalsComponent } from './dashboard/invoice-totals/invoice-totals.component';
 import { InvoiceHeaderComponent } from './dashboard/invoice-header/invoice-header.component';
+import { ClientModalComponent } from './modals/client-modal/client-modal.component';
 
 @NgModule({
   declarations: [
     DashboardComponent,
-    EditModalComponent, // ✅ Moved here
-    EntryModalComponent, // ✅ Moved here
+    InvoiceMetaModalComponent, // ✅ Moved here
+    InvoiceItemModalComponent, // ✅ Moved here
     InvoiceTableComponent,
     InvoiceTotalsComponent,
     InvoiceHeaderComponent,
+    ClientModalComponent,
   ],
   imports: [
     CommonModule,

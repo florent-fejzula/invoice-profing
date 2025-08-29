@@ -1,4 +1,6 @@
-:host { display:block; }
+:host {
+  display: block;
+}
 
 .invoice-header {
   color: #000;
@@ -9,7 +11,10 @@
     margin-bottom: -8px;
     margin-right: 12px;
   }
-  h2 { margin: 0; display: inline-block; }
+  h2 {
+    margin: 0;
+    display: inline-block;
+  }
 
   .box-line {
     border-top: 1px solid #000;
@@ -44,19 +49,44 @@
     }
     .invoice-number {
       margin-top: 32px;
-      h2 { margin: 0; font-size: 18px; margin-bottom: 6px; }
-      .uppercase { text-transform: uppercase; }
+      h2 {
+        margin: 0;
+        font-size: 18px;
+        margin-bottom: 6px;
+      }
+      .uppercase {
+        text-transform: uppercase;
+      }
     }
   }
 
-  .client-picker { display: flex; flex-direction: column; gap: 8px; }
+  .client-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
 
   .invoiced-company {
+    position: relative;
     width: 100%;
     border: 1px solid black;
     padding: 4px;
-    h2 { margin: 4px; font-size: 18px; }
-    p { padding-left: 4px; margin: 8px 0; }
-    :last-child { margin-top: 14px; margin-bottom: 0; }
+    h2 {
+      margin: 4px;
+      font-size: 18px;
+    }
+    p {
+      padding-left: 4px;
+      margin: 8px 0;
+    }
+    :last-child {
+      margin-top: 14px;
+      margin-bottom: 0;
+    }
+    .edit-client-btn {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+    }
   }
 }

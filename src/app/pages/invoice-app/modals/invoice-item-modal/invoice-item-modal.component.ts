@@ -3,11 +3,11 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { InvoiceItem } from 'src/app/models/invoice-item.model';
 
 @Component({
-  selector: 'app-entry-modal',
-  templateUrl: './entry-modal.component.html',
-  styleUrls: ['./entry-modal.component.scss'],
+  selector: 'app-invoice-item-modal',
+  templateUrl: './invoice-item-modal.component.html',
+  styleUrls: ['./invoice-item-modal.component.scss'],
 })
-export class EntryModalComponent {
+export class InvoiceItemModalComponent {
   originalItem: InvoiceItem;
   editedItem: InvoiceItem;
 
@@ -21,7 +21,7 @@ export class EntryModalComponent {
   iznosSoDDV!: number;
 
   constructor(
-    public dialogRef: MatDialogRef<EntryModalComponent>,
+    public dialogRef: MatDialogRef<InvoiceItemModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { item: InvoiceItem }
   ) {
     this.originalItem = { ...data.item };

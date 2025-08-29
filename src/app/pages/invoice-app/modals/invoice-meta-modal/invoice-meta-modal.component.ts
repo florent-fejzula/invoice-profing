@@ -3,12 +3,12 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DataService } from 'src/app/services/data.service';
 
 @Component({
-  selector: 'app-edit-modal',
-  templateUrl: './edit-modal.component.html',
-  styleUrls: ['./edit-modal.component.scss'],
+  selector: 'app-invoice-meta-modal',
+  templateUrl: './invoice-meta-modal.component.html',
+  styleUrls: ['./invoice-meta-modal.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class EditModalComponent {
+export class InvoiceMetaModalComponent {
   datum: Date = new Date();
   valuta: Date = new Date();
   fakturaTip = '';
@@ -20,7 +20,7 @@ export class EditModalComponent {
   slobodenOpis = '';
 
   constructor(
-    public dialogRef: MatDialogRef<EditModalComponent>,
+    public dialogRef: MatDialogRef<InvoiceMetaModalComponent>,
     private dataService: DataService,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {

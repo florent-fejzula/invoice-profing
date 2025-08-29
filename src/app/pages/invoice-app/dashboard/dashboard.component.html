@@ -11,7 +11,7 @@
   <button class="button export" (click)="fileInput.click()">Open</button>
   <button class="button font" (click)="increaseFontSize()">Font+</button>
   <button class="button font" (click)="decreaseFontSize()">Font-</button>
-  <button class="button edit" (click)="openEditModal()">Пополни</button>
+  <button class="button edit" (click)="openInvoiceMetaModal()">Пополни</button>
   <button class="invisible"></button>
 </div>
 
@@ -27,7 +27,7 @@
 
     <br />
     <div class="addButton">
-      <button mat-button class="add-button" (click)="openEntryModal()">
+      <button mat-button class="add-button" (click)="openInvoiceItemModal()">
         Додај
       </button>
     </div>
@@ -36,7 +36,7 @@
       [items]="items"
       [currentFontSize]="currentFontSize"
       [paddingSize]="paddingSize"
-      (edit)="openEntryModal($event)"
+      (edit)="openInvoiceItemModal($event)"
       (remove)="removeItem($event)"
     >
     </invoice-table>
