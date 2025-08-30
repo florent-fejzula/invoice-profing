@@ -57,6 +57,11 @@
       .uppercase {
         text-transform: uppercase;
       }
+      .broj-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
     }
   }
 

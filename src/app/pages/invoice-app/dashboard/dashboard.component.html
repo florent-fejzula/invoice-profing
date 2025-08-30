@@ -11,7 +11,7 @@
   <button class="button export" (click)="fileInput.click()">Open</button>
   <button class="button font" (click)="increaseFontSize()">Font+</button>
   <button class="button font" (click)="decreaseFontSize()">Font-</button>
-  <button class="button edit" (click)="openInvoiceMetaModal()">Пополни</button>
+  <button class="button edit" (click)="openInvoiceMetaModal()">Детали</button>
   <button class="invisible"></button>
 </div>
 
@@ -22,6 +22,7 @@
       [company]="company"
       [state]="header"
       (stateChange)="onHeaderChange($event)"
+      (reserveNumber)="allocateNumberNow()">
     >
     </invoice-header>
 

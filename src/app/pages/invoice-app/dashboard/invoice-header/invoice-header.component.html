@@ -1,5 +1,10 @@
 <div class="invoice-header">
-  <img *ngIf="company?.logoUrl" [src]="company.logoUrl" alt="Company Logo" class="logo" />
+  <img
+    *ngIf="company?.logoUrl"
+    [src]="company.logoUrl"
+    alt="Company Logo"
+    class="logo"
+  />
   <h2>{{ company?.name }}</h2>
   <div class="box-line"></div>
 </div>
@@ -22,52 +27,67 @@
     <div class="date-value">
       <div class="date">
         <span class="bold">Датум</span>
-        <span>{{ state.datum | date: 'dd/MM/yyyy' }}</span>
+        <span>{{ state.datum | date : "dd/MM/yyyy" }}</span>
       </div>
       <div class="value">
         <span class="bold">Валута</span>
-        <span>{{ state.valuta | date: 'dd/MM/yyyy' }}</span>
+        <span>{{ state.valuta | date : "dd/MM/yyyy" }}</span>
       </div>
     </div>
     <div class="invoice-number">
       <h2 class="uppercase">{{ state.fakturaTip }}</h2>
-      <h2>број: {{ state.fakturaBroj }}</h2>
+
+      <div class="broj-row">
+        <span>број: {{ state.fakturaBroj || "—" }}</span>
+
+        <button
+          *ngIf="!state.fakturaBroj"
+          mat-stroked-button
+          color="primary"
+          (click)="reserveNumber.emit()"
+        >
+          Додели број
+        </button>
+      </div>
     </div>
   </div>
 
   <!-- Client picker -->
   <div class="client-picker">
-    <mat-form-field appearance="outline" style="max-width:420px; width:100%;">
+    <mat-form-field appearance="outline" style="max-width: 420px; width: 100%">
       <mat-label>Одбери клиент</mat-label>
       <input
         type="text"
         matInput
         [formControl]="clientCtrl"
         [matAutocomplete]="autoClients"
-        placeholder="Почни да куцаш име..." />
+        placeholder="Почни да куцаш име..."
+      />
       <mat-autocomplete
         #autoClients="matAutocomplete"
         [displayWith]="displayClient"
-        (optionSelected)="onSelectClient($event.option.value)">
-        <mat-option *ngFor="let c of (clientOptions$ | async)" [value]="c">
+        (optionSelected)="onSelectClient($event.option.value)"
+      >
+        <mat-option *ngFor="let c of clientOptions$ | async" [value]="c">
           {{ c.name }} <small *ngIf="c.taxId">&nbsp;— {{ c.taxId }}</small>
         </mat-option>
       </mat-autocomplete>
     </mat-form-field>
 
     <button mat-stroked-button type="button" (click)="openClientModal()">
-    + Нов клиент
-  </button>
+      + Нов клиент
+    </button>
   </div>
 
   <div class="invoiced-company">
     <button
-    mat-icon-button
-    aria-label="Edit client"
-    class="edit-client-btn"
-    (click)="openEditClientModal()">
-    <mat-icon>edit</mat-icon>
-  </button>
+      mat-icon-button
+      aria-label="Edit client"
+      class="edit-client-btn"
+      (click)="openEditClientModal()"
+    >
+      <mat-icon>edit</mat-icon>
+    </button>
 
     <h2>{{ state.companyTitle }}</h2>
     <p>{{ state.companyAddress }}</p>

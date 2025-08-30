@@ -1,57 +1,69 @@
 <div class="container">
   <h2>Детали за фактура</h2>
+
   <form>
+    <!-- Датум -->
     <div>Датум</div>
     <mat-form-field>
       <input
         matInput
         [matDatepicker]="picker1"
+        [ngModel]="datum"
         (dateChange)="onDateChange($event, 'datum')"
+        name="datum"
       />
       <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
       <mat-datepicker #picker1></mat-datepicker>
     </mat-form-field>
+
+    <!-- Валута (рок) -->
     <div>Валута</div>
     <mat-form-field>
       <input
         matInput
         [matDatepicker]="picker2"
+        [ngModel]="valuta"
         (dateChange)="onDateChange($event, 'valuta')"
+        name="valuta"
       />
       <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
       <mat-datepicker #picker2></mat-datepicker>
     </mat-form-field>
 
+    <!-- Тип -->
     <div>Тип</div>
     <mat-form-field>
       <input matInput [(ngModel)]="fakturaTip" name="fakturaTip" />
     </mat-form-field>
+
+    <!-- Број (read-only if already assigned) -->
     <div>Фактура број</div>
     <mat-form-field>
-      <input matInput [(ngModel)]="fakturaBroj" name="fakturaBroj" />
+      <input
+        matInput
+        [(ngModel)]="fakturaBroj"
+        name="fakturaBroj"
+        [disabled]="isAllocated"
+      />
     </mat-form-field>
-    <div>Име на фирма</div>
-    <mat-form-field>
-      <input matInput [(ngModel)]="companyTitle" name="companyTitle" />
-    </mat-form-field>
-    <div>Адреса</div>
-    <mat-form-field>
-      <input matInput [(ngModel)]="companyAddress" name="companyAddress" />
-    </mat-form-field>
+    <div *ngIf="!isAllocated" style="margin: -4px 0 12px;">
+      <button mat-stroked-button type="button" (click)="requestNumber()">
+        Додели број
+      </button>
+    </div>
+
+    <!-- Град (опционално поле што го држите во header) -->
     <div>Град</div>
     <mat-form-field>
       <input matInput [(ngModel)]="companyCity" name="companyCity" />
     </mat-form-field>
-    <div>Даночен број (ЕМБГ)</div>
-    <mat-form-field>
-      <input matInput [(ngModel)]="companyID" name="companyID" />
-    </mat-form-field>
+
     <br />
     <div class="editModalButtons">
-      <button mat-button class="saveButton" (click)="onSaveClick()">
+      <button mat-button class="saveButton" type="button" (click)="onSaveClick()">
         Save
       </button>
-      <button mat-button (click)="onCancelClick()">Cancel</button>
+      <button mat-button type="button" (click)="onCancelClick()">Cancel</button>
     </div>
   </form>
 </div>

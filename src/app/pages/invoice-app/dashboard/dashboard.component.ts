@@ -48,6 +48,8 @@ export class DashboardComponent implements OnInit {
     companyID: '',
   };
 
+  isAllocatingNumber = false;
+
   currentFontSize = 12;
   paddingSize = 5;
 
@@ -106,7 +108,12 @@ export class DashboardComponent implements OnInit {
       try {
         const options = {
           suggestedName: 'invoice_data.json',
-          types: [{ description: 'JSON Files', accept: { 'application/json': ['.json'] } }],
+          types: [
+            {
+              description: 'JSON Files',
+              accept: { 'application/json': ['.json'] },
+            },
+          ],
         };
         // @ts-ignore
         const handle = await window.showSaveFilePicker(options);
@@ -164,24 +171,30 @@ export class DashboardComponent implements OnInit {
   }
 
   /** ---------- MODALS ---------- */
-  openInvoiceMetaModal(): void {
+  async openInvoiceMetaModal(): Promise<void> {
     const dialogRef = this.dialog.open(InvoiceMetaModalComponent, {
-      width: '400px',
-      data: { ...this.header },
+      width: '420px',
+      data: { ...this.header }, // seed modal with current values
+      disableClose: true,
     });
 
-    dialogRef.afterClosed().subscribe(() => {
-      this.header = {
-        datum: this.dataService.datum,
-        valuta: this.dataService.valuta,
-        fakturaTip: this.dataService.fakturaTip,
-        fakturaBroj: this.dataService.fakturaBroj,
-        companyTitle: this.dataService.companyTitle,
-        companyAddress: this.dataService.companyAddress,
-        companyCity: this.dataService.companyCity,
-        companyID: this.dataService.companyID,
-      };
-    });
+    const res = await dialogRef.afterClosed().toPromise();
+    if (!res) return; // user cancelled
+
+    // If the modal asked to assign a number and we don't have one yet
+    if (res.requestNumber && !this.header.fakturaBroj) {
+      await this.allocateNumberNow(); // uses the allocator we added earlier
+    }
+
+    // Apply only meta fields returned by the modal (client fields are handled in header/client modal)
+    this.header = {
+      ...this.header,
+      datum: res.datum ?? this.header.datum,
+      valuta: res.valuta ?? this.header.valuta,
+      fakturaTip: res.fakturaTip ?? this.header.fakturaTip,
+      fakturaBroj: res.fakturaBroj ?? this.header.fakturaBroj,
+      companyCity: res.companyCity ?? this.header.companyCity,
+    };
   }
 
   openInvoiceItemModal(item?: InvoiceItem): void {
@@ -220,12 +233,43 @@ export class DashboardComponent implements OnInit {
     this.vkupnoDDV = t.vkupnoDDV;
   }
 
+  async allocateNumberNow() {
+    if (this.isAllocatingNumber) return;
+
+    // ----- If you use a header object -----
+    if ((this as any).header?.fakturaBroj) return;
+
+    // ----- If you use top-level fields instead, use this guard -----
+    // if (this.fakturaBroj) return;
+
+    try {
+      this.isAllocatingNumber = true;
+
+      const a = await this.invoicesSvc.allocateNumberTx(this.companyId);
+      // a = { broj: '2025/000001', seq, year, month }
+
+      // ----- If you use a header object -----
+      this.header = { ...this.header, fakturaBroj: a.broj };
+
+      // ----- If you use top-level fields instead, do: -----
+      // this.fakturaBroj = a.broj;
+
+      console.log('🆗 Reserved invoice number:', a.broj);
+    } catch (err) {
+      console.error('❌ Allocate number failed', err);
+    } finally {
+      this.isAllocatingNumber = false;
+    }
+  }
+
   /** ---------- SAVE TO CLOUD ---------- */
   async saveToFirestore() {
     if (!this.user) return;
 
     let broj = this.header.fakturaBroj || '';
-    let seq = 0, year = new Date().getFullYear(), month = new Date().getMonth() + 1;
+    let seq = 0,
+      year = new Date().getFullYear(),
+      month = new Date().getMonth() + 1;
 
     try {
       const alloc = await this.invoicesSvc.allocateNumberTx(this.companyId);
@@ -244,15 +288,23 @@ export class DashboardComponent implements OnInit {
     try {
       await this.invoicesSvc.create(this.companyId, {
         companyId: this.companyId,
-        broj, seq, year, month,
+        broj,
+        seq,
+        year,
+        month,
         status: 'draft',
-        datumIzdavanje: this.header.datum?.getTime?.() ?? new Date(this.header.datum).getTime(),
+        datumIzdavanje:
+          this.header.datum?.getTime?.() ??
+          new Date(this.header.datum).getTime(),
         datumValuta: this.header.valuta
-          ? this.header.valuta.getTime?.() ?? new Date(this.header.valuta).getTime()
+          ? this.header.valuta.getTime?.() ??
+            new Date(this.header.valuta).getTime()
           : undefined,
         klientIme: this.header.companyTitle || '',
         klientEDB: this.header.companyID || '',
-        klientAdresa: `${this.header.companyAddress ?? ''} ${this.header.companyCity ?? ''}`.trim(),
+        klientAdresa: `${this.header.companyAddress ?? ''} ${
+          this.header.companyCity ?? ''
+        }`.trim(),
         klientEmail: '',
         klientTelefon: '',
         valuta: 'MKD',
@@ -271,11 +323,21 @@ export class DashboardComponent implements OnInit {
   }
 
   /** ---------- UI misc ---------- */
-  increaseFontSize(): void { this.currentFontSize++; }
-  decreaseFontSize(): void { this.currentFontSize--; }
-  adjustPaddingSize(): void { this.paddingSize = this.currentFontSize / 5; }
-  toggleNoteVisibility() { this.isNoteVisible = !this.isNoteVisible; }
-  printThisPage() { window.print(); }
+  increaseFontSize(): void {
+    this.currentFontSize++;
+  }
+  decreaseFontSize(): void {
+    this.currentFontSize--;
+  }
+  adjustPaddingSize(): void {
+    this.paddingSize = this.currentFontSize / 5;
+  }
+  toggleNoteVisibility() {
+    this.isNoteVisible = !this.isNoteVisible;
+  }
+  printThisPage() {
+    window.print();
+  }
 
   async logout() {
     await this.auth.signOut();
