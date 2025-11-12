@@ -1,7 +1,9 @@
 <div class="buttons">
   <button class="button print" (click)="printThisPage()">Print</button>
   <button class="button export" (click)="exportToJson()">Save</button>
-  <button (click)="saveToFirestore()">Save (Cloud)</button>
+  <button (click)="saveToFirestore()" [disabled]="isSaving">
+    {{ isSaving ? "Saving…" : "Save (Cloud)" }}
+  </button>
   <input
     type="file"
     (change)="importJson($event)"
@@ -22,8 +24,9 @@
       [company]="company"
       [state]="header"
       (stateChange)="onHeaderChange($event)"
-      (reserveNumber)="allocateNumberNow()">
+      (reserveNumber)="allocateNumberNow()"
     >
+      >
     </invoice-header>
 
     <br />

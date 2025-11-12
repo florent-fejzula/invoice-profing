@@ -22,6 +22,7 @@ import { InvoiceTableComponent } from './dashboard/invoice-table/invoice-table.c
 import { InvoiceTotalsComponent } from './dashboard/invoice-totals/invoice-totals.component';
 import { InvoiceHeaderComponent } from './dashboard/invoice-header/invoice-header.component';
 import { ClientModalComponent } from './modals/client-modal/client-modal.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
   declarations: [
@@ -47,6 +48,7 @@ import { ClientModalComponent } from './modals/client-modal/client-modal.compone
     MatSelectModule,
     ReactiveFormsModule,
     MatAutocompleteModule,
+    MatSnackBarModule
   ]
 })
 export class InvoiceModule { }

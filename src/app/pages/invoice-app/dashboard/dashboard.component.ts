@@ -3,7 +3,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { Environment } from 'src/environments/environment.interface';
 import { environment } from 'src/environments/environment';
 
-import { DataService } from '../../../services/data.service';
 import { CompanyService } from '../../../services/company.service';
 import { InvoicesService } from 'src/app/services/invoices.service';
 
@@ -12,6 +11,7 @@ import { InvoiceMetaModalComponent } from '../modals/invoice-meta-modal/invoice-
 
 import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { InvoiceItem } from 'src/app/models/invoice-item.model';
 import {
@@ -32,6 +32,8 @@ export class DashboardComponent implements OnInit {
 
   company: any;
   user: any = null;
+
+  isSaving = false;
 
   // TEMP: replace with real ID from CompanyService
   companyId = 'GLp2xLv3ZzX6ktQZUsyU';
@@ -70,9 +72,9 @@ export class DashboardComponent implements OnInit {
     private auth: Auth,
     private router: Router,
     private dialog: MatDialog,
-    private dataService: DataService,
     private companyService: CompanyService,
-    private invoicesSvc: InvoicesService
+    private invoicesSvc: InvoicesService,
+    private snack: MatSnackBar
   ) {}
 
   ngOnInit() {
@@ -263,14 +265,22 @@ export class DashboardComponent implements OnInit {
   }
 
   /** ---------- SAVE TO CLOUD ---------- */
-  async saveToFirestore() {
-    if (!this.user) return;
+  async saveToFirestore(): Promise<void> {
+    if (!this.user) {
+      this.snack.open('Најавете се за да зачувате во облак.', 'OK', {
+        duration: 3000,
+      });
+      return;
+    }
+    if (this.isSaving) return;
+    this.isSaving = true;
 
     let broj = this.header.fakturaBroj || '';
-    let seq = 0,
-      year = new Date().getFullYear(),
-      month = new Date().getMonth() + 1;
+    let seq = 0;
+    let year = new Date().getFullYear();
+    let month = new Date().getMonth() + 1;
 
+    // Try to reserve a number (if it fails but we already had one, continue)
     try {
       const alloc = await this.invoicesSvc.allocateNumberTx(this.companyId);
       broj = alloc.broj;
@@ -280,7 +290,14 @@ export class DashboardComponent implements OnInit {
       this.header.fakturaBroj = broj;
     } catch (err) {
       console.error('❌ Number allocation failed:', err);
-      if (!broj) return;
+      if (!broj) {
+        this.snack.open('Не успеав да резервирам број на фактура.', 'OK', {
+          duration: 3500,
+          panelClass: 'snack-error',
+        });
+        this.isSaving = false;
+        return;
+      }
     }
 
     const t = computeTotals(this.items);
@@ -316,9 +333,18 @@ export class DashboardComponent implements OnInit {
         createdByUid: this.user.uid,
       });
 
-      console.log('✅ Invoice saved to Firestore with broj:', broj);
+      this.snack.open(`Фактурата е зачувана. Бр.: ${broj}`, 'OK', {
+        duration: 3000,
+        panelClass: 'snack-success',
+      });
     } catch (err) {
       console.error('❌ Failed saving invoice:', err);
+      this.snack.open('Грешка при зачувување на фактурата.', 'OK', {
+        duration: 4000,
+        panelClass: 'snack-error',
+      });
+    } finally {
+      this.isSaving = false;
     }
   }
 
