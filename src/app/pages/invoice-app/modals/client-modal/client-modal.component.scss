@@ -1,3 +1,10 @@
+/* New Client dialog component SCSS */
+mat-dialog-content {
+  max-height: none; /* remove the 65vh cap */
+  overflow: hidden; /* prevent x/y scrollbars from appearing */
+}
+
+/* keep your fields full width */
 .full-width {
   width: 100%;
   margin-bottom: 12px;

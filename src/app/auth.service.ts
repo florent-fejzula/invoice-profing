@@ -6,7 +6,6 @@ import {
   signOut,
   authState,
   User,
-  setPersistence,
   browserLocalPersistence,
 } from '@angular/fire/auth';
 import {

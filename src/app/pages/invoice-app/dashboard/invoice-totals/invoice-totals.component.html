@@ -4,7 +4,8 @@
     <input
       class="slobodenOpisInput"
       [ngModel]="slobodenOpis"
-      (ngModelChange)="onSlobodenOpis($event)" />
+      (ngModelChange)="onSlobodenOpis($event)"
+    />
   </div>
 
   <div class="totals">
@@ -14,9 +15,9 @@
       <span>Вкупен износ со ДДВ</span>
     </div>
     <div class="down-second">
-      <span>{{ vkupenIznosBezDDV | number: '1.2-2' }}</span>
-      <span>{{ vkupnoDDV | number: '1.2-2' }}</span>
-      <span>{{ vkupenIznosBezDDV + vkupnoDDV | number: '1.2-2' }}</span>
+      <span>{{ vkupenIznosBezDDV | number : "1.2-2" }}</span>
+      <span>{{ vkupnoDDV | number : "1.2-2" }}</span>
+      <span>{{ vkupenIznosBezDDV + vkupnoDDV | number : "1.2-2" }}</span>
     </div>
   </div>
 </div>
@@ -24,12 +25,16 @@
 <div class="invoice-total-payment">
   <div class="payment-first"><span>За наплата</span></div>
   <div class="payment-second">
-    <span><b>{{ vkupenIznosBezDDV + vkupnoDDV | number: '1.2-2' }}</b></span>
+    <span
+      ><b>{{ vkupenIznosBezDDV + vkupnoDDV | number : "1.2-2" }}</b></span
+    >
   </div>
 </div>
 
 <div class="declarations">
-  <button class="toggleButton" (click)="toggleNoteVisibility.emit()">Даночна обврска</button>
+  <button class="toggleButton" (click)="toggleNoteVisibility.emit()">
+    Даночна обврска
+  </button>
 
   <p *ngIf="isNoteVisible">
     Напомена: Пренесување на даночна обврска согласно член 32а, <br />
@@ -38,18 +43,23 @@
   </p>
 
   <!-- Optional extra note field (you bound [napomena]) -->
-  <div style="margin: 8px 0;">
+  <div style="margin: 8px 0">
     <input
       class="napomenaInput"
       placeholder="Напомена…"
       [ngModel]="napomena"
-      (ngModelChange)="onNapomena($event)" />
+      (ngModelChange)="onNapomena($event)"
+    />
   </div>
 
-  <p [ngClass]="{ 'hidden-on-print': soZborovi === '' }">
-    Со зборови: <span class="print-text">{{ soZborovi }}</span>
-    <input class="soZboroviInput" type="text"
-           [ngModel]="soZborovi"
-           (ngModelChange)="onSoZborovi($event)" />
+  <p [ngClass]="{ 'hide-when-empty-on-print': !soZborovi }">
+    Со зборови:
+    <span class="print-only">{{ soZborovi }}</span>
+    <input
+      class="soZboroviInput screen-only"
+      type="text"
+      [ngModel]="soZborovi"
+      (ngModelChange)="onSoZborovi($event)"
+    />
   </p>
 </div>
