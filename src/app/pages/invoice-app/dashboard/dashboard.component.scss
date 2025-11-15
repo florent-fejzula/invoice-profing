@@ -95,3 +95,10 @@
   .signatures-left { text-align: center; }
   .signatures-right { text-align: right; font-size: 14px; }
 }
+
+@media print {
+  .buttons,
+  .addButton {
+    display: none !important;
+  }
+}

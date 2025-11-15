@@ -95,3 +95,11 @@
     }
   }
 }
+
+@media print {
+  .dodeliBroj,
+  .client-picker,
+  .edit-client-btn {
+    display: none !important;
+  }
+}

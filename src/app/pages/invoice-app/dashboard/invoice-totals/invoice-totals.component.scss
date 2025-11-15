@@ -96,4 +96,23 @@
   .screen-only {
     display: none !important;
   } /* hide input */
+
+  .napomenaInput {
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #000 !important;
+  }
+
+  /* hide the placeholder text entirely */
+  .napomenaInput::placeholder {
+    color: transparent !important;
+  }
+  .napomenaInput::-webkit-input-placeholder {
+    color: transparent !important;
+  }
+  .napomenaInput:-ms-input-placeholder {
+    color: transparent !important;
+  }
 }

@@ -1,6 +1,6 @@
 <div class="invoice-total-down">
   <div class="slobodenOpis">
-    <span class="zabeleshkaHide">Забелешка: </span>
+    <span class="zabeleshkaHide" *ngIf="slobodenOpis">Забелешка: </span>
     <input
       class="slobodenOpisInput"
       [ngModel]="slobodenOpis"
