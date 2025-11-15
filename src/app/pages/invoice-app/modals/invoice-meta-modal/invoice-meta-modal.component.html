@@ -65,17 +65,13 @@
       </mat-autocomplete>
     </mat-form-field>
 
-    <!-- Број (read-only if already assigned) -->
+    <!-- Број (editable, button only if empty) -->
     <div>Фактура број</div>
     <mat-form-field>
-      <input
-        matInput
-        [(ngModel)]="fakturaBroj"
-        name="fakturaBroj"
-        [disabled]="isAllocated"
-      />
+      <input matInput [(ngModel)]="fakturaBroj" name="fakturaBroj" />
     </mat-form-field>
-    <div *ngIf="!isAllocated" style="margin: -4px 0 12px">
+
+    <div *ngIf="!fakturaBroj" style="margin: -4px 0 12px">
       <button mat-stroked-button type="button" (click)="requestNumber()">
         Додели број
       </button>

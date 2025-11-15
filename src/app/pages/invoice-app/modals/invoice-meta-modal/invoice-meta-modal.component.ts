@@ -13,7 +13,6 @@ export interface InvoiceMetaData {
   selector: 'app-invoice-meta-modal',
   templateUrl: './invoice-meta-modal.component.html',
   styleUrls: ['./invoice-meta-modal.component.scss'],
-  encapsulation: ViewEncapsulation.None,
 })
 export class InvoiceMetaModalComponent {
   datum: Date = new Date();
@@ -23,11 +22,6 @@ export class InvoiceMetaModalComponent {
   companyCity = '';
   presetTips: string[] = ['Фактура', 'Профактура', 'Понуда'];
 
-  /** lock number input once already allocated */
-  get isAllocated() {
-    return !!this.fakturaBroj?.trim();
-  }
-
   constructor(
     public dialogRef: MatDialogRef<InvoiceMetaModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: InvoiceMetaData
@@ -35,8 +29,8 @@ export class InvoiceMetaModalComponent {
     // seed from parent
     this.datum = data?.datum ? new Date(data.datum) : new Date();
     this.valuta = data?.valuta ? new Date(data.valuta) : new Date();
-    this.fakturaTip = data?.fakturaTip ?? '';
     this.fakturaTip = data?.fakturaTip ?? 'Фактура';
+    this.fakturaBroj = data?.fakturaBroj ?? '';
     this.companyCity = data?.companyCity ?? '';
   }
 
@@ -59,7 +53,7 @@ export class InvoiceMetaModalComponent {
       datum: this.datum,
       valuta: this.valuta,
       fakturaTip: this.fakturaTip,
-      fakturaBroj: this.fakturaBroj || undefined, // keep empty as undefined
+      fakturaBroj: this.fakturaBroj?.trim() || undefined, // keep empty as undefined
       companyCity: this.companyCity || undefined,
     } as Partial<InvoiceMetaData>);
   }

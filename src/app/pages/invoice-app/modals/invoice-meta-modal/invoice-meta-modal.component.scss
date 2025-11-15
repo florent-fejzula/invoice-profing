@@ -2,6 +2,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 20px 24px;
+  min-width: 320px;
 }
 
 form {
@@ -26,10 +28,6 @@ form {
 
 .saveButton:hover {
   background-color: #0056b3;
-}
-
-.mat-dialog-container {
-  padding: 20px;
 }
 
 .mat-form-field-infix {
