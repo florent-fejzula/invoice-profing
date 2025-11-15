@@ -36,10 +36,17 @@ form {
   border-top: none;
 }
 
-.mat-form-field-appearance-legacy.mat-form-field-can-float.mat-form-field-should-float .mat-form-field-label {
+.mat-form-field-appearance-legacy.mat-form-field-can-float.mat-form-field-should-float
+  .mat-form-field-label {
   font-weight: bold;
 }
 
-.mat-form-field-appearance-legacy .mat-form-field-suffix .mat-datepicker-toggle-default-icon {
+.mat-form-field-appearance-legacy
+  .mat-form-field-suffix
+  .mat-datepicker-toggle-default-icon {
   width: 1.5em !important;
+}
+
+.tip-field .mat-form-field-label {
+  display: none !important;
 }

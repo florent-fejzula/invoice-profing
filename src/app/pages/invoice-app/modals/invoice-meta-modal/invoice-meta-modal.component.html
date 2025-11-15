@@ -32,8 +32,37 @@
 
     <!-- Тип -->
     <div>Тип</div>
-    <mat-form-field>
-      <input matInput [(ngModel)]="fakturaTip" name="fakturaTip" />
+    <mat-form-field appearance="outline" style="width: 280px" class="tip-field">
+      <mat-label>Тип</mat-label>
+      <input
+        matInput
+        type="text"
+        [(ngModel)]="fakturaTip"
+        name="fakturaTip"
+        [matAutocomplete]="tipAuto"
+        autocomplete="off"
+      />
+
+      <!-- (optional) clear button -->
+      <button
+        mat-icon-button
+        matSuffix
+        type="button"
+        aria-label="Clear"
+        *ngIf="fakturaTip"
+        (click)="fakturaTip = ''"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+
+      <mat-autocomplete
+        #tipAuto="matAutocomplete"
+        (optionSelected)="onTipSelected($event.option.value)"
+      >
+        <mat-option *ngFor="let t of presetTips" [value]="t">
+          {{ t }}
+        </mat-option>
+      </mat-autocomplete>
     </mat-form-field>
 
     <!-- Број (read-only if already assigned) -->
@@ -46,7 +75,7 @@
         [disabled]="isAllocated"
       />
     </mat-form-field>
-    <div *ngIf="!isAllocated" style="margin: -4px 0 12px;">
+    <div *ngIf="!isAllocated" style="margin: -4px 0 12px">
       <button mat-stroked-button type="button" (click)="requestNumber()">
         Додели број
       </button>
@@ -60,7 +89,12 @@
 
     <br />
     <div class="editModalButtons">
-      <button mat-button class="saveButton" type="button" (click)="onSaveClick()">
+      <button
+        mat-button
+        class="saveButton"
+        type="button"
+        (click)="onSaveClick()"
+      >
         Save
       </button>
       <button mat-button type="button" (click)="onCancelClick()">Cancel</button>

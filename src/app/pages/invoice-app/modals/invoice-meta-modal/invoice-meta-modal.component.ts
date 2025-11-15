@@ -18,9 +18,10 @@ export interface InvoiceMetaData {
 export class InvoiceMetaModalComponent {
   datum: Date = new Date();
   valuta: Date = new Date();
-  fakturaTip = '';
+  fakturaTip = 'Фактура';
   fakturaBroj = '';
   companyCity = '';
+  presetTips: string[] = ['Фактура', 'Профактура', 'Понуда'];
 
   /** lock number input once already allocated */
   get isAllocated() {
@@ -35,7 +36,7 @@ export class InvoiceMetaModalComponent {
     this.datum = data?.datum ? new Date(data.datum) : new Date();
     this.valuta = data?.valuta ? new Date(data.valuta) : new Date();
     this.fakturaTip = data?.fakturaTip ?? '';
-    this.fakturaBroj = data?.fakturaBroj ?? '';
+    this.fakturaTip = data?.fakturaTip ?? 'Фактура';
     this.companyCity = data?.companyCity ?? '';
   }
 
@@ -47,6 +48,10 @@ export class InvoiceMetaModalComponent {
   /** ask parent to allocate a number now */
   requestNumber(): void {
     this.dialogRef.close({ requestNumber: true });
+  }
+
+  onTipSelected(v: string) {
+    this.fakturaTip = v; // keeps ngModel in sync
   }
 
   onSaveClick(): void {

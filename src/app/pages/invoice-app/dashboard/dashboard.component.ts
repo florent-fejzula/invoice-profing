@@ -42,7 +42,7 @@ export class DashboardComponent implements OnInit {
   header: InvoiceHeaderState = {
     datum: new Date(),
     valuta: new Date(),
-    fakturaTip: '',
+    fakturaTip: 'Фактура',
     fakturaBroj: '',
     companyTitle: '',
     companyAddress: '',
