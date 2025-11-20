@@ -352,19 +352,31 @@ export class DashboardComponent implements OnInit {
     if (this.isSaving) return;
     this.isSaving = true;
 
-    let broj = this.header.fakturaBroj || '';
+    let broj = (this.header.fakturaBroj || '').trim();
     let seq = 0;
     let year = new Date().getFullYear();
     let month = new Date().getMonth() + 1;
 
-    // Try to reserve a number (if it fails but we already had one, continue)
+    // Try to reserve a number only if we don't already have one
     try {
-      const alloc = await this.invoicesSvc.allocateNumberTx(this.companyId);
-      broj = alloc.broj;
-      seq = alloc.seq;
-      year = alloc.year;
-      month = alloc.month;
-      this.header.fakturaBroj = broj;
+      if (!broj) {
+        const alloc = await this.invoicesSvc.allocateNumberTx(this.companyId);
+        broj = alloc.broj;
+        seq = alloc.seq;
+        year = alloc.year;
+        month = alloc.month;
+        this.header.fakturaBroj = broj;
+      } else {
+        // We already have a number -> reuse it and derive seq/year/month
+        const match = /^(\d{4})\/(\d+)$/.exec(broj);
+        if (match) {
+          year = Number(match[1]);
+          seq = Number(match[2]);
+        }
+        const d = this.header.datum ?? new Date();
+        const asDate = d instanceof Date ? d : new Date(d);
+        month = asDate.getMonth() + 1;
+      }
     } catch (err) {
       console.error('❌ Number allocation failed:', err);
       if (!broj) {
@@ -406,9 +418,9 @@ export class DashboardComponent implements OnInit {
         ddvVkupno: t.vkupnoDDV,
         vkupno: t.vkupno,
         zabeleshka: this.napomena || '', // already used
-        slobodenOpis: this.slobodenOpis || '', // ⬅️ NEW
-        soZborovi: this.soZborovi || '', // ⬅️ NEW
-        noteVisible: this.isNoteVisible, // ⬅️ NEW
+        slobodenOpis: this.slobodenOpis || '', // extra
+        soZborovi: this.soZborovi || '', // extra
+        noteVisible: this.isNoteVisible, // extra
         createdByUid: this.user.uid,
       });
 
