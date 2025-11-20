@@ -396,9 +396,7 @@ export class DashboardComponent implements OnInit {
           : undefined,
         klientIme: this.header.companyTitle || '',
         klientEDB: this.header.companyID || '',
-        klientAdresa: `${this.header.companyAddress ?? ''} ${
-          this.header.companyCity ?? ''
-        }`.trim(),
+        klientAdresa: this.header.companyAddress || '',
         klientEmail: '',
         klientTelefon: '',
         klientGrad: this.header.companyCity || '',

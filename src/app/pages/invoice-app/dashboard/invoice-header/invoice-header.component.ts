@@ -81,6 +81,7 @@ export class InvoiceHeaderComponent implements OnInit {
       name: result.name,
       taxId: result.taxId || undefined,
       address: result.address || undefined,
+      city: result.city || undefined,
       email: result.email || undefined,
       phone: result.phone || undefined,
     });
@@ -103,6 +104,7 @@ export class InvoiceHeaderComponent implements OnInit {
         name: c.name,
         taxId: c.taxId,
         address: c.address,
+        city: c.city,
         email: c.email,
         phone: c.phone,
       },
@@ -116,6 +118,7 @@ export class InvoiceHeaderComponent implements OnInit {
       name: res.name,
       taxId: res.taxId || undefined,
       address: res.address || undefined,
+      city: res.city || undefined,
       email: res.email || undefined,
       phone: res.phone || undefined,
       updatedAt: Date.now(),
@@ -133,7 +136,7 @@ export class InvoiceHeaderComponent implements OnInit {
       companyTitle: c.name ?? '',
       companyID: c.taxId ?? '',
       companyAddress: c.address ?? '',
-      companyCity: '',
+      companyCity: c.city ?? '',
     });
 
     // show chosen name without re-triggering search

@@ -6,7 +6,6 @@ export interface InvoiceMetaData {
   valuta: Date;
   fakturaTip: string;
   fakturaBroj?: string;
-  companyCity?: string;
 }
 
 @Component({
@@ -19,7 +18,6 @@ export class InvoiceMetaModalComponent {
   valuta: Date = new Date();
   fakturaTip = 'Фактура';
   fakturaBroj = '';
-  companyCity = '';
   presetTips: string[] = ['Фактура', 'Профактура', 'Понуда'];
 
   constructor(
@@ -31,7 +29,6 @@ export class InvoiceMetaModalComponent {
     this.valuta = data?.valuta ? new Date(data.valuta) : new Date();
     this.fakturaTip = data?.fakturaTip ?? 'Фактура';
     this.fakturaBroj = data?.fakturaBroj ?? '';
-    this.companyCity = data?.companyCity ?? '';
   }
 
   onDateChange(event: any, prop: 'datum' | 'valuta'): void {
@@ -53,8 +50,7 @@ export class InvoiceMetaModalComponent {
       datum: this.datum,
       valuta: this.valuta,
       fakturaTip: this.fakturaTip,
-      fakturaBroj: this.fakturaBroj?.trim() || undefined, // keep empty as undefined
-      companyCity: this.companyCity || undefined,
+      fakturaBroj: this.fakturaBroj?.trim() || undefined,
     } as Partial<InvoiceMetaData>);
   }
 

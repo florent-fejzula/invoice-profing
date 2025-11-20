@@ -75,27 +75,21 @@
     display: none !important;
   }
 
-  .print-as-text {
-    border: 0 !important;
-    outline: none !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    -webkit-appearance: none;
-    appearance: none;
-  }
-
-  /* optionally hide the whole line on print if empty */
-  .hide-when-empty-on-print {
-    display: none !important;
-  }
-
   .print-only {
     display: inline !important;
   } /* show text */
   .screen-only {
     display: none !important;
   } /* hide input */
+
+  .slobodenOpis.empty {
+    display: none !important;
+  }
+
+  /* optionally hide the whole line on print if empty */
+  .hide-when-empty-on-print {
+    display: none !important;
+  }
 
   .napomenaInput {
     border: none !important;

@@ -5,6 +5,7 @@ export interface ClientModalData {
   name?: string;
   taxId?: string;
   address?: string;
+  city?: string;
   email?: string;
   phone?: string;
 }
@@ -18,6 +19,7 @@ export class ClientModalComponent {
   name = '';
   taxId = '';
   address = '';
+  city = '';
   email = '';
   phone = '';
 
@@ -29,6 +31,7 @@ export class ClientModalComponent {
       this.name = data.name ?? '';
       this.taxId = data.taxId ?? '';
       this.address = data.address ?? '';
+      this.city = data.city ?? '';
       this.email = data.email ?? '';
       this.phone = data.phone ?? '';
     }
@@ -39,6 +42,7 @@ export class ClientModalComponent {
       name: this.name,
       taxId: this.taxId,
       address: this.address,
+      city: this.city,
       email: this.email,
       phone: this.phone
     });

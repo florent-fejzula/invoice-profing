@@ -1,11 +1,16 @@
 <div class="invoice-total-down">
-  <div class="slobodenOpis">
-    <span class="zabeleshkaHide" *ngIf="slobodenOpis">Забелешка: </span>
+  <div class="slobodenOpis" [ngClass]="{ empty: !slobodenOpis }">
+    <span class="zabeleshka-label">Забелешка: </span>
+
+    <!-- Screen: editable input -->
     <input
-      class="slobodenOpisInput"
+      class="slobodenOpisInput screen-only"
       [ngModel]="slobodenOpis"
       (ngModelChange)="onSlobodenOpis($event)"
     />
+
+    <!-- Print: plain text -->
+    <span class="print-only">{{ slobodenOpis }}</span>
   </div>
 
   <div class="totals">

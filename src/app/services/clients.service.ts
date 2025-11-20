@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {
   Firestore, collection, doc, addDoc, setDoc, getDoc, getDocs,
-  query, orderBy, where, limit as qLimit, startAt, endAt
+  query, orderBy, limit as qLimit, startAt, endAt
 } from '@angular/fire/firestore';
 import { ClientDoc } from '../models/client.model';
 
