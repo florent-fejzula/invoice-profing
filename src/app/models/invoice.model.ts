@@ -8,13 +8,13 @@ export interface InvoiceDoc {
 
   // numbering
   broj: string;
-  seq?: number;     // ← add
-  year?: number;    // ← add
-  month?: number;   // ← add
+  seq?: number; // ← add
+  year?: number; // ← add
+  month?: number; // ← add
 
   status: 'draft' | 'sent' | 'paid' | 'void';
 
-  datumIzdavanje: number;   // ms since epoch
+  datumIzdavanje: number; // ms since epoch
   datumValuta?: number;
 
   // client snapshot
@@ -23,6 +23,7 @@ export interface InvoiceDoc {
   klientAdresa?: string;
   klientEmail?: string;
   klientTelefon?: string;
+  klientGrad?: string;
 
   valuta: Valuta;
   stavki: InvoiceItem[];
@@ -32,7 +33,10 @@ export interface InvoiceDoc {
   ddvVkupno: number;
   vkupno: number;
 
-  zabeleshka?: string;
+  zabeleshka?: string; // your “Напомена” block
+  slobodenOpis?: string; // ⬅️ NEW: free text row
+  soZborovi?: string; // ⬅️ NEW: “Со зборови”
+  noteVisible?: boolean; // ⬅️ NEW: Danocna obvrska toggle
 
   createdByUid: string;
   createdAt: number;

@@ -319,13 +319,16 @@ export class DashboardComponent implements OnInit {
         companyTitle: doc.klientIme || '',
         companyID: doc.klientEDB || '',
         companyAddress: doc.klientAdresa || '',
-        companyCity: '', // can't safely split city from snapshot
+        companyCity: doc.klientGrad || '', // can't safely split city from snapshot
       };
 
       // Map other fields
       this.napomena = doc.zabeleshka || '';
-      this.slobodenOpis = ''; // not stored yet in Firestore
-      this.soZborovi = ''; // not stored yet in Firestore
+      this.slobodenOpis = doc.slobodenOpis || ''; // ⬅️ NEW
+      this.soZborovi = doc.soZborovi || ''; // ⬅️ NEW
+      this.isNoteVisible =
+        typeof doc.noteVisible === 'boolean' ? doc.noteVisible : true;
+
       this.items = doc.stavki || [];
 
       this.recompute();
@@ -398,12 +401,16 @@ export class DashboardComponent implements OnInit {
         }`.trim(),
         klientEmail: '',
         klientTelefon: '',
+        klientGrad: this.header.companyCity || '',
         valuta: 'MKD',
         stavki: this.items,
         iznosBezDDV: t.iznosBezDDV,
         ddvVkupno: t.vkupnoDDV,
         vkupno: t.vkupno,
-        zabeleshka: this.napomena || '',
+        zabeleshka: this.napomena || '', // already used
+        slobodenOpis: this.slobodenOpis || '', // ⬅️ NEW
+        soZborovi: this.soZborovi || '', // ⬅️ NEW
+        noteVisible: this.isNoteVisible, // ⬅️ NEW
         createdByUid: this.user.uid,
       });
 
