@@ -12,7 +12,7 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'admin', component: AdminPanelComponent, canActivate: [AdminGuard] },
 
-  // ✅ Lazy load Invoice App (was previously 'dashboard')
+  // ✅ Lazy load Invoice App
   {
     path: 'invoice',
     loadChildren: () =>

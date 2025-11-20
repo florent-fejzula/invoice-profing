@@ -10,7 +10,7 @@ import { InvoiceItemModalComponent } from '../modals/invoice-item-modal/invoice-
 import { InvoiceMetaModalComponent } from '../modals/invoice-meta-modal/invoice-meta-modal.component';
 
 import { Auth, onAuthStateChanged } from '@angular/fire/auth';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { InvoiceItem } from 'src/app/models/invoice-item.model';
@@ -71,6 +71,7 @@ export class DashboardComponent implements OnInit {
   constructor(
     private auth: Auth,
     private router: Router,
+    private route: ActivatedRoute,
     private dialog: MatDialog,
     private companyService: CompanyService,
     private invoicesSvc: InvoicesService,
@@ -82,6 +83,36 @@ export class DashboardComponent implements OnInit {
 
     this.companyService.getCompany().subscribe((data) => {
       this.company = data;
+      // if you want, you can also sync companyId from Firestore:
+      if (data && (data as any).id) {
+        this.companyId = (data as any).id;
+      }
+    });
+
+    // React to query param ?invoiceId=...
+    this.route.queryParamMap.subscribe((params) => {
+      const invoiceId = params.get('invoiceId');
+
+      if (invoiceId) {
+        this.loadInvoiceFromDb(invoiceId);
+      } else {
+        // new blank invoice
+        this.header = {
+          datum: new Date(),
+          valuta: new Date(),
+          fakturaTip: 'Фактура',
+          fakturaBroj: '',
+          companyTitle: '',
+          companyAddress: '',
+          companyCity: '',
+          companyID: '',
+        };
+        this.slobodenOpis = '';
+        this.napomena = '';
+        this.soZborovi = '';
+        this.items = [];
+        this.recompute();
+      }
     });
 
     this.recompute();
@@ -261,6 +292,49 @@ export class DashboardComponent implements OnInit {
       console.error('❌ Allocate number failed', err);
     } finally {
       this.isAllocatingNumber = false;
+    }
+  }
+
+  async loadInvoiceFromDb(id: string) {
+    try {
+      const doc = await this.invoicesSvc.get(this.companyId, id);
+      if (!doc) {
+        console.warn('Invoice not found:', id);
+        this.snack.open('Фактурата не беше пронајдена.', 'OK', {
+          duration: 3000,
+          panelClass: 'snack-error',
+        });
+        return;
+      }
+
+      // Map Firestore doc → header
+      this.header = {
+        ...this.header,
+        fakturaBroj: doc.broj,
+        datum: new Date(doc.datumIzdavanje),
+        valuta: doc.datumValuta
+          ? new Date(doc.datumValuta)
+          : new Date(doc.datumIzdavanje),
+        fakturaTip: this.header.fakturaTip || 'Фактура',
+        companyTitle: doc.klientIme || '',
+        companyID: doc.klientEDB || '',
+        companyAddress: doc.klientAdresa || '',
+        companyCity: '', // can't safely split city from snapshot
+      };
+
+      // Map other fields
+      this.napomena = doc.zabeleshka || '';
+      this.slobodenOpis = ''; // not stored yet in Firestore
+      this.soZborovi = ''; // not stored yet in Firestore
+      this.items = doc.stavki || [];
+
+      this.recompute();
+    } catch (err) {
+      console.error('Failed to load invoice', err);
+      this.snack.open('Грешка при вчитување на фактурата.', 'OK', {
+        duration: 4000,
+        panelClass: 'snack-error',
+      });
     }
   }
 

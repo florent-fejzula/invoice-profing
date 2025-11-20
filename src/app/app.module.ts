@@ -24,7 +24,7 @@ import { SidebarComponent } from './layout/sidebar/sidebar.component';
     LoginComponent,
     AdminPanelComponent,
     AutoRedirectComponent,
-    SidebarComponent
+    SidebarComponent,
   ],
   imports: [
     BrowserModule,

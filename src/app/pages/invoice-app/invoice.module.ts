@@ -23,10 +23,12 @@ import { InvoiceTotalsComponent } from './dashboard/invoice-totals/invoice-total
 import { InvoiceHeaderComponent } from './dashboard/invoice-header/invoice-header.component';
 import { ClientModalComponent } from './modals/client-modal/client-modal.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { InvoicesListComponent } from './invoices-list/invoices-list.component';
 
 @NgModule({
   declarations: [
     DashboardComponent,
+    InvoicesListComponent,
     InvoiceMetaModalComponent, // ✅ Moved here
     InvoiceItemModalComponent, // ✅ Moved here
     InvoiceTableComponent,

@@ -8,11 +8,7 @@ import { Auth } from '@angular/fire/auth';
   styleUrls: ['./sidebar.component.scss'],
 })
 export class SidebarComponent {
-  constructor(private router: Router, private auth: Auth) {}
-
-  navigateTo(route: string) {
-    this.router.navigate([route]);
-  }
+  constructor(private auth: Auth, private router: Router) {}
 
   async logout() {
     await this.auth.signOut();

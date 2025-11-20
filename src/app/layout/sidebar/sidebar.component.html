@@ -1,6 +1,33 @@
 <div class="sidebar">
   <h2>Navigation</h2>
-  <button (click)="navigateTo('/invoice')" class="nav-button">📄 Faktura</button>
-  <button (click)="navigateTo('/gradezhna-kniga')" class="nav-button">📖 Gradezhna Kniga</button>
+
+  <!-- New / edit invoice -->
+  <button
+    class="nav-button"
+    routerLink="/invoice"
+    routerLinkActive="active"
+    [routerLinkActiveOptions]="{ exact: true }"
+  >
+    📄 Faktura
+  </button>
+
+  <!-- List of saved invoices -->
+  <button
+    class="nav-button"
+    routerLink="/invoice/list"
+    routerLinkActive="active"
+  >
+    🧾 Сите фактури
+  </button>
+
+  <!-- Gradezhna Kniga app -->
+  <button
+    class="nav-button"
+    routerLink="/gradezhna-kniga"
+    routerLinkActive="active"
+  >
+    📖 Gradezhna Kniga
+  </button>
+
   <button (click)="logout()" class="logout-button">🚪 Logout</button>
 </div>

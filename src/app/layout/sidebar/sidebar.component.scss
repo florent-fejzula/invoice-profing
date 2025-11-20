@@ -48,6 +48,11 @@ h2 {
   background: #c0392b;
 }
 
+.nav-button.active {
+  background-color: #0b82d9; // a bit darker blue
+  box-shadow: inset 0 0 0 2px #ffffff33;
+}
+
 @media print {
   .sidebar {
     display: none !important;

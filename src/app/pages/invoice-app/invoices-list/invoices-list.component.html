@@ -1,0 +1,43 @@
+<div class="invoices-list">
+  <h2>Фактури</h2>
+
+  <div *ngIf="isLoading" class="loading">Вчитување…</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <table *ngIf="!isLoading && invoices.length" class="table">
+    <thead>
+      <tr>
+        <th>Број</th>
+        <th>Датум</th>
+        <th>Клиент</th>
+        <th>Износ без ДДВ</th>
+        <th>ДДВ</th>
+        <th>Вкупно</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let inv of invoices" (click)="openInvoice(inv)">
+        <td>{{ inv.broj }}</td>
+        <td>{{ inv.datumIzdavanje | date : "dd.MM.yyyy" }}</td>
+        <td>{{ inv.klientIme }}</td>
+        <td>{{ inv.iznosBezDDV | number : "1.2-2" }}</td>
+        <td>{{ inv.ddvVkupno | number : "1.2-2" }}</td>
+        <td>{{ inv.vkupno | number : "1.2-2" }}</td>
+        <td>
+          <button
+            mat-button
+            color="primary"
+            (click)="openInvoice(inv); $event.stopPropagation()"
+          >
+            Отвори
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="!isLoading && !invoices.length && !error">
+    Нема зачувани фактури.
+  </div>
+</div>
