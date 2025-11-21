@@ -38,6 +38,9 @@ export class DashboardComponent implements OnInit {
   // TEMP: replace with real ID from CompanyService
   companyId = 'GLp2xLv3ZzX6ktQZUsyU';
 
+  // tracks whether we're editing an existing invoice (from DB)
+  currentInvoiceId: string | null = null;
+
   // consolidated header
   header: InvoiceHeaderState = {
     datum: new Date(),
@@ -85,7 +88,6 @@ export class DashboardComponent implements OnInit {
 
     this.companyService.getCompany().subscribe((data) => {
       this.company = data;
-      // if you want, you can also sync companyId from Firestore:
       if (data && (data as any).id) {
         this.companyId = (data as any).id;
       }
@@ -96,9 +98,11 @@ export class DashboardComponent implements OnInit {
       const invoiceId = params.get('invoiceId');
 
       if (invoiceId) {
+        this.currentInvoiceId = invoiceId;
         this.loadInvoiceFromDb(invoiceId);
       } else {
         // new blank invoice
+        this.currentInvoiceId = null;
         this.header = {
           datum: new Date(),
           valuta: new Date(),
@@ -181,6 +185,8 @@ export class DashboardComponent implements OnInit {
     reader.onload = () => {
       try {
         const imported = JSON.parse(reader.result as string);
+
+        this.currentInvoiceId = null; // JSON import = new local invoice
 
         this.header = {
           datum: new Date(imported.datum),
@@ -275,20 +281,17 @@ export class DashboardComponent implements OnInit {
   async allocateNumberNow() {
     if (this.isAllocatingNumber) return;
 
-    // ----- If you use a header object -----
     if ((this as any).header?.fakturaBroj) return;
 
     try {
       this.isAllocatingNumber = true;
 
       const a = await this.invoicesSvc.allocateNumberTx(this.companyId);
-      // a = { broj: '2025/000001', seq, year, month }
-
       this.header = { ...this.header, fakturaBroj: a.broj };
 
       console.log('🆗 Reserved invoice number:', a.broj);
     } catch (err) {
-      console.error('❌ Allocate number failed', err);
+      console.error('❌ Allocate number failed:', err);
     } finally {
       this.isAllocatingNumber = false;
     }
@@ -305,6 +308,8 @@ export class DashboardComponent implements OnInit {
         });
         return;
       }
+
+      this.currentInvoiceId = id;
 
       // Map Firestore doc → header
       this.header = {
@@ -355,23 +360,71 @@ export class DashboardComponent implements OnInit {
     if (this.isSaving) return;
     this.isSaving = true;
 
-    let broj = (this.header.fakturaBroj || '').trim();
+    const broj = (this.header.fakturaBroj || '').trim();
+    const t = computeTotals(this.items);
+
+    // ✅ CASE 1: UPDATE EXISTING INVOICE
+    if (this.currentInvoiceId) {
+      try {
+        await this.invoicesSvc.update(this.companyId, this.currentInvoiceId, {
+          broj,
+          status: 'draft',
+          datumIzdavanje:
+            this.header.datum?.getTime?.() ??
+            new Date(this.header.datum).getTime(),
+          datumValuta: this.header.valuta
+            ? this.header.valuta.getTime?.() ??
+              new Date(this.header.valuta).getTime()
+            : undefined,
+          klientIme: this.header.companyTitle || '',
+          klientEDB: this.header.companyID || '',
+          klientAdresa: this.header.companyAddress || '',
+          klientGrad: this.header.companyCity || '',
+          klientEmail: this.header.companyEmail || '',
+          klientTelefon: this.header.companyPhone || '',
+          valuta: 'MKD',
+          stavki: this.items,
+          iznosBezDDV: t.iznosBezDDV,
+          ddvVkupno: t.vkupnoDDV,
+          vkupno: t.vkupno,
+          zabeleshka: this.napomena || '',
+          slobodenOpis: this.slobodenOpis || '',
+          soZborovi: this.soZborovi || '',
+          noteVisible: this.isNoteVisible,
+        });
+
+        this.snack.open(`Фактурата е ажурирана. Бр.: ${broj}`, 'OK', {
+          duration: 3000,
+          panelClass: 'snack-success',
+        });
+      } catch (err) {
+        console.error('❌ Failed updating invoice:', err);
+        this.snack.open('Грешка при ажурирање на фактурата.', 'OK', {
+          duration: 4000,
+          panelClass: 'snack-error',
+        });
+      } finally {
+        this.isSaving = false;
+      }
+      return;
+    }
+
+    // ✅ CASE 2: CREATE NEW INVOICE
+    let finalBroj = broj;
     let seq = 0;
     let year = new Date().getFullYear();
     let month = new Date().getMonth() + 1;
 
-    // Try to reserve a number only if we don't already have one
     try {
-      if (!broj) {
+      if (!finalBroj) {
         const alloc = await this.invoicesSvc.allocateNumberTx(this.companyId);
-        broj = alloc.broj;
+        finalBroj = alloc.broj;
         seq = alloc.seq;
         year = alloc.year;
         month = alloc.month;
-        this.header.fakturaBroj = broj;
+        this.header.fakturaBroj = finalBroj;
       } else {
-        // We already have a number -> reuse it and derive seq/year/month
-        const match = /^(\d{4})\/(\d+)$/.exec(broj);
+        const match = /^(\d{4})\/(\d+)$/.exec(finalBroj);
         if (match) {
           year = Number(match[1]);
           seq = Number(match[2]);
@@ -382,7 +435,7 @@ export class DashboardComponent implements OnInit {
       }
     } catch (err) {
       console.error('❌ Number allocation failed:', err);
-      if (!broj) {
+      if (!finalBroj) {
         this.snack.open('Не успеав да резервирам број на фактура.', 'OK', {
           duration: 3500,
           panelClass: 'snack-error',
@@ -392,12 +445,10 @@ export class DashboardComponent implements OnInit {
       }
     }
 
-    const t = computeTotals(this.items);
-
     try {
-      await this.invoicesSvc.create(this.companyId, {
+      const newId = await this.invoicesSvc.create(this.companyId, {
         companyId: this.companyId,
-        broj,
+        broj: finalBroj,
         seq,
         year,
         month,
@@ -427,7 +478,10 @@ export class DashboardComponent implements OnInit {
         createdByUid: this.user.uid,
       });
 
-      this.snack.open(`Фактурата е зачувана. Бр.: ${broj}`, 'OK', {
+      // After first save, treat it as existing invoice
+      this.currentInvoiceId = newId;
+
+      this.snack.open(`Фактурата е зачувана. Бр.: ${finalBroj}`, 'OK', {
         duration: 3000,
         panelClass: 'snack-success',
       });
