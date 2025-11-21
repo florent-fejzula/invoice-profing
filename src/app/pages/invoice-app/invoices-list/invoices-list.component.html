@@ -13,9 +13,10 @@
         <th>Износ без ДДВ</th>
         <th>ДДВ</th>
         <th>Вкупно</th>
-        <th></th>
+        <th>Акции</th>
       </tr>
     </thead>
+
     <tbody>
       <tr *ngFor="let inv of invoices" (click)="openInvoice(inv)">
         <td>{{ inv.broj }}</td>
@@ -24,13 +25,22 @@
         <td>{{ inv.iznosBezDDV | number : "1.2-2" }}</td>
         <td>{{ inv.ddvVkupno | number : "1.2-2" }}</td>
         <td>{{ inv.vkupno | number : "1.2-2" }}</td>
-        <td>
+
+        <td class="actions">
           <button
             mat-button
             color="primary"
             (click)="openInvoice(inv); $event.stopPropagation()"
           >
             Отвори
+          </button>
+
+          <button
+            mat-button
+            color="warn"
+            (click)="deleteInvoice(inv); $event.stopPropagation()"
+          >
+            Избриши
           </button>
         </td>
       </tr>

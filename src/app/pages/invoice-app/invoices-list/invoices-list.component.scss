@@ -37,3 +37,20 @@ h2 {
   text-align: center;
   margin-bottom: 8px;
 }
+
+/* Make the last column right-aligned */
+.actions {
+  text-align: right;
+  white-space: nowrap; /* prevent wrapping */
+}
+
+/* Add spacing between buttons */
+.actions button {
+  margin-left: 12px;
+}
+
+/* Optional: make delete red */
+.delete-btn {
+  color: #d9534f !important;
+  font-weight: 500;
+}

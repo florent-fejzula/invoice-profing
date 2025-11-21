@@ -6,6 +6,7 @@ import {
   addDoc,
   setDoc,
   getDoc,
+  deleteDoc,
   getDocs,
   query,
   orderBy,
@@ -57,6 +58,12 @@ export class InvoicesService {
     const ref = doc(this.db, `companies/${companyId}/invoices/${invoiceId}`);
     const payload = deepStripUndefined({ ...partial, updatedAt: Date.now() });
     await setDoc(ref, payload, { merge: true });
+  }
+
+  /** Delete an invoice */
+  async delete(companyId: string, invoiceId: string): Promise<void> {
+    const ref = doc(this.db, `companies/${companyId}/invoices/${invoiceId}`);
+    await deleteDoc(ref);
   }
 
   /** Get one invoice by id */
