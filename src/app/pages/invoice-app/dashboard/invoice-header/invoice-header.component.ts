@@ -18,6 +18,8 @@ export interface InvoiceHeaderState {
   companyAddress: string;
   companyCity: string;
   companyID: string;
+  companyEmail?: string;
+  companyPhone?: string;
 }
 
 @Component({
@@ -43,10 +45,7 @@ export class InvoiceHeaderComponent implements OnInit {
   /** Remember which client is selected (for Edit) */
   selectedClient: ClientDoc | null = null;
 
-  constructor(
-    private clientsSvc: ClientsService,
-    private dialog: MatDialog
-  ) {}
+  constructor(private clientsSvc: ClientsService, private dialog: MatDialog) {}
 
   ngOnInit(): void {
     this.clientOptions$ = this.clientCtrl.valueChanges.pipe(
@@ -62,7 +61,10 @@ export class InvoiceHeaderComponent implements OnInit {
   }
 
   /** Emit partial state changes upward */
-  set<K extends keyof InvoiceHeaderState>(key: K, value: InvoiceHeaderState[K]) {
+  set<K extends keyof InvoiceHeaderState>(
+    key: K,
+    value: InvoiceHeaderState[K]
+  ) {
     this.stateChange.emit({ [key]: value } as Partial<InvoiceHeaderState>);
   }
 
@@ -92,40 +94,60 @@ export class InvoiceHeaderComponent implements OnInit {
 
   /** Edit currently selected client via modal */
   async openEditClientModal() {
-    if (!this.selectedClient) {
-      // no client selected yet -> open "new" modal instead
-      return this.openClientModal();
-    }
+    // If we have a selected client loaded from DB → use that
+    const baseData = this.selectedClient
+      ? {
+          name: this.selectedClient.name ?? '',
+          taxId: this.selectedClient.taxId ?? '',
+          address: this.selectedClient.address ?? '',
+          city: this.state.companyCity ?? '',
+          email: this.selectedClient.email ?? '',
+          phone: this.selectedClient.phone ?? '',
+        }
+      : {
+          // Fallback: invoice loaded from list, only header snapshot exists
+          name: this.state.companyTitle ?? '',
+          taxId: this.state.companyID ?? '',
+          address: this.state.companyAddress ?? '',
+          city: this.state.companyCity ?? '',
+          email: this.state.companyEmail ?? '',
+          phone: this.state.companyPhone ?? '',
+        };
 
-    const c = this.selectedClient;
     const ref = this.dialog.open(ClientModalComponent, {
       width: '520px',
-      data: {
-        name: c.name,
-        taxId: c.taxId,
-        address: c.address,
-        city: c.city,
-        email: c.email,
-        phone: c.phone,
-      },
+      data: baseData,
       disableClose: true,
     });
 
     const res = await ref.afterClosed().toPromise();
     if (!res) return;
 
-    await this.clientsSvc.update(this.companyId, c.id!, {
-      name: res.name,
-      taxId: res.taxId || undefined,
-      address: res.address || undefined,
-      city: res.city || undefined,
-      email: res.email || undefined,
-      phone: res.phone || undefined,
-      updatedAt: Date.now(),
-    });
+    if (this.selectedClient && this.selectedClient.id) {
+      // ---- CASE A: Real Firestore client → update it ----
+      await this.clientsSvc.update(this.companyId, this.selectedClient.id, {
+        name: res.name,
+        taxId: res.taxId || undefined,
+        address: res.address || undefined,
+        city: res.city || undefined,
+        email: res.email || undefined,
+        phone: res.phone || undefined,
+        updatedAt: Date.now(),
+      });
 
-    // reflect immediately in UI snapshot
-    this.onSelectClient({ ...c, ...res } as ClientDoc);
+      // immediately update UI snapshot
+      this.onSelectClient({ ...this.selectedClient, ...res } as ClientDoc);
+    } else {
+      // ---- CASE B: Snapshot-only (invoice opened from list) ----
+      this.stateChange.emit({
+        companyTitle: res.name ?? '',
+        companyID: res.taxId ?? '',
+        companyAddress: res.address ?? '',
+        companyCity: res.city ?? '',
+        companyEmail: res.email ?? '',
+        companyPhone: res.phone ?? '',
+      });
+    }
   }
 
   /** When user picks a client from autocomplete */

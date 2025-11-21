@@ -48,6 +48,8 @@ export class DashboardComponent implements OnInit {
     companyAddress: '',
     companyCity: '',
     companyID: '',
+    companyEmail: '',
+    companyPhone: '',
   };
 
   isAllocatingNumber = false;
@@ -106,6 +108,8 @@ export class DashboardComponent implements OnInit {
           companyAddress: '',
           companyCity: '',
           companyID: '',
+          companyEmail: '',
+          companyPhone: '',
         };
         this.slobodenOpis = '';
         this.napomena = '';
@@ -187,6 +191,8 @@ export class DashboardComponent implements OnInit {
           companyAddress: imported.companyAddress,
           companyCity: imported.companyCity,
           companyID: imported.companyID,
+          companyEmail: imported.companyEmail ?? '',
+          companyPhone: imported.companyPhone ?? '',
         };
 
         this.slobodenOpis = imported.slobodenOpis;
@@ -272,20 +278,13 @@ export class DashboardComponent implements OnInit {
     // ----- If you use a header object -----
     if ((this as any).header?.fakturaBroj) return;
 
-    // ----- If you use top-level fields instead, use this guard -----
-    // if (this.fakturaBroj) return;
-
     try {
       this.isAllocatingNumber = true;
 
       const a = await this.invoicesSvc.allocateNumberTx(this.companyId);
       // a = { broj: '2025/000001', seq, year, month }
 
-      // ----- If you use a header object -----
       this.header = { ...this.header, fakturaBroj: a.broj };
-
-      // ----- If you use top-level fields instead, do: -----
-      // this.fakturaBroj = a.broj;
 
       console.log('🆗 Reserved invoice number:', a.broj);
     } catch (err) {
@@ -319,15 +318,19 @@ export class DashboardComponent implements OnInit {
         companyTitle: doc.klientIme || '',
         companyID: doc.klientEDB || '',
         companyAddress: doc.klientAdresa || '',
-        companyCity: doc.klientGrad || '', // can't safely split city from snapshot
+        companyCity: doc.klientGrad || '',
+        companyEmail: doc.klientEmail || '',
+        companyPhone: doc.klientTelefon || '',
       };
 
       // Map other fields
       this.napomena = doc.zabeleshka || '';
-      this.slobodenOpis = doc.slobodenOpis || ''; // ⬅️ NEW
-      this.soZborovi = doc.soZborovi || ''; // ⬅️ NEW
+      this.slobodenOpis = (doc as any).slobodenOpis || '';
+      this.soZborovi = (doc as any).soZborovi || '';
       this.isNoteVisible =
-        typeof doc.noteVisible === 'boolean' ? doc.noteVisible : true;
+        typeof (doc as any).noteVisible === 'boolean'
+          ? (doc as any).noteVisible
+          : true;
 
       this.items = doc.stavki || [];
 
@@ -409,18 +412,18 @@ export class DashboardComponent implements OnInit {
         klientIme: this.header.companyTitle || '',
         klientEDB: this.header.companyID || '',
         klientAdresa: this.header.companyAddress || '',
-        klientEmail: '',
-        klientTelefon: '',
         klientGrad: this.header.companyCity || '',
+        klientEmail: this.header.companyEmail || '',
+        klientTelefon: this.header.companyPhone || '',
         valuta: 'MKD',
         stavki: this.items,
         iznosBezDDV: t.iznosBezDDV,
         ddvVkupno: t.vkupnoDDV,
         vkupno: t.vkupno,
-        zabeleshka: this.napomena || '', // already used
-        slobodenOpis: this.slobodenOpis || '', // extra
-        soZborovi: this.soZborovi || '', // extra
-        noteVisible: this.isNoteVisible, // extra
+        zabeleshka: this.napomena || '',
+        slobodenOpis: this.slobodenOpis || '',
+        soZborovi: this.soZborovi || '',
+        noteVisible: this.isNoteVisible,
         createdByUid: this.user.uid,
       });
 
