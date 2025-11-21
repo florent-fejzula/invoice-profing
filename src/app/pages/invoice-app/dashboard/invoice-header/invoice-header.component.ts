@@ -159,6 +159,8 @@ export class InvoiceHeaderComponent implements OnInit {
       companyID: c.taxId ?? '',
       companyAddress: c.address ?? '',
       companyCity: c.city ?? '',
+      companyEmail: c.email ?? '',
+      companyPhone: c.phone ?? '',
     });
 
     // show chosen name without re-triggering search

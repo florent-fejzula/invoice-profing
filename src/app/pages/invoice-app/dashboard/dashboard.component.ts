@@ -5,6 +5,11 @@ import { environment } from 'src/environments/environment';
 
 import { CompanyService } from '../../../services/company.service';
 import { InvoicesService } from 'src/app/services/invoices.service';
+import {
+  InvoiceFileService,
+  InvoiceJsonPayload,
+} from 'src/app/services/invoice-file.service';
+import { InvoicePersistenceService } from 'src/app/services/invoice-persistence.service';
 
 import { InvoiceItemModalComponent } from '../modals/invoice-item-modal/invoice-item-modal.component';
 import { InvoiceMetaModalComponent } from '../modals/invoice-meta-modal/invoice-meta-modal.component';
@@ -80,7 +85,9 @@ export class DashboardComponent implements OnInit {
     private dialog: MatDialog,
     private companyService: CompanyService,
     private invoicesSvc: InvoicesService,
-    private snack: MatSnackBar
+    private snack: MatSnackBar,
+    private invoiceFile: InvoiceFileService,
+    private invoicePersistence: InvoicePersistenceService
   ) {}
 
   ngOnInit() {
@@ -133,86 +140,56 @@ export class DashboardComponent implements OnInit {
 
   /** ---------- FILE IMPORT / EXPORT ---------- */
   async exportToJson(): Promise<void> {
-    const dataToExport = {
-      ...this.header,
-      slobodenOpis: this.slobodenOpis,
-      napomena: this.napomena,
-      vkupenIznosBezDDV: this.vkupenIznosBezDDV,
-      vkupnoDDV: this.vkupnoDDV,
-      soZborovi: this.soZborovi,
-      items: this.items,
-    };
+    const payload = this.invoiceFile.buildPayload(
+      this.header,
+      this.slobodenOpis,
+      this.napomena,
+      this.soZborovi,
+      this.vkupenIznosBezDDV,
+      this.vkupnoDDV,
+      this.items
+    );
 
-    const jsonString = JSON.stringify(dataToExport, null, 2);
-
-    if ('showSaveFilePicker' in window) {
-      try {
-        const options = {
-          suggestedName: 'invoice_data.json',
-          types: [
-            {
-              description: 'JSON Files',
-              accept: { 'application/json': ['.json'] },
-            },
-          ],
-        };
-        // @ts-ignore
-        const handle = await window.showSaveFilePicker(options);
-        const writable = await handle.createWritable();
-        await writable.write(jsonString);
-        await writable.close();
-      } catch (error) {
-        console.error('File save cancelled or failed:', error);
-      }
-    } else {
-      const blob = new Blob([jsonString], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'invoice_data.json';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
+    this.invoiceFile.downloadJson(payload, 'invoice_data.json');
   }
 
-  importJson(event: any): void {
+  async importJson(event: any): Promise<void> {
     const file = event.target.files[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const imported = JSON.parse(reader.result as string);
+    try {
+      const imported: InvoiceJsonPayload = await this.invoiceFile.parseJsonFile(
+        file
+      );
 
-        this.currentInvoiceId = null; // JSON import = new local invoice
+      this.currentInvoiceId = null; // JSON import = local invoice, not bound to DB
 
-        this.header = {
-          datum: new Date(imported.datum),
-          valuta: new Date(imported.valuta),
-          fakturaTip: imported.fakturaTip,
-          fakturaBroj: imported.fakturaBroj,
-          companyTitle: imported.companyTitle,
-          companyAddress: imported.companyAddress,
-          companyCity: imported.companyCity,
-          companyID: imported.companyID,
-          companyEmail: imported.companyEmail ?? '',
-          companyPhone: imported.companyPhone ?? '',
-        };
+      this.header = {
+        datum: new Date(imported.datum),
+        valuta: new Date(imported.valuta),
+        fakturaTip: imported.fakturaTip,
+        fakturaBroj: imported.fakturaBroj,
+        companyTitle: imported.companyTitle,
+        companyAddress: imported.companyAddress,
+        companyCity: imported.companyCity,
+        companyID: imported.companyID,
+        companyEmail: imported.companyEmail ?? '',
+        companyPhone: imported.companyPhone ?? '',
+      };
 
-        this.slobodenOpis = imported.slobodenOpis;
-        this.napomena = imported.napomena;
-        this.soZborovi = imported.soZborovi;
-        this.items = imported.items || [];
+      this.slobodenOpis = imported.slobodenOpis;
+      this.napomena = imported.napomena;
+      this.soZborovi = imported.soZborovi;
+      this.items = imported.items || [];
 
-        this.recompute();
-      } catch (error) {
-        console.error('Error parsing JSON file:', error);
-      }
-    };
-
-    reader.readAsText(file);
+      this.recompute();
+    } catch (error) {
+      console.error('Error parsing JSON file:', error);
+      this.snack.open('Грешка при вчитување JSON.', 'OK', {
+        duration: 3000,
+        panelClass: 'snack-error',
+      });
+    }
   }
 
   /** ---------- MODALS ---------- */
@@ -280,7 +257,6 @@ export class DashboardComponent implements OnInit {
 
   async allocateNumberNow() {
     if (this.isAllocatingNumber) return;
-
     if ((this as any).header?.fakturaBroj) return;
 
     try {
@@ -291,53 +267,27 @@ export class DashboardComponent implements OnInit {
 
       console.log('🆗 Reserved invoice number:', a.broj);
     } catch (err) {
-      console.error('❌ Allocate number failed:', err);
+      console.error('❌ Allocate number failed', err);
     } finally {
       this.isAllocatingNumber = false;
     }
   }
 
+  /** ---------- FIRESTORE: LOAD ---------- */
   async loadInvoiceFromDb(id: string) {
     try {
-      const doc = await this.invoicesSvc.get(this.companyId, id);
-      if (!doc) {
-        console.warn('Invoice not found:', id);
-        this.snack.open('Фактурата не беше пронајдена.', 'OK', {
-          duration: 3000,
-          panelClass: 'snack-error',
-        });
-        return;
-      }
+      const data = await this.invoicePersistence.loadForEdit(
+        this.companyId,
+        id
+      );
 
-      this.currentInvoiceId = id;
-
-      // Map Firestore doc → header
-      this.header = {
-        ...this.header,
-        fakturaBroj: doc.broj,
-        datum: new Date(doc.datumIzdavanje),
-        valuta: doc.datumValuta
-          ? new Date(doc.datumValuta)
-          : new Date(doc.datumIzdavanje),
-        fakturaTip: this.header.fakturaTip || 'Фактура',
-        companyTitle: doc.klientIme || '',
-        companyID: doc.klientEDB || '',
-        companyAddress: doc.klientAdresa || '',
-        companyCity: doc.klientGrad || '',
-        companyEmail: doc.klientEmail || '',
-        companyPhone: doc.klientTelefon || '',
-      };
-
-      // Map other fields
-      this.napomena = doc.zabeleshka || '';
-      this.slobodenOpis = (doc as any).slobodenOpis || '';
-      this.soZborovi = (doc as any).soZborovi || '';
-      this.isNoteVisible =
-        typeof (doc as any).noteVisible === 'boolean'
-          ? (doc as any).noteVisible
-          : true;
-
-      this.items = doc.stavki || [];
+      this.currentInvoiceId = data.id;
+      this.header = data.header;
+      this.items = data.items;
+      this.slobodenOpis = data.slobodenOpis;
+      this.soZborovi = data.soZborovi;
+      this.napomena = data.napomena;
+      this.isNoteVisible = data.isNoteVisible;
 
       this.recompute();
     } catch (err) {
@@ -349,7 +299,7 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  /** ---------- SAVE TO CLOUD ---------- */
+  /** ---------- FIRESTORE: SAVE (create / update) ---------- */
   async saveToFirestore(): Promise<void> {
     if (!this.user) {
       this.snack.open('Најавете се за да зачувате во облак.', 'OK', {
@@ -360,128 +310,28 @@ export class DashboardComponent implements OnInit {
     if (this.isSaving) return;
     this.isSaving = true;
 
-    const broj = (this.header.fakturaBroj || '').trim();
-    const t = computeTotals(this.items);
-
-    // ✅ CASE 1: UPDATE EXISTING INVOICE
-    if (this.currentInvoiceId) {
-      try {
-        await this.invoicesSvc.update(this.companyId, this.currentInvoiceId, {
-          broj,
-          status: 'draft',
-          datumIzdavanje:
-            this.header.datum?.getTime?.() ??
-            new Date(this.header.datum).getTime(),
-          datumValuta: this.header.valuta
-            ? this.header.valuta.getTime?.() ??
-              new Date(this.header.valuta).getTime()
-            : undefined,
-          klientIme: this.header.companyTitle || '',
-          klientEDB: this.header.companyID || '',
-          klientAdresa: this.header.companyAddress || '',
-          klientGrad: this.header.companyCity || '',
-          klientEmail: this.header.companyEmail || '',
-          klientTelefon: this.header.companyPhone || '',
-          valuta: 'MKD',
-          stavki: this.items,
-          iznosBezDDV: t.iznosBezDDV,
-          ddvVkupno: t.vkupnoDDV,
-          vkupno: t.vkupno,
-          zabeleshka: this.napomena || '',
-          slobodenOpis: this.slobodenOpis || '',
-          soZborovi: this.soZborovi || '',
-          noteVisible: this.isNoteVisible,
-        });
-
-        this.snack.open(`Фактурата е ажурирана. Бр.: ${broj}`, 'OK', {
-          duration: 3000,
-          panelClass: 'snack-success',
-        });
-      } catch (err) {
-        console.error('❌ Failed updating invoice:', err);
-        this.snack.open('Грешка при ажурирање на фактурата.', 'OK', {
-          duration: 4000,
-          panelClass: 'snack-error',
-        });
-      } finally {
-        this.isSaving = false;
-      }
-      return;
-    }
-
-    // ✅ CASE 2: CREATE NEW INVOICE
-    let finalBroj = broj;
-    let seq = 0;
-    let year = new Date().getFullYear();
-    let month = new Date().getMonth() + 1;
-
     try {
-      if (!finalBroj) {
-        const alloc = await this.invoicesSvc.allocateNumberTx(this.companyId);
-        finalBroj = alloc.broj;
-        seq = alloc.seq;
-        year = alloc.year;
-        month = alloc.month;
-        this.header.fakturaBroj = finalBroj;
-      } else {
-        const match = /^(\d{4})\/(\d+)$/.exec(finalBroj);
-        if (match) {
-          year = Number(match[1]);
-          seq = Number(match[2]);
-        }
-        const d = this.header.datum ?? new Date();
-        const asDate = d instanceof Date ? d : new Date(d);
-        month = asDate.getMonth() + 1;
-      }
-    } catch (err) {
-      console.error('❌ Number allocation failed:', err);
-      if (!finalBroj) {
-        this.snack.open('Не успеав да резервирам број на фактура.', 'OK', {
-          duration: 3500,
-          panelClass: 'snack-error',
-        });
-        this.isSaving = false;
-        return;
-      }
-    }
-
-    try {
-      const newId = await this.invoicesSvc.create(this.companyId, {
+      const result = await this.invoicePersistence.save({
         companyId: this.companyId,
-        broj: finalBroj,
-        seq,
-        year,
-        month,
-        status: 'draft',
-        datumIzdavanje:
-          this.header.datum?.getTime?.() ??
-          new Date(this.header.datum).getTime(),
-        datumValuta: this.header.valuta
-          ? this.header.valuta.getTime?.() ??
-            new Date(this.header.valuta).getTime()
-          : undefined,
-        klientIme: this.header.companyTitle || '',
-        klientEDB: this.header.companyID || '',
-        klientAdresa: this.header.companyAddress || '',
-        klientGrad: this.header.companyCity || '',
-        klientEmail: this.header.companyEmail || '',
-        klientTelefon: this.header.companyPhone || '',
-        valuta: 'MKD',
-        stavki: this.items,
-        iznosBezDDV: t.iznosBezDDV,
-        ddvVkupno: t.vkupnoDDV,
-        vkupno: t.vkupno,
-        zabeleshka: this.napomena || '',
-        slobodenOpis: this.slobodenOpis || '',
-        soZborovi: this.soZborovi || '',
-        noteVisible: this.isNoteVisible,
-        createdByUid: this.user.uid,
+        currentInvoiceId: this.currentInvoiceId,
+        userUid: this.user.uid,
+        header: this.header,
+        items: this.items,
+        slobodenOpis: this.slobodenOpis,
+        soZborovi: this.soZborovi,
+        napomena: this.napomena,
+        isNoteVisible: this.isNoteVisible,
       });
 
-      // After first save, treat it as existing invoice
-      this.currentInvoiceId = newId;
+      // sync local state with result
+      this.header.fakturaBroj = result.broj;
+      this.currentInvoiceId = result.id;
 
-      this.snack.open(`Фактурата е зачувана. Бр.: ${finalBroj}`, 'OK', {
+      const msg = result.isNew
+        ? `Фактурата е зачувана. Бр.: ${result.broj}`
+        : `Фактурата е ажурирана. Бр.: ${result.broj}`;
+
+      this.snack.open(msg, 'OK', {
         duration: 3000,
         panelClass: 'snack-success',
       });
