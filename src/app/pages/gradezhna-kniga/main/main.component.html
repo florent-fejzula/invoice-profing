@@ -1,6 +1,14 @@
 <div class="buttons">
   <button class="button print" (click)="printThisPage()">Print</button>
-  <button class="button export" (click)="exportToJson()">Save</button>
+
+  <!-- Local JSON save -->
+  <button class="button export" (click)="exportToJson()">Save (Local)</button>
+
+  <!-- Cloud save -->
+  <button class="button export" (click)="saveToFirestore()">
+    Save (Cloud)
+  </button>
+
   <input
     type="file"
     (change)="importJson($event)"
@@ -8,6 +16,7 @@
     #fileInput
   />
   <button class="button export" (click)="fileInput.click()">Open</button>
+
   <button class="button edit" (click)="increaseFontSize()">Font +</button>
   <button class="button edit" (click)="decreaseFontSize()">Font -</button>
   <button class="invisible"></button>
@@ -33,7 +42,7 @@
         </div>
         <div class="izveduvac">
           <div>изведувач:</div>
-          <h2 class="izveduvacTitle">{{ company?.name || '...' }}</h2>
+          <h2 class="izveduvacTitle">{{ company?.name || "..." }}</h2>
         </div>
       </div>
       <div class="column datum">

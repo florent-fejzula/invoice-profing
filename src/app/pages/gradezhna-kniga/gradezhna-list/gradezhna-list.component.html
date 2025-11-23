@@ -1,0 +1,48 @@
+<div class="gk-list">
+  <h2>Градежни книги</h2>
+
+  <div *ngIf="isLoading" class="loading">Вчитување…</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <table *ngIf="!isLoading && books.length" class="table">
+    <thead>
+      <tr>
+        <th>Книга бр.</th>
+        <th>Датум</th>
+        <th>Градба</th>
+        <th>Инвеститор</th>
+        <th>Вкупно</th>
+        <th class="actions-header">Акции</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let b of books" (click)="openBook(b)">
+        <td>{{ b.knigaInputValue }}</td>
+        <td>{{ b.datumInputValue }}</td>
+        <td>{{ b.gradbaInputValue }}</td>
+        <td>{{ b.investorInputValue }}</td>
+        <td>{{ b.div4InputValue | number : "1.2-2" }}</td>
+        <td class="actions-cell">
+          <button
+            mat-button
+            color="primary"
+            (click)="openBook(b); $event.stopPropagation()"
+          >
+            Отвори
+          </button>
+          <button
+            mat-button
+            color="warn"
+            (click)="deleteBook(b); $event.stopPropagation()"
+          >
+            Избриши
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="!isLoading && !books.length && !error">
+    Нема зачувани градежни книги.
+  </div>
+</div>

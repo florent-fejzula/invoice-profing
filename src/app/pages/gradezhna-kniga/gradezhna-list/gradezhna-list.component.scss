@@ -1,0 +1,58 @@
+.gk-list {
+  max-width: 960px;
+  margin: 32px auto;
+  padding: 0 8px;
+
+  h2 {
+    margin-bottom: 16px;
+  }
+
+  .loading {
+    margin-top: 16px;
+  }
+
+  .error {
+    margin-top: 16px;
+    color: #b00020;
+  }
+
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 14px;
+
+    th,
+    td {
+      border: 1px solid #ddd;
+      padding: 8px 10px;
+    }
+
+    th {
+      background: #f5f5f5;
+      text-align: left;
+    }
+
+    tr {
+      cursor: pointer;
+    }
+
+    tr:hover {
+      background: #fafafa;
+    }
+
+    .actions-header {
+      width: 180px;
+      text-align: center;
+    }
+
+    .actions-cell {
+      text-align: center;
+      white-space: nowrap;
+
+      button + button {
+        margin-left: 4px;
+      }
+    }
+  }
+}

@@ -346,16 +346,6 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  /** ---------- UI misc ---------- */
-  increaseFontSize(): void {
-    this.currentFontSize++;
-  }
-  decreaseFontSize(): void {
-    this.currentFontSize--;
-  }
-  adjustPaddingSize(): void {
-    this.paddingSize = this.currentFontSize / 5;
-  }
   toggleNoteVisibility() {
     this.isNoteVisible = !this.isNoteVisible;
   }

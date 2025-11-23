@@ -10,9 +10,11 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { GradezhnaListComponent } from './gradezhna-list/gradezhna-list.component';
 
 @NgModule({
-  declarations: [MainComponent],
+  declarations: [MainComponent, GradezhnaListComponent],
   imports: [
     CommonModule,
     GradezhnaKnigaRoutingModule,
@@ -22,6 +24,7 @@ import { MatTableModule } from '@angular/material/table';
     MatFormFieldModule,
     MatTableModule,
     MatDialogModule,
+    MatSnackBarModule
   ],
 })
 export class GradezhnaKnigaModule {}
