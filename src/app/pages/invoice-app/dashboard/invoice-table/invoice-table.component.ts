@@ -1,5 +1,21 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  Output,
+  QueryList,
+  ViewChildren,
+} from '@angular/core';
 import { InvoiceItem } from 'src/app/models/invoice-item.model';
+
+type FieldKey =
+  | 'opis'
+  | 'em'
+  | 'kolicina'
+  | 'cenaBezDanok'
+  | 'rabatProcent'
+  | 'ddv';
 
 @Component({
   selector: 'invoice-table',
@@ -11,19 +27,120 @@ export class InvoiceTableComponent {
   @Input() currentFontSize = 12;
   @Input() paddingSize = 5;
 
-  @Output() remove = new EventEmitter<number>();
-  @Output() edit = new EventEmitter<InvoiceItem>();
+  // Optional: enable from dashboard later with [lockMode]="true"
+  @Input() lockMode = false;
 
-  // helpers are UI-only; parent still does recompute/save
-  cenaSoPresmetanRabat(item: InvoiceItem): number {
-    const popustVrednost = (item.cenaBezDanok * (item.rabatProcent ?? 0)) / 100;
-    return popustVrednost;
+  @Output() remove = new EventEmitter<number>();
+  @Output() itemsChange = new EventEmitter<InvoiceItem[]>();
+  @Output() addRowRequested = new EventEmitter<void>();
+
+  @ViewChildren('cellInput') cellInputs!: QueryList<
+    ElementRef<HTMLInputElement>
+  >;
+
+  private lockedRows = new Set<number>();
+
+  emitItems() {
+    // emit new reference so parent updates reliably
+    this.itemsChange.emit([...this.items]);
   }
 
-  cenaSoDDV(item: InvoiceItem) {
-    const cenaSoPresmetanRabat =
-      item.kolicina * item.cenaBezDanok * (1 - (item.rabatProcent ?? 0) / 100);
-    const iznosDDV = cenaSoPresmetanRabat * ((item.ddv ?? 0) / 100);
-    return cenaSoPresmetanRabat + iznosDDV;
+  setNumber(
+    rowIndex: number,
+    field: 'kolicina' | 'cenaBezDanok' | 'rabatProcent' | 'ddv',
+    raw: any
+  ) {
+    const num = this.toNumber(raw);
+    (this.items[rowIndex] as any)[field] = num;
+    this.emitItems();
+  }
+
+  private toNumber(v: any): number {
+    if (v === null || v === undefined || v === '') return 0;
+    const n = typeof v === 'number' ? v : Number(String(v).replace(',', '.'));
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  // --- Calculations ---
+  discountValue(item: InvoiceItem): number {
+    const qty = this.toNumber(item.kolicina);
+    const price = this.toNumber(item.cenaBezDanok);
+
+    // If you ever use fixed discount (item.rabat), it will take precedence
+    const fixed = this.toNumber(item.rabat);
+    if (fixed > 0) return fixed;
+
+    const pct = this.toNumber(item.rabatProcent) / 100;
+    return qty * price * pct;
+  }
+
+  totalWithVat(item: InvoiceItem): number {
+    const qty = this.toNumber(item.kolicina);
+    const price = this.toNumber(item.cenaBezDanok);
+    const ddv = this.toNumber(item.ddv) / 100;
+
+    const gross = qty * price;
+    const discount = this.discountValue(item);
+    const net = Math.max(0, gross - discount);
+
+    return net + net * ddv;
+  }
+
+  // --- Lock/edit mode ---
+  toggleLock(i: number) {
+    if (this.lockedRows.has(i)) this.lockedRows.delete(i);
+    else this.lockedRows.add(i);
+  }
+
+  isLocked(i: number) {
+    return this.lockMode && this.lockedRows.has(i);
+  }
+
+  // --- Keyboard behavior ---
+  private fieldOrder: FieldKey[] = [
+    'opis',
+    'em',
+    'kolicina',
+    'cenaBezDanok',
+    'rabatProcent',
+    'ddv',
+  ];
+
+  handleEnter(rowIndex: number, field: FieldKey, ev: Event) {
+    const kev = ev as KeyboardEvent;
+    kev.preventDefault();
+
+    const idx = this.fieldOrder.indexOf(field);
+    const isLastField = idx === this.fieldOrder.length - 1;
+
+    if (isLastField) {
+      this.addRowRequested.emit();
+      return;
+    }
+
+    const nextField = this.fieldOrder[idx + 1];
+    this.focusCell(rowIndex, nextField);
+  }
+
+  // Exposed API: dashboard can call this after addRow()
+  focusCell(rowIndex: number, field: FieldKey) {
+    const el = this.findCellInput(rowIndex, field);
+    if (!el) return;
+    el.focus();
+    el.select?.();
+  }
+
+  private findCellInput(
+    rowIndex: number,
+    field: FieldKey
+  ): HTMLInputElement | null {
+    const list = this.cellInputs?.toArray() ?? [];
+    for (const ref of list) {
+      const el = ref.nativeElement;
+      const r = Number(el.getAttribute('data-row'));
+      const f = el.getAttribute('data-field') as FieldKey | null;
+      if (r === rowIndex && f === field) return el;
+    }
+    return null;
   }
 }

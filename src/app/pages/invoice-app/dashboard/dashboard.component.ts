@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Environment } from 'src/environments/environment.interface';
 import { environment } from 'src/environments/environment';
@@ -27,6 +27,7 @@ import {
 
 import { InvoiceHeaderState } from './invoice-header/invoice-header.component';
 import { combineLatest, filter, map, shareReplay, take } from 'rxjs';
+import { InvoiceTableComponent } from './invoice-table/invoice-table.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -34,6 +35,8 @@ import { combineLatest, filter, map, shareReplay, take } from 'rxjs';
   styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit {
+  @ViewChild(InvoiceTableComponent) invoiceTable?: InvoiceTableComponent;
+
   environment: Environment = environment;
 
   company: any;
@@ -92,52 +95,52 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-  onAuthStateChanged(this.auth, (user) => (this.user = user));
+    onAuthStateChanged(this.auth, (user) => (this.user = user));
 
-  const company$ = this.companyService.getCompany().pipe(
-    filter((c: any) => !!c?.id),
-    shareReplay(1) // important so it doesn't refetch everywhere
-  );
+    const company$ = this.companyService.getCompany().pipe(
+      filter((c: any) => !!c?.id),
+      shareReplay(1) // important so it doesn't refetch everywhere
+    );
 
-  const invoiceId$ = this.route.queryParamMap.pipe(
-    map((p) => p.get('invoiceId'))
-  );
+    const invoiceId$ = this.route.queryParamMap.pipe(
+      map((p) => p.get('invoiceId'))
+    );
 
-  combineLatest([company$, invoiceId$]).subscribe(([company, invoiceId]) => {
-    this.company = company;          // ✅ this fills issuer fields in UI/print
-    this.companyId = company.id;     // ✅ correct tenant
+    combineLatest([company$, invoiceId$]).subscribe(([company, invoiceId]) => {
+      this.company = company; // ✅ this fills issuer fields in UI/print
+      this.companyId = company.id; // ✅ correct tenant
 
-    if (invoiceId) {
-      this.currentInvoiceId = invoiceId;
-      this.loadInvoiceFromDb(invoiceId);
-    } else {
-      this.resetToNewInvoice();
-    }
-  });
+      if (invoiceId) {
+        this.currentInvoiceId = invoiceId;
+        this.loadInvoiceFromDb(invoiceId);
+      } else {
+        this.resetToNewInvoice();
+      }
+    });
 
-  this.recompute();
-}
+    this.recompute();
+  }
 
-private resetToNewInvoice() {
-  this.currentInvoiceId = null;
-  this.header = {
-    datum: new Date(),
-    valuta: new Date(),
-    fakturaTip: 'Фактура',
-    fakturaBroj: '',
-    companyTitle: '',
-    companyAddress: '',
-    companyCity: '',
-    companyID: '',
-    companyEmail: '',
-    companyPhone: '',
-  };
-  this.slobodenOpis = '';
-  this.napomena = '';
-  this.soZborovi = '';
-  this.items = [];
-  this.recompute();
-}
+  private resetToNewInvoice() {
+    this.currentInvoiceId = null;
+    this.header = {
+      datum: new Date(),
+      valuta: new Date(),
+      fakturaTip: 'Фактура',
+      fakturaBroj: '',
+      companyTitle: '',
+      companyAddress: '',
+      companyCity: '',
+      companyID: '',
+      companyEmail: '',
+      companyPhone: '',
+    };
+    this.slobodenOpis = '';
+    this.napomena = '';
+    this.soZborovi = '';
+    this.items = [];
+    this.recompute();
+  }
 
   // child event handler
   onHeaderChange(patch: Partial<InvoiceHeaderState>) {
@@ -198,6 +201,32 @@ private resetToNewInvoice() {
     }
   }
 
+  onItemsChange(items: InvoiceItem[]) {
+    this.items = items;
+    this.recompute();
+  }
+
+  addRow(focusOpis = false) {
+    const newItem: InvoiceItem = {
+      opis: '',
+      em: 'ком',
+      kolicina: 1,
+      cenaBezDanok: 0,
+      rabatProcent: 0,
+      ddv: 18,
+    };
+
+    this.items = [...this.items, newItem];
+    this.recompute();
+
+    if (focusOpis) {
+      // wait for DOM to render the new row
+      setTimeout(() => {
+        this.invoiceTable?.focusCell(this.items.length - 1, 'opis');
+      }, 0);
+    }
+  }
+
   /** ---------- MODALS ---------- */
   async openInvoiceMetaModal(): Promise<void> {
     const dialogRef = this.dialog.open(InvoiceMetaModalComponent, {
@@ -225,27 +254,27 @@ private resetToNewInvoice() {
     };
   }
 
-  openInvoiceItemModal(item?: InvoiceItem): void {
-    const dialogRef = this.dialog.open(InvoiceItemModalComponent, {
-      width: '400px',
-      data: { item },
-      disableClose: true,
-    });
+  // openInvoiceItemModal(item?: InvoiceItem): void {
+  //   const dialogRef = this.dialog.open(InvoiceItemModalComponent, {
+  //     width: '400px',
+  //     data: { item },
+  //     disableClose: true,
+  //   });
 
-    dialogRef.afterClosed().subscribe((data: any) => {
-      if (!data || !data.newItem) return;
-      const newItem = data.newItem as InvoiceItem;
+  //   dialogRef.afterClosed().subscribe((data: any) => {
+  //     if (!data || !data.newItem) return;
+  //     const newItem = data.newItem as InvoiceItem;
 
-      if (item) {
-        const index = this.items.indexOf(item);
-        if (index !== -1) this.items[index] = newItem;
-      } else {
-        this.items.push(newItem);
-      }
+  //     if (item) {
+  //       const index = this.items.indexOf(item);
+  //       if (index !== -1) this.items[index] = newItem;
+  //     } else {
+  //       this.items.push(newItem);
+  //     }
 
-      this.recompute();
-    });
-  }
+  //     this.recompute();
+  //   });
+  // }
 
   removeItem(index: number): void {
     if (index < 0 || index >= this.items.length) return;

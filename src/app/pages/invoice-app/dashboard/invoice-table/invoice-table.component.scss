@@ -83,8 +83,41 @@
   padding: 0 !important;
 }
 
+.cell-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+}
+
+.cell-num {
+  text-align: right;
+}
+
+.cell-small {
+  text-align: center;
+}
+
+.cell-opis {
+  text-align: left;
+}
+
+/* Better focus feedback (optional) */
+.cell-input:focus {
+  outline: 2px solid rgba(0, 0, 0, 0.2);
+  outline-offset: 2px;
+}
+
 @media print {
   .deleteEntry {
     display: none;
+  }
+
+  .cell-input {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
   }
 }

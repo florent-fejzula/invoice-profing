@@ -35,8 +35,8 @@
 
     <br />
     <div class="addButton">
-      <button mat-button class="add-button" (click)="openInvoiceItemModal()">
-        Додај
+      <button mat-button class="add-button" (click)="addRow(true)">
+        + Add row
       </button>
     </div>
 
@@ -44,8 +44,9 @@
       [items]="items"
       [currentFontSize]="currentFontSize"
       [paddingSize]="paddingSize"
-      (edit)="openInvoiceItemModal($event)"
       (remove)="removeItem($event)"
+      (itemsChange)="onItemsChange($event)"
+      (addRowRequested)="addRow(true)"
     >
     </invoice-table>
 
