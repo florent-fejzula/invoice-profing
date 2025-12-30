@@ -26,6 +26,7 @@ import {
 } from 'src/app/utils/compute-totals';
 
 import { InvoiceHeaderState } from './invoice-header/invoice-header.component';
+import { combineLatest, filter, map, shareReplay, take } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -41,7 +42,7 @@ export class DashboardComponent implements OnInit {
   isSaving = false;
 
   // TEMP: replace with real ID from CompanyService
-  companyId = 'GLp2xLv3ZzX6ktQZUsyU';
+  companyId = '';
 
   // tracks whether we're editing an existing invoice (from DB)
   currentInvoiceId: string | null = null;
@@ -91,47 +92,52 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    onAuthStateChanged(this.auth, (user) => (this.user = user));
+  onAuthStateChanged(this.auth, (user) => (this.user = user));
 
-    this.companyService.getCompany().subscribe((data) => {
-      this.company = data;
-      if (data && (data as any).id) {
-        this.companyId = (data as any).id;
-      }
-    });
+  const company$ = this.companyService.getCompany().pipe(
+    filter((c: any) => !!c?.id),
+    shareReplay(1) // important so it doesn't refetch everywhere
+  );
 
-    // React to query param ?invoiceId=...
-    this.route.queryParamMap.subscribe((params) => {
-      const invoiceId = params.get('invoiceId');
+  const invoiceId$ = this.route.queryParamMap.pipe(
+    map((p) => p.get('invoiceId'))
+  );
 
-      if (invoiceId) {
-        this.currentInvoiceId = invoiceId;
-        this.loadInvoiceFromDb(invoiceId);
-      } else {
-        // new blank invoice
-        this.currentInvoiceId = null;
-        this.header = {
-          datum: new Date(),
-          valuta: new Date(),
-          fakturaTip: 'Фактура',
-          fakturaBroj: '',
-          companyTitle: '',
-          companyAddress: '',
-          companyCity: '',
-          companyID: '',
-          companyEmail: '',
-          companyPhone: '',
-        };
-        this.slobodenOpis = '';
-        this.napomena = '';
-        this.soZborovi = '';
-        this.items = [];
-        this.recompute();
-      }
-    });
+  combineLatest([company$, invoiceId$]).subscribe(([company, invoiceId]) => {
+    this.company = company;          // ✅ this fills issuer fields in UI/print
+    this.companyId = company.id;     // ✅ correct tenant
 
-    this.recompute();
-  }
+    if (invoiceId) {
+      this.currentInvoiceId = invoiceId;
+      this.loadInvoiceFromDb(invoiceId);
+    } else {
+      this.resetToNewInvoice();
+    }
+  });
+
+  this.recompute();
+}
+
+private resetToNewInvoice() {
+  this.currentInvoiceId = null;
+  this.header = {
+    datum: new Date(),
+    valuta: new Date(),
+    fakturaTip: 'Фактура',
+    fakturaBroj: '',
+    companyTitle: '',
+    companyAddress: '',
+    companyCity: '',
+    companyID: '',
+    companyEmail: '',
+    companyPhone: '',
+  };
+  this.slobodenOpis = '';
+  this.napomena = '';
+  this.soZborovi = '';
+  this.items = [];
+  this.recompute();
+}
 
   // child event handler
   onHeaderChange(patch: Partial<InvoiceHeaderState>) {

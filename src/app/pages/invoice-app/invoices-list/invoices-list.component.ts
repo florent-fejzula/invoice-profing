@@ -4,6 +4,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { InvoicesService } from 'src/app/services/invoices.service';
 import { InvoiceDoc } from 'src/app/models/invoice.model';
+import { CompanyService } from 'src/app/services/company.service';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-invoices-list',
@@ -11,7 +13,7 @@ import { InvoiceDoc } from 'src/app/models/invoice.model';
   styleUrls: ['./invoices-list.component.scss'],
 })
 export class InvoicesListComponent implements OnInit {
-  companyId = 'GLp2xLv3ZzX6ktQZUsyU'; // same as dashboard for now
+  companyId!: string;
 
   invoices: InvoiceDoc[] = [];
   isLoading = false;
@@ -19,15 +21,39 @@ export class InvoicesListComponent implements OnInit {
 
   constructor(
     private invoicesSvc: InvoicesService,
+    private companyService: CompanyService,
     private router: Router,
     private snack: MatSnackBar
   ) {}
 
   ngOnInit(): void {
-    this.loadInvoices();
+    this.isLoading = true;
+
+    this.companyService
+      .getCompany()
+      .pipe(take(1))
+      .subscribe({
+        next: (company: any) => {
+          if (!company?.id) {
+            this.error = 'Нема компанија за овој корисник.';
+            this.isLoading = false;
+            return;
+          }
+
+          this.companyId = company.id;
+          this.loadInvoices(); // now loads correct tenant invoices
+        },
+        error: (err) => {
+          console.error('Failed to resolve company', err);
+          this.error = 'Не успеав да ја вчитам компанијата.';
+          this.isLoading = false;
+        },
+      });
   }
 
   async loadInvoices() {
+    if (!this.companyId) return;
+
     this.isLoading = true;
     this.error = null;
 
@@ -45,7 +71,7 @@ export class InvoicesListComponent implements OnInit {
     if (!inv.id) return;
 
     this.router.navigate(['/invoice'], {
-      queryParams: { invoiceId: inv.id },
+      queryParams: { invoiceId: inv.id, companyId: this.companyId },
     });
   }
 
