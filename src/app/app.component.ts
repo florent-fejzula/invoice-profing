@@ -41,33 +41,6 @@ export class AppComponent implements OnInit {
       }
     });
   }
-  
-  // async addCompany() {
-  //   const companiesCollection = collection(this.firestore, 'companies');
-
-  //   const companyData = {
-  //     EDB: "MK4082013512249",
-  //     accountNo: "200002667032549",
-  //     address: "Ул. Павле Илич бр.37/1-7, 1000 Скопје",
-  //     bank: "СТОПАНСКА БАНКА А.Д. СКОПЈЕ",
-  //     email: "kimielektrik@yahoo.com",
-  //     name: "КИМИ ЕЛЕКТРИК ДООЕЛ",
-  //     ownerName: "Башким Мифтари",
-  //     phone: "072 554 650",
-  //     settings: {
-  //       logo: false,
-  //       showTaxCategories: true
-  //     },
-  //     status: "active"
-  //   };
-
-  //   try {
-  //     await addDoc(companiesCollection, companyData);
-  //     console.log("Company added successfully!");
-  //   } catch (error) {
-  //     console.error("Error adding company:", error);
-  //   }
-  // }
 
   updateSidebarVisibility() {
     // ✅ Hide sidebar on login page, show it everywhere else if logged in

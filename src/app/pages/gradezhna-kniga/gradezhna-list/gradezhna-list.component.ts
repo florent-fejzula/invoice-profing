@@ -5,6 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { CompanyService } from 'src/app/services/company.service';
 import { GradezhnaKnigaService } from 'src/app/services/gradezhna-kniga.service';
 import { GradezhnaKnigaDoc } from 'src/app/models/gradezhna-kniga.model';
+import { filter, take } from 'rxjs';
 
 @Component({
   selector: 'app-gradezhna-list',
@@ -12,7 +13,7 @@ import { GradezhnaKnigaDoc } from 'src/app/models/gradezhna-kniga.model';
   styleUrls: ['./gradezhna-list.component.scss'],
 })
 export class GradezhnaListComponent implements OnInit {
-  companyId = 'GLp2xLv3ZzX6ktQZUsyU';
+  companyId = '';
 
   books: GradezhnaKnigaDoc[] = [];
   isLoading = false;
@@ -26,15 +27,29 @@ export class GradezhnaListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.companyService.getCompany().subscribe((data) => {
-      if (data && (data as any).id) {
-        this.companyId = (data as any).id;
-      }
-      this.loadBooks();
-    });
+    this.isLoading = true;
+
+    this.companyService
+      .getCompany()
+      .pipe(
+        filter((c: any) => !!c?.id),
+        take(1)
+      )
+      .subscribe({
+        next: (company: any) => {
+          this.companyId = company.id;
+          this.loadBooks();
+        },
+        error: (err) => {
+          console.error('Failed to resolve company', err);
+          this.error = 'Не успеав да ја вчитам компанијата.';
+          this.isLoading = false;
+        },
+      });
   }
 
   async loadBooks() {
+    if (!this.companyId) return;
     this.isLoading = true;
     this.error = null;
     try {

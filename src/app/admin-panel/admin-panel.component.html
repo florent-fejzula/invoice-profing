@@ -1,27 +1,90 @@
-<div class="admin-panel">
-    <h1>Admin Panel - Companies</h1>
-    <table>
-      <thead>
-        <tr>
-          <th>Company Email</th>
-          <th>Status</th>
-          <th>Toggle Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let company of companies$ | async">
-          <td>{{ company.email }}</td>
-          <!-- Apply classes based on the status -->
-          <td [ngClass]="company.status === 'active' ? 'active' : 'inactive'">
-            {{ company.status }}
-          </td>
-          <td>
-            <button (click)="toggleCompanyStatus(company)">
-              Set as {{ company.status === 'active' ? 'Inactive' : 'Active' }}
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+
+<div class="admin-panel" *ngIf="isAdmin; else noAccess">
+  <h1>Admin Panel - Companies</h1>
+
+  <div class="admin-actions">
+    <button (click)="runBackfillUsers()">
+      Backfill users/UID
+    </button>
   </div>
-  
+
+  <!-- Create company -->
+  <div class="create-box">
+    <h2>Create Company + Owner User</h2>
+
+    <div class="grid">
+      <label>Owner Email* <input [(ngModel)]="ownerEmail" /></label>
+      <label
+        >Temp Password* <input [(ngModel)]="tempPassword" type="password"
+      /></label>
+
+      <label>Company Name* <input [(ngModel)]="name" /></label>
+      <label>Owner Name <input [(ngModel)]="ownerName" /></label>
+
+      <label>Phone <input [(ngModel)]="phone" /></label>
+      <label>Address <input [(ngModel)]="address" /></label>
+
+      <label>EDB <input [(ngModel)]="EDB" /></label>
+      <label>Bank <input [(ngModel)]="bank" /></label>
+
+      <label>Account No <input [(ngModel)]="accountNo" /></label>
+    </div>
+
+    <button (click)="createCompany()" [disabled]="isCreating">
+      {{ isCreating ? "Creating…" : "Create" }}
+    </button>
+
+    <div *ngIf="lastResult" class="result">
+      <div>
+        <b>companyId:</b> {{ lastResult.companyId }}
+        <button (click)="copy(lastResult.companyId)">Copy</button>
+      </div>
+      <div>
+        <b>ownerUid:</b> {{ lastResult.ownerUid }}
+        <button (click)="copy(lastResult.ownerUid)">Copy</button>
+      </div>
+
+      <div class="reset">
+        <b>Password reset link:</b>
+        <div class="break">{{ lastResult.resetLink }}</div>
+        <button (click)="copy(lastResult.resetLink)">Copy link</button>
+      </div>
+    </div>
+  </div>
+
+  <hr />
+
+  <!-- Companies table -->
+  <div *ngIf="isLoading">Loading companies…</div>
+
+  <table *ngIf="!isLoading">
+    <thead>
+      <tr>
+        <th>Company Name</th>
+        <th>Company Email</th>
+        <th>Status</th>
+        <th>Toggle Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let company of companies">
+        <td>{{ company.name }}</td>
+        <td>{{ company.email }}</td>
+        <td [ngClass]="company.status === 'active' ? 'active' : 'inactive'">
+          {{ company.status || "active" }}
+        </td>
+        <td>
+          <button (click)="toggleCompanyStatus(company)">
+            Set as {{ company.status === "active" ? "Inactive" : "Active" }}
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<ng-template #noAccess>
+  <div class="admin-panel">
+    <h2>No access</h2>
+  </div>
+</ng-template>

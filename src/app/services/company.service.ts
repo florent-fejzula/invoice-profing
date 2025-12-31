@@ -1,26 +1,34 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, query, where, collectionData, DocumentData } from '@angular/fire/firestore';
+import { Firestore, doc, docData, DocumentData } from '@angular/fire/firestore';
 import { Auth, user } from '@angular/fire/auth';
 import { Observable, of } from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class CompanyService {
   constructor(private firestore: Firestore, private auth: Auth) {}
 
   getCompany(): Observable<DocumentData | null> {
     return user(this.auth).pipe(
-      switchMap(currentUser => {
-        if (!currentUser || !currentUser.email) return of(null);
-        // Query the companies collection using the current user's email
-        const companyQuery = query(
-          collection(this.firestore, 'companies'),
-          where('email', '==', currentUser.email)
-        );
-        return collectionData(companyQuery, { idField: 'id' }).pipe(
-          map(companies => (companies.length > 0 ? companies[0] : null))
+      switchMap((u) => {
+        if (!u?.uid) return of(null);
+
+        const userRef = doc(this.firestore, 'users', u.uid);
+
+        return (docData(userRef) as Observable<any>).pipe(
+          map((profile) => profile ?? null), // ✅ convert undefined -> null
+          switchMap((profile) => {
+            const companyId = profile?.defaultCompanyId;
+            if (!companyId) return of(null);
+
+            const companyRef = doc(this.firestore, 'companies', companyId);
+
+            return (
+              docData(companyRef, { idField: 'id' }) as Observable<
+                DocumentData | undefined
+              >
+            ).pipe(map((c) => c ?? null));
+          })
         );
       })
     );

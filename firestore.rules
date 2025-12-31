@@ -1,0 +1,40 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(companyId) {
+      return signedIn() &&
+        get(/databases/$(db)/documents/companies/$(companyId)).data.ownerUid == request.auth.uid;
+    }
+
+    match /users/{uid} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    match /companies/{companyId} {
+      allow read, update: if isOwner(companyId);
+      allow create: if false;
+      allow delete: if false;
+
+      match /invoices/{invoiceId} {
+        allow read, write: if isOwner(companyId);
+      }
+
+      match /clients/{clientId} {
+        allow read, write: if isOwner(companyId);
+      }
+
+      match /counters/{docId} {
+        allow read, write: if isOwner(companyId);
+      }
+
+      match /gradezhna-kniga/{bookId} {
+        allow read, write: if isOwner(companyId);
+      }
+    }
+  }
+}

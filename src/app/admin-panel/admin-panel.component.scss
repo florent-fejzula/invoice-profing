@@ -18,7 +18,7 @@
 
     /* Active status styling */
     .active {
-      background-color: #52AA5E; /* Green */
+      background-color: #52aa5e; /* Green */
       color: white;
       padding: 5px 10px;
       border-radius: 4px;
@@ -26,7 +26,7 @@
 
     /* Inactive status styling */
     .inactive {
-      background-color: #E74C3C; /* Red */
+      background-color: #e74c3c; /* Red */
       color: white;
       padding: 5px 10px;
       border-radius: 4px;
@@ -43,7 +43,57 @@
     }
 
     button:hover {
-      background-color: #52AA5E; /* Slightly lighter green on hover */
+      background-color: #52aa5e; /* Slightly lighter green on hover */
     }
+  }
+}
+
+.create-box {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  background: #fff;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 10px 0 12px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+}
+
+input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.result {
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px dashed #bbb;
+  border-radius: 8px;
+}
+
+.reset {
+  margin-top: 10px;
+}
+
+.break {
+  word-break: break-all;
+  margin: 6px 0;
+}
+
+@media (max-width: 800px) {
+  .grid {
+    grid-template-columns: 1fr;
   }
 }

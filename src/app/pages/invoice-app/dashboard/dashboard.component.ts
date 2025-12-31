@@ -11,7 +11,6 @@ import {
 } from 'src/app/services/invoice-file.service';
 import { InvoicePersistenceService } from 'src/app/services/invoice-persistence.service';
 
-import { InvoiceItemModalComponent } from '../modals/invoice-item-modal/invoice-item-modal.component';
 import { InvoiceMetaModalComponent } from '../modals/invoice-meta-modal/invoice-meta-modal.component';
 
 import { Auth, onAuthStateChanged } from '@angular/fire/auth';
@@ -253,28 +252,6 @@ export class DashboardComponent implements OnInit {
       companyCity: res.companyCity ?? this.header.companyCity,
     };
   }
-
-  // openInvoiceItemModal(item?: InvoiceItem): void {
-  //   const dialogRef = this.dialog.open(InvoiceItemModalComponent, {
-  //     width: '400px',
-  //     data: { item },
-  //     disableClose: true,
-  //   });
-
-  //   dialogRef.afterClosed().subscribe((data: any) => {
-  //     if (!data || !data.newItem) return;
-  //     const newItem = data.newItem as InvoiceItem;
-
-  //     if (item) {
-  //       const index = this.items.indexOf(item);
-  //       if (index !== -1) this.items[index] = newItem;
-  //     } else {
-  //       this.items.push(newItem);
-  //     }
-
-  //     this.recompute();
-  //   });
-  // }
 
   removeItem(index: number): void {
     if (index < 0 || index >= this.items.length) return;

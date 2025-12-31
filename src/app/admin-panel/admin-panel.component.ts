@@ -1,26 +1,22 @@
 import { Component, OnInit } from '@angular/core';
-import {
-  Firestore,
-  collection,
-  collectionData,
-  doc,
-  getDocs,
-  query,
-  updateDoc,
-  where,
-} from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { httpsCallable, Functions } from '@angular/fire/functions';
+import { Auth, user } from '@angular/fire/auth';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { firstValueFrom } from 'rxjs';
 
 interface Company {
+  id: string;
+  ownerUid?: string;
+  email?: string;
+  name?: string;
+  ownerName?: string;
+  phone?: string;
+  address?: string;
   EDB?: string;
-  accountNo: string;
-  address: string;
-  bank: string;
-  email: string;
-  name: string;
-  ownerName: string;
-  phone: string;
-  status: 'active' | 'inactive';
+  bank?: string;
+  accountNo?: string;
+  status?: 'active' | 'inactive';
+  createdAt?: any;
 }
 
 @Component({
@@ -29,47 +25,148 @@ interface Company {
   styleUrls: ['./admin-panel.component.scss'],
 })
 export class AdminPanelComponent implements OnInit {
-  companies$: Observable<Company[]> | undefined;
+  private ADMIN_UID = 'nArNHAOwWNR7dgMO39ILvWRPfni1';
 
-  constructor(private firestore: Firestore) {}
+  isAdmin = false;
+  isLoading = false;
 
-  ngOnInit(): void {
-    const companiesCollection = collection(this.firestore, 'companies');
-    // Use collectionData with idField to include the document ID in each company object
-    this.companies$ = collectionData(companiesCollection, {
-      idField: 'id',
-    }) as Observable<Company[]>;
+  companies: Company[] = [];
+
+  // Create-company form
+  ownerEmail = '';
+  tempPassword = '';
+  name = '';
+  ownerName = '';
+  phone = '';
+  address = '';
+  EDB = '';
+  bank = '';
+  accountNo = '';
+
+  isCreating = false;
+  lastResult: any = null;
+
+  constructor(
+    private functions: Functions,
+    private auth: Auth,
+    private snack: MatSnackBar
+  ) {}
+
+  async ngOnInit(): Promise<void> {
+    const u = await firstValueFrom(user(this.auth));
+    this.isAdmin = !!u?.uid && u.uid === this.ADMIN_UID;
+
+    if (!this.isAdmin) {
+      this.snack.open('No access.', 'OK', { duration: 2500 });
+      return;
+    }
+
+    await this.loadCompanies();
   }
 
-  // Update the function to query based on the EDB field
-  async toggleCompanyStatus(company: Company): Promise<void> {
-    if (!company.EDB) return;
+  async loadCompanies() {
+    this.isLoading = true;
+    try {
+      const fn = httpsCallable(this.functions, 'listCompaniesForAdmin');
+      const res: any = await fn();
+      this.companies = (res.data?.companies ?? []) as Company[];
+    } catch (e: any) {
+      console.error(e);
+      this.snack.open(e?.message || 'Failed loading companies', 'OK', {
+        duration: 3500,
+      });
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  async toggleCompanyStatus(company: Company) {
+    if (!company.id) return;
 
     try {
-      // Step 1: Query the companies collection to find the document where 'EDB' matches
-      const companiesCollection = collection(this.firestore, 'companies');
-      const q = query(companiesCollection, where('EDB', '==', company.EDB));
-      const querySnapshot = await getDocs(q);
+      const fn = httpsCallable(this.functions, 'toggleCompanyStatusAdmin');
+      const res: any = await fn({ companyId: company.id });
 
-      if (!querySnapshot.empty) {
-        // Step 2: Get the first document (assuming EDB is unique)
-        const companyDocRef = doc(
-          this.firestore,
-          'companies',
-          querySnapshot.docs[0].id
-        );
+      const newStatus = res.data?.status as 'active' | 'inactive';
+      company.status = newStatus;
 
-        // Step 3: Update the status field
-        const newStatus: 'active' | 'inactive' =
-          company.status === 'active' ? 'inactive' : 'active';
-        await updateDoc(companyDocRef, { status: newStatus });
+      this.snack.open(`Status: ${newStatus}`, 'OK', { duration: 2500 });
+    } catch (e: any) {
+      console.error(e);
+      this.snack.open(e?.message || 'Failed toggling status', 'OK', {
+        duration: 3500,
+      });
+    }
+  }
 
-        console.log(`Company status updated to ${newStatus}`);
-      } else {
-        console.error('Company not found');
-      }
-    } catch (error) {
-      console.error('Error updating company status: ', error);
+  async createCompany() {
+    if (!this.ownerEmail || !this.tempPassword || !this.name) {
+      this.snack.open('Fill ownerEmail, tempPassword, company name.', 'OK', {
+        duration: 3000,
+      });
+      return;
+    }
+
+    this.isCreating = true;
+    this.lastResult = null;
+
+    try {
+      const fn = httpsCallable(this.functions, 'createCompanyWithOwner');
+      const res: any = await fn({
+        ownerEmail: this.ownerEmail,
+        tempPassword: this.tempPassword,
+        company: {
+          name: this.name,
+          ownerName: this.ownerName,
+          phone: this.phone,
+          address: this.address,
+          EDB: this.EDB,
+          bank: this.bank,
+          accountNo: this.accountNo,
+          status: 'active',
+        },
+      });
+
+      this.lastResult = res.data;
+      this.snack.open('Company created ✅', 'OK', { duration: 3000 });
+
+      // Refresh list
+      await this.loadCompanies();
+
+      // Optional: clear form
+      // this.ownerEmail = this.tempPassword = this.name = this.ownerName = '';
+    } catch (e: any) {
+      console.error(e);
+      this.snack.open(e?.message || 'Failed creating company', 'OK', {
+        duration: 4500,
+      });
+    } finally {
+      this.isCreating = false;
+    }
+  }
+
+  async copy(text: string) {
+    await navigator.clipboard.writeText(text);
+    this.snack.open('Copied', 'OK', { duration: 1500 });
+  }
+
+  async runBackfillUsers() {
+    try {
+      const fn = httpsCallable(this.functions, 'backfillUsers');
+      const res: any = await fn();
+      console.log(res.data);
+      this.snack.open(
+        `Backfill done. Written: ${res.data.usersWritten}, Skipped: ${
+          res.data.skipped?.length || 0
+        }`,
+        'OK',
+        { duration: 5000 }
+      );
+    } catch (e: any) {
+      console.error(e);
+      this.snack.open(e?.message || 'Backfill failed', 'OK', {
+        duration: 5000,
+      });
     }
   }
 }

@@ -15,6 +15,7 @@ import {
   query,
   where,
 } from '@angular/fire/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { Observable, from } from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
 
@@ -25,39 +26,47 @@ export class AuthService {
   constructor(private auth: Auth, private firestore: Firestore) {}
 
   // ✅ Login method with auth persistence
-  login(email: string, password: string): Observable<{ user: User; status: 'active' | 'inactive' }> {
+  login(
+    email: string,
+    password: string
+  ): Observable<{ user: User; status: 'active' | 'inactive' }> {
     return from(
-      this.auth.setPersistence(browserLocalPersistence).then(() =>
-        signInWithEmailAndPassword(this.auth, email, password)
-      )
+      this.auth
+        .setPersistence(browserLocalPersistence)
+        .then(() => signInWithEmailAndPassword(this.auth, email, password))
     ).pipe(
       switchMap((res) => {
         const user = res.user;
-        if (user && user.email) {
-          return from(this.getCompanyStatus(user.email)).pipe(
+        if (user?.uid) {
+          return from(this.getCompanyStatus(user.uid)).pipe(
             map((status) => ({ user, status }))
           );
         } else {
-          throw new Error('No user found or email is missing.');
+          throw new Error('No user found.');
         }
       })
     );
   }
 
-  // ✅ Check company status based on the user email
-  async getCompanyStatus(email: string): Promise<'active' | 'inactive'> {
-    const companyQuery = query(
-      collection(this.firestore, 'companies'),
-      where('email', '==', email)
-    );
-    const companySnapshot = await getDocs(companyQuery);
-    if (!companySnapshot.empty) {
-      const companyData = companySnapshot.docs[0].data() as {
-        status: 'active' | 'inactive';
-      };
-      return companyData.status;
-    }
-    return 'inactive';
+  async getCompanyStatus(uid: string): Promise<'active' | 'inactive'> {
+    // 1) Read users/{uid}
+    const userRef = doc(this.firestore, 'users', uid);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) return 'inactive';
+
+    const profile = userSnap.data() as any;
+    const companyId = profile?.defaultCompanyId;
+    if (!companyId) return 'inactive';
+
+    // 2) Read companies/{companyId}
+    const companyRef = doc(this.firestore, 'companies', companyId);
+    const companySnap = await getDoc(companyRef);
+
+    if (!companySnap.exists()) return 'inactive';
+
+    const companyData = companySnap.data() as any;
+    return (companyData?.status ?? 'active') as 'active' | 'inactive';
   }
 
   // ✅ Register method
