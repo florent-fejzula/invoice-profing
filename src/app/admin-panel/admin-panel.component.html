@@ -2,12 +2,6 @@
 <div class="admin-panel" *ngIf="isAdmin; else noAccess">
   <h1>Admin Panel - Companies</h1>
 
-  <div class="admin-actions">
-    <button (click)="runBackfillUsers()">
-      Backfill users/UID
-    </button>
-  </div>
-
   <!-- Create company -->
   <div class="create-box">
     <h2>Create Company + Owner User</h2>

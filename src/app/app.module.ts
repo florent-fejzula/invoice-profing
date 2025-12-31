@@ -18,6 +18,7 @@ import { provideFunctions, getFunctions } from '@angular/fire/functions';
 import { AdminPanelComponent } from './admin-panel/admin-panel.component';
 import { AutoRedirectComponent } from './auto-redirect/auto-redirect.component';
 import { SidebarComponent } from './layout/sidebar/sidebar.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
   declarations: [
@@ -37,12 +38,13 @@ import { SidebarComponent } from './layout/sidebar/sidebar.component';
     // ✅ Keep only global Material modules
     MatDialogModule,
     MatButtonModule,
+    MatSnackBarModule,
 
     // ✅ Firebase Initialization
     provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
     provideAuth(() => getAuth()),
     provideFirestore(() => getFirestore()),
-    provideFunctions(() => getFunctions()),
+    provideFunctions(() => getFunctions(undefined, 'europe-west1')),
   ],
   providers: [
     {

@@ -149,24 +149,4 @@ export class AdminPanelComponent implements OnInit {
     await navigator.clipboard.writeText(text);
     this.snack.open('Copied', 'OK', { duration: 1500 });
   }
-
-  async runBackfillUsers() {
-    try {
-      const fn = httpsCallable(this.functions, 'backfillUsers');
-      const res: any = await fn();
-      console.log(res.data);
-      this.snack.open(
-        `Backfill done. Written: ${res.data.usersWritten}, Skipped: ${
-          res.data.skipped?.length || 0
-        }`,
-        'OK',
-        { duration: 5000 }
-      );
-    } catch (e: any) {
-      console.error(e);
-      this.snack.open(e?.message || 'Backfill failed', 'OK', {
-        duration: 5000,
-      });
-    }
-  }
 }

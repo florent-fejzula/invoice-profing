@@ -14,6 +14,8 @@ import {
   GradezhnaKnigaEditorData,
 } from 'src/app/services/gradezhna-kniga-persistence.service';
 
+import { combineLatest, filter, map, shareReplay, take } from 'rxjs';
+
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
@@ -23,7 +25,7 @@ export class MainComponent implements OnInit {
   company: any = null;
   user: any = null;
 
-  companyId = 'GLp2xLv3ZzX6ktQZUsyU';
+  companyId = ''; // ✅ no hardcoded tenant
   currentBookId: string | null = null;
 
   gradbaBroj = '';
@@ -34,7 +36,7 @@ export class MainComponent implements OnInit {
   adresaInputValue = '';
   pozicijaInputValue = '';
   merkaInputValue = '';
-  cenaInputValue: number | undefined;
+  cenaInputValue: number | undefined; // we sanitize before saving
   exportFileName = 'gradezhna_kniga_data.json';
 
   fontSize = 16;
@@ -64,28 +66,29 @@ export class MainComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    onAuthStateChanged(this.auth, (user) => {
-      this.user = user;
-
-      if (user) {
-        this.companyService.getCompany().subscribe((data) => {
-          if (data) {
-            this.company = data;
-            if ((data as any).id) {
-              this.companyId = (data as any).id;
-            }
-          }
-        });
-      }
+    // ✅ keep auth state
+    onAuthStateChanged(this.auth, (u) => {
+      this.user = u;
     });
 
-    // React to ?bookId=... like we do for invoices
-    this.route.queryParamMap.subscribe((params) => {
-      const bookId = params.get('bookId');
+    // ✅ resolve company once (safe with your new rules)
+    const company$ = this.companyService.getCompany().pipe(
+      filter((c: any) => !!c?.id),
+      shareReplay(1)
+    );
+
+    // ✅ read route bookId
+    const bookId$ = this.route.queryParamMap.pipe(map((p) => p.get('bookId')));
+
+    // ✅ wait for both company + route
+    combineLatest([company$, bookId$]).subscribe(([company, bookId]) => {
+      this.company = company;
+      this.companyId = (company as any).id;
+
       if (bookId) {
+        this.currentBookId = bookId;
         this.loadFromFirestore(bookId);
       } else {
-        // new blank book
         this.currentBookId = null;
         this.resetForm();
       }
@@ -146,7 +149,7 @@ export class MainComponent implements OnInit {
     this.adresaInputValue = payload.adresaInputValue || '';
     this.pozicijaInputValue = payload.pozicijaInputValue || '';
     this.merkaInputValue = payload.merkaInputValue || '';
-    this.cenaInputValue = payload.cenaInputValue;
+    this.cenaInputValue = payload.cenaInputValue; // may be undefined; save() sanitizes
     this.tableData = payload.tableData || [this.getEmptyRow()];
     this.div4InputValue = payload.div4InputValue ?? 0;
   }
@@ -200,14 +203,27 @@ export class MainComponent implements OnInit {
       return;
     }
 
+    if (!this.companyId) {
+      this.snack.open('Компанијата не е вчитана. Обидете се повторно.', 'OK', {
+        duration: 3000,
+      });
+      return;
+    }
+
     try {
       const payload = this.buildPayload();
+
+      // ✅ Firestore cannot store `undefined`
+      const safePayload: GradezhnaKnigaPayload = {
+        ...payload,
+        cenaInputValue: payload.cenaInputValue ?? null, // choose null (optional)
+      } as any;
 
       const result = await this.persistence.save({
         companyId: this.companyId,
         currentBookId: this.currentBookId,
         userUid: this.user.uid,
-        payload,
+        payload: safePayload,
       });
 
       this.currentBookId = result.id;
@@ -231,6 +247,8 @@ export class MainComponent implements OnInit {
 
   /** ---------- FIRESTORE LOAD (from list / URL) ---------- */
   async loadFromFirestore(bookId: string): Promise<void> {
+    if (!this.companyId) return;
+
     try {
       const data: GradezhnaKnigaEditorData = await this.persistence.loadForEdit(
         this.companyId,
