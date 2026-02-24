@@ -110,6 +110,7 @@ export const createCompanyWithOwner = onCall(async (req) => {
 });
 
 export const listCompaniesForAdmin = onCall(async (req) => {
+  console.log('GCLOUD_PROJECT:', process.env.GCLOUD_PROJECT);
   if (!req.auth?.uid)
     throw new HttpsError('unauthenticated', 'Login required.');
   if (req.auth.uid !== ADMIN_UID)
