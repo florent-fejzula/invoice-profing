@@ -25,6 +25,19 @@
   page-break-inside: avoid;
 }
 
+.napomenaInput {
+  width: 680px; // match soZborovi if you want
+  min-height: 52px; // ~3 rows feel
+  resize: vertical; // or 'none' if you want to lock it
+  padding: 4px 6px;
+  font-size: 12px;
+  line-height: 1.25;
+  box-sizing: border-box;
+
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 /* shared total boxes */
 .down-first,
 .down-second,

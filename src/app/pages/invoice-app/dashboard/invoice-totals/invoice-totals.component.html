@@ -6,9 +6,9 @@
       <span>Вкупен износ со ДДВ</span>
     </div>
     <div class="down-second">
-      <span>{{ vkupenIznosBezDDV | number : "1.2-2" }}</span>
-      <span>{{ vkupnoDDV | number : "1.2-2" }}</span>
-      <span>{{ vkupenIznosBezDDV + vkupnoDDV | number : "1.2-2" }}</span>
+      <span>{{ vkupenIznosBezDDV | number: "1.2-2" }}</span>
+      <span>{{ vkupnoDDV | number: "1.2-2" }}</span>
+      <span>{{ vkupenIznosBezDDV + vkupnoDDV | number: "1.2-2" }}</span>
     </div>
   </div>
 </div>
@@ -17,30 +17,31 @@
   <div class="payment-first"><span>За наплата</span></div>
   <div class="payment-second">
     <span
-      ><b>{{ vkupenIznosBezDDV + vkupnoDDV | number : "1.2-2" }}</b></span
+      ><b>{{ vkupenIznosBezDDV + vkupnoDDV | number: "1.2-2" }}</b></span
     >
   </div>
 </div>
 
 <div class="declarations">
   <button class="toggleButton" (click)="toggleNoteVisibility.emit()">
-    Даночна обврска
+    Даночна обврска по член 32а
   </button>
 
   <p *ngIf="isNoteVisible">
     Напомена: Пренесување на даночна обврска согласно член 32а, <br />
     став 1, точка 1 и член 53 став 6 од Закон за ДДВ <br />
-    За ненавремено плаќање се пресметува законска затезна камата <br />
   </p>
+    За ненавремено плаќање се пресметува законска затезна камата <br />
 
   <!-- Optional extra note field (you bound [napomena]) -->
   <div style="margin: 8px 0">
-    <input
+    <textarea
       class="napomenaInput"
       placeholder="Напомена…"
+      rows="3"
       [ngModel]="napomena"
       (ngModelChange)="onNapomena($event)"
-    />
+    ></textarea>
   </div>
 
   <p [ngClass]="{ 'hide-when-empty-on-print': !soZborovi }">
