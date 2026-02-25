@@ -27,6 +27,7 @@ import {
 import { InvoiceHeaderState } from './invoice-header/invoice-header.component';
 import { combineLatest, filter, map, shareReplay, take } from 'rxjs';
 import { InvoiceTableComponent } from './invoice-table/invoice-table.component';
+import { mkMoneyToWords } from 'src/app/utils/mk-money-to-words';
 
 @Component({
   selector: 'app-dashboard',
@@ -270,6 +271,9 @@ export class DashboardComponent implements OnInit {
     const t = computeTotals(this.items);
     this.vkupenIznosBezDDV = t.iznosBezDDV;
     this.vkupnoDDV = t.vkupnoDDV;
+
+    const total = this.vkupenIznosBezDDV + this.vkupnoDDV;
+    this.soZborovi = mkMoneyToWords(total);
   }
 
   async allocateNumberNow() {
