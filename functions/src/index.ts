@@ -110,22 +110,23 @@ export const createCompanyWithOwner = onCall(async (req) => {
 });
 
 export const listCompaniesForAdmin = onCall(async (req) => {
-  console.log('GCLOUD_PROJECT:', process.env.GCLOUD_PROJECT);
   if (!req.auth?.uid)
     throw new HttpsError('unauthenticated', 'Login required.');
   if (req.auth.uid !== ADMIN_UID)
     throw new HttpsError('permission-denied', 'Not allowed.');
 
-  const snap = await admin
-    .firestore()
-    .collection('companies')
-    .orderBy('createdAt', 'desc')
-    .get();
+  const snap = await admin.firestore().collection('companies').get();
 
-  const companies = snap.docs.map((d) => ({
-    id: d.id,
-    ...d.data(),
-  }));
+  const companies = snap.docs
+    .map((d) => ({
+      id: d.id,
+      ...d.data(),
+    }))
+    .sort((a: any, b: any) => {
+      const aTime = a.createdAt?.seconds ?? 0;
+      const bTime = b.createdAt?.seconds ?? 0;
+      return bTime - aTime;
+    });
 
   return { companies };
 });
