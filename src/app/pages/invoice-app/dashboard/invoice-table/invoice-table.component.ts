@@ -14,6 +14,7 @@ type FieldKey =
   | 'em'
   | 'kolicina'
   | 'cenaBezDanok'
+  | 'cenaSoDdv'
   | 'rabatProcent'
   | 'ddv';
 
@@ -47,11 +48,46 @@ export class InvoiceTableComponent {
 
   setNumber(
     rowIndex: number,
-    field: 'kolicina' | 'cenaBezDanok' | 'rabatProcent' | 'ddv',
-    raw: any
+    field: 'kolicina' | 'cenaBezDanok' | 'cenaSoDdv' | 'rabatProcent' | 'ddv',
+    raw: any,
   ) {
+    const item = this.items[rowIndex];
     const num = this.toNumber(raw);
-    (this.items[rowIndex] as any)[field] = num;
+
+    // set the field first
+    (item as any)[field] = num;
+
+    // sync logic
+    const ddvPct = this.toNumber(item.ddv) / 100;
+    const factor = 1 + ddvPct;
+
+    if (field === 'cenaBezDanok') {
+      item.cenaBezDanok = this.round2(num);
+      item.cenaSoDdv = this.round2(item.cenaBezDanok * factor);
+    }
+
+    if (field === 'cenaSoDdv') {
+      item.cenaSoDdv = this.round2(num);
+      item.cenaBezDanok =
+        factor > 0
+          ? this.round2(item.cenaSoDdv / factor)
+          : this.round2(item.cenaSoDdv);
+    }
+
+    if (field === 'ddv') {
+      const gross = this.toNumber(item.cenaSoDdv);
+
+      if (gross > 0) {
+        const newFactor = 1 + this.toNumber(item.ddv) / 100;
+        item.cenaBezDanok =
+          newFactor > 0 ? this.round2(gross / newFactor) : this.round2(gross);
+      } else {
+        const net = this.toNumber(item.cenaBezDanok);
+        const newFactor = 1 + this.toNumber(item.ddv) / 100;
+        item.cenaSoDdv = this.round2(net * newFactor);
+      }
+    }
+
     this.emitItems();
   }
 
@@ -102,6 +138,7 @@ export class InvoiceTableComponent {
     'em',
     'kolicina',
     'cenaBezDanok',
+    'cenaSoDdv',
     'rabatProcent',
     'ddv',
   ];
@@ -132,7 +169,7 @@ export class InvoiceTableComponent {
 
   private findCellInput(
     rowIndex: number,
-    field: FieldKey
+    field: FieldKey,
   ): HTMLInputElement | null {
     const list = this.cellInputs?.toArray() ?? [];
     for (const ref of list) {
@@ -142,5 +179,9 @@ export class InvoiceTableComponent {
       if (r === rowIndex && f === field) return el;
     }
     return null;
+  }
+
+  private round2(n: number): number {
+    return Math.round((n + Number.EPSILON) * 100) / 100;
   }
 }

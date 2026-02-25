@@ -20,11 +20,12 @@ export function computeTotals(items: InvoiceItem[]) {
 
     const base = qty * unit;
     const afterPct = base * (1 - pct);
-    const lineNet = Math.max(0, afterPct);      // (you also have rabat fixed; add if needed)
+
+    const lineNet = Math.max(0, afterPct); // (if you add fixed rabat later, handle it here)
     const lineVAT = lineNet * vat;
 
     iznosBezDDV += lineNet;
-    vkupnoDDV   += lineVAT;
+    vkupnoDDV += lineVAT;
   }
 
   const vkupno = iznosBezDDV + vkupnoDDV;
@@ -33,18 +34,37 @@ export function computeTotals(items: InvoiceItem[]) {
 
 /** Summary table grouped by DDV tariff */
 export function computeSummaryByDDV(items: InvoiceItem[]): SummaryRow[] {
-  const uniqueTariffs = Array.from(new Set(items.map(i => i.ddv)));
+  const uniqueTariffs = Array.from(new Set(items.map((i) => i.ddv ?? 0))).sort(
+    (a, b) => a - b
+  );
+
   return uniqueTariffs.map((ddvTarifa) => {
-    const rows = items.filter(i => i.ddv === ddvTarifa);
+    const rows = items.filter((i) => (i.ddv ?? 0) === ddvTarifa);
+
     const iznosBezDDV = rows.reduce((t, i) => {
-      const line = i.kolicina * i.cenaBezDanok * (1 - (i.rabatProcent ?? 0) / 100);
-      return t + line;
+      const qty = i.kolicina ?? 0;
+      const unit = i.cenaBezDanok ?? 0;
+      const pct = (i.rabatProcent ?? 0) / 100;
+      return t + qty * unit * (1 - pct);
     }, 0);
+
     const vkupnoDDV = rows.reduce((t, i) => {
-      const line = i.kolicina * i.cenaBezDanok * (1 - (i.rabatProcent ?? 0) / 100);
-      return t + line * (i.ddv ?? 0) / 100;
+      const qty = i.kolicina ?? 0;
+      const unit = i.cenaBezDanok ?? 0;
+      const pct = (i.rabatProcent ?? 0) / 100;
+      const vat = (i.ddv ?? 0) / 100;
+
+      const lineNet = qty * unit * (1 - pct);
+      return t + Math.max(0, lineNet) * vat;
     }, 0);
+
     const iznosSoDDV = iznosBezDDV + vkupnoDDV;
-    return { ddvTarifa: ddvTarifa ?? 0, iznosBezDDV, vkupnoDDV, iznosSoDDV };
+
+    return {
+      ddvTarifa: ddvTarifa ?? 0,
+      iznosBezDDV,
+      vkupnoDDV,
+      iznosSoDDV,
+    };
   });
 }

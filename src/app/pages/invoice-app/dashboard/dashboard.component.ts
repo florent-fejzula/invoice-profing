@@ -90,7 +90,7 @@ export class DashboardComponent implements OnInit {
     private invoicesSvc: InvoicesService,
     private snack: MatSnackBar,
     private invoiceFile: InvoiceFileService,
-    private invoicePersistence: InvoicePersistenceService
+    private invoicePersistence: InvoicePersistenceService,
   ) {}
 
   ngOnInit() {
@@ -98,11 +98,11 @@ export class DashboardComponent implements OnInit {
 
     const company$ = this.companyService.getCompany().pipe(
       filter((c: any) => !!c?.id),
-      shareReplay(1) // important so it doesn't refetch everywhere
+      shareReplay(1), // important so it doesn't refetch everywhere
     );
 
     const invoiceId$ = this.route.queryParamMap.pipe(
-      map((p) => p.get('invoiceId'))
+      map((p) => p.get('invoiceId')),
     );
 
     combineLatest([company$, invoiceId$]).subscribe(([company, invoiceId]) => {
@@ -155,7 +155,7 @@ export class DashboardComponent implements OnInit {
       this.soZborovi,
       this.vkupenIznosBezDDV,
       this.vkupnoDDV,
-      this.items
+      this.items,
     );
 
     this.invoiceFile.downloadJson(payload, 'invoice_data.json');
@@ -166,9 +166,8 @@ export class DashboardComponent implements OnInit {
     if (!file) return;
 
     try {
-      const imported: InvoiceJsonPayload = await this.invoiceFile.parseJsonFile(
-        file
-      );
+      const imported: InvoiceJsonPayload =
+        await this.invoiceFile.parseJsonFile(file);
 
       this.currentInvoiceId = null; // JSON import = local invoice, not bound to DB
 
@@ -188,7 +187,14 @@ export class DashboardComponent implements OnInit {
       this.slobodenOpis = imported.slobodenOpis;
       this.napomena = imported.napomena;
       this.soZborovi = imported.soZborovi;
-      this.items = imported.items || [];
+      this.items = (imported.items || []).map((it) => {
+        const ddv = Number(it.ddv ?? 0);
+        const factor = 1 + ddv / 100;
+        const cenaBez = Number(it.cenaBezDanok ?? 0);
+        const cenaSo = Number((it as any).cenaSoDdv ?? 0);
+
+        return { ...it, cenaSoDdv: cenaSo > 0 ? cenaSo : cenaBez * factor };
+      });
 
       this.recompute();
     } catch (error) {
@@ -206,20 +212,23 @@ export class DashboardComponent implements OnInit {
   }
 
   addRow(focusOpis = false) {
+    const ddv = 18;
+    const cenaBezDanok = 0;
+
     const newItem: InvoiceItem = {
       opis: '',
       em: 'ком',
       kolicina: 1,
-      cenaBezDanok: 0,
+      cenaBezDanok,
+      cenaSoDdv: cenaBezDanok * (1 + ddv / 100), // ✅
       rabatProcent: 0,
-      ddv: 18,
+      ddv,
     };
 
     this.items = [...this.items, newItem];
     this.recompute();
 
     if (focusOpis) {
-      // wait for DOM to render the new row
       setTimeout(() => {
         this.invoiceTable?.focusCell(this.items.length - 1, 'opis');
       }, 0);
@@ -290,12 +299,24 @@ export class DashboardComponent implements OnInit {
     try {
       const data = await this.invoicePersistence.loadForEdit(
         this.companyId,
-        id
+        id,
       );
 
       this.currentInvoiceId = data.id;
       this.header = data.header;
-      this.items = data.items;
+      this.items = (data.items ?? []).map((it) => {
+        const ddv = Number(it.ddv ?? 0);
+        const factor = 1 + ddv / 100;
+
+        // if cenaSoDdv missing or 0, compute it from net
+        const cenaBez = Number(it.cenaBezDanok ?? 0);
+        const cenaSo = Number((it as any).cenaSoDdv ?? 0);
+
+        return {
+          ...it,
+          cenaSoDdv: cenaSo > 0 ? cenaSo : cenaBez * factor,
+        };
+      });
       this.slobodenOpis = data.slobodenOpis;
       this.soZborovi = data.soZborovi;
       this.napomena = data.napomena;

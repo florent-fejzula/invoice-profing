@@ -5,7 +5,8 @@
       <th>Опис</th>
       <th>Е М</th>
       <th>Количина</th>
-      <th>Цена без данок</th>
+      <th>Цена без ДДВ</th>
+      <th>Цена со ДДВ</th>
       <th>Рабат %</th>
       <th>Рабат</th>
       <th>ДДВ %</th>
@@ -62,7 +63,8 @@
           [attr.data-row]="i"
           data-field="kolicina"
           type="number"
-          step="0.01"
+          step="1"
+          min="0"
           [ngModel]="items[i].kolicina"
           (ngModelChange)="setNumber(i, 'kolicina', $event)"
           [disabled]="isLocked(i)"
@@ -80,10 +82,29 @@
           data-field="cenaBezDanok"
           type="number"
           step="0.01"
+          min="0"
           [ngModel]="items[i].cenaBezDanok"
           (ngModelChange)="setNumber(i, 'cenaBezDanok', $event)"
           [disabled]="isLocked(i)"
           (keydown.enter)="handleEnter(i, 'cenaBezDanok', $event)"
+        />
+      </td>
+
+      <!-- ✅ Цена со ДДВ -->
+      <td [style.padding.px]="paddingSize">
+        <input
+          #cellInput
+          class="cell-input cell-num"
+          [style.font-size.px]="currentFontSize"
+          [attr.data-row]="i"
+          data-field="cenaSoDdv"
+          type="number"
+          step="0.01"
+          min="0"
+          [ngModel]="items[i].cenaSoDdv"
+          (ngModelChange)="setNumber(i, 'cenaSoDdv', $event)"
+          [disabled]="isLocked(i)"
+          (keydown.enter)="handleEnter(i, 'cenaSoDdv', $event)"
         />
       </td>
 
@@ -110,7 +131,7 @@
         [style.padding.px]="paddingSize"
         style="text-align: right"
       >
-        {{ discountValue(item) | number : "1.2-2" }}
+        {{ discountValue(item) | number: "1.2-2" }}
       </td>
 
       <!-- ДДВ % -->
@@ -136,7 +157,7 @@
         [style.padding.px]="paddingSize"
         style="text-align: right"
       >
-        {{ totalWithVat(item) | number : "1.2-2" }}
+        {{ totalWithVat(item) | number: "1.2-2" }}
       </td>
 
       <td class="deleteEntry">
