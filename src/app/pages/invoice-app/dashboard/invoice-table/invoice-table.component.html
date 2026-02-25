@@ -8,7 +8,7 @@
       <th>Цена без ДДВ</th>
       <th>Цена со ДДВ</th>
       <th>Рабат %</th>
-      <th>Рабат</th>
+      <th>Износ на Рабат</th>
       <th>ДДВ %</th>
       <th>Износ со ДДВ</th>
       <th></th>
@@ -26,8 +26,8 @@
 
       <!-- Опис -->
       <td [style.padding.px]="paddingSize">
-        <input
-          #cellInput
+        <textarea
+          #ta
           class="cell-input cell-opis"
           [style.font-size.px]="currentFontSize"
           [attr.data-row]="i"
@@ -35,8 +35,10 @@
           [(ngModel)]="items[i].opis"
           (ngModelChange)="emitItems()"
           [disabled]="isLocked(i)"
+          (input)="autoResize(ta)"
           (keydown.enter)="handleEnter(i, 'opis', $event)"
-        />
+          rows="1"
+        ></textarea>
       </td>
 
       <!-- ЕМ -->

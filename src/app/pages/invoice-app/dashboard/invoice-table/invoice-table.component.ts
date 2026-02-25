@@ -39,6 +39,11 @@ export class InvoiceTableComponent {
     ElementRef<HTMLInputElement>
   >;
 
+  autoResize(el: HTMLTextAreaElement) {
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  }
+
   private lockedRows = new Set<number>();
 
   emitItems() {

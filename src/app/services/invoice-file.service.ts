@@ -16,7 +16,6 @@ export interface InvoiceJsonPayload {
   companyPhone?: string;
 
   // extra fields
-  slobodenOpis: string;
   napomena: string;
   vkupenIznosBezDDV: number;
   vkupnoDDV: number;
@@ -31,7 +30,6 @@ export class InvoiceFileService {
   /** Build the JSON payload from the current UI state */
   buildPayload(
     header: InvoiceHeaderState,
-    slobodenOpis: string,
     napomena: string,
     soZborovi: string,
     vkupenIznosBezDDV: number,
@@ -49,7 +47,6 @@ export class InvoiceFileService {
       companyID: header.companyID,
       companyEmail: header.companyEmail,
       companyPhone: header.companyPhone,
-      slobodenOpis,
       napomena,
       vkupenIznosBezDDV,
       vkupnoDDV,

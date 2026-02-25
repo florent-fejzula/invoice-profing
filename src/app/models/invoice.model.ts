@@ -34,7 +34,6 @@ export interface InvoiceDoc {
   vkupno: number;
 
   zabeleshka?: string; // your “Напомена” block
-  slobodenOpis?: string; // ⬅️ NEW: free text row
   soZborovi?: string; // ⬅️ NEW: “Со зборови”
   noteVisible?: boolean; // ⬅️ NEW: Danocna obvrska toggle
 

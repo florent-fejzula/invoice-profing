@@ -68,7 +68,6 @@ export class DashboardComponent implements OnInit {
   currentFontSize = 12;
   paddingSize = 5;
 
-  slobodenOpis = '';
   napomena = '';
 
   vkupenIznosBezDDV = 0;
@@ -134,7 +133,6 @@ export class DashboardComponent implements OnInit {
       companyEmail: '',
       companyPhone: '',
     };
-    this.slobodenOpis = '';
     this.napomena = '';
     this.soZborovi = '';
     this.items = [];
@@ -150,7 +148,6 @@ export class DashboardComponent implements OnInit {
   async exportToJson(): Promise<void> {
     const payload = this.invoiceFile.buildPayload(
       this.header,
-      this.slobodenOpis,
       this.napomena,
       this.soZborovi,
       this.vkupenIznosBezDDV,
@@ -184,7 +181,6 @@ export class DashboardComponent implements OnInit {
         companyPhone: imported.companyPhone ?? '',
       };
 
-      this.slobodenOpis = imported.slobodenOpis;
       this.napomena = imported.napomena;
       this.soZborovi = imported.soZborovi;
       this.items = (imported.items || []).map((it) => {
@@ -317,7 +313,6 @@ export class DashboardComponent implements OnInit {
           cenaSoDdv: cenaSo > 0 ? cenaSo : cenaBez * factor,
         };
       });
-      this.slobodenOpis = data.slobodenOpis;
       this.soZborovi = data.soZborovi;
       this.napomena = data.napomena;
       this.isNoteVisible = data.isNoteVisible;
@@ -350,7 +345,6 @@ export class DashboardComponent implements OnInit {
         userUid: this.user.uid,
         header: this.header,
         items: this.items,
-        slobodenOpis: this.slobodenOpis,
         soZborovi: this.soZborovi,
         napomena: this.napomena,
         isNoteVisible: this.isNoteVisible,

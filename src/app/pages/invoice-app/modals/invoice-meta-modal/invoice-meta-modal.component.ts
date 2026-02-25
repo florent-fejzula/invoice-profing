@@ -18,7 +18,7 @@ export class InvoiceMetaModalComponent {
   valuta: Date = new Date();
   fakturaTip = 'Фактура';
   fakturaBroj = '';
-  presetTips: string[] = ['Фактура', 'Профактура', 'Понуда'];
+  presetTips: string[] = ['Фактура', 'Профактура', 'Авансна Фактура', 'Понуда'];
 
   constructor(
     public dialogRef: MatDialogRef<InvoiceMetaModalComponent>,

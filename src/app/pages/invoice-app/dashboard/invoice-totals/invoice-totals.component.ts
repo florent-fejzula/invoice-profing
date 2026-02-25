@@ -14,10 +14,6 @@ export class InvoiceTotalsComponent {
   @Input() vkupenIznosBezDDV = 0;
   @Input() vkupnoDDV = 0;
 
-  // ---- fields you bind in dashboard.html
-  @Input() slobodenOpis = '';
-  @Output() slobodenOpisChange = new EventEmitter<string>();
-
   @Input() soZborovi = '';
   @Output() soZboroviChange = new EventEmitter<string>();
 
@@ -27,7 +23,6 @@ export class InvoiceTotalsComponent {
   @Input() isNoteVisible = true;
   @Output() toggleNoteVisibility = new EventEmitter<void>();
 
-  onSlobodenOpis(v: string) { this.slobodenOpisChange.emit(v); }
   onSoZborovi(v: string)    { this.soZboroviChange.emit(v); }
   onNapomena(v: string)     { this.napomenaChange.emit(v); }
 }

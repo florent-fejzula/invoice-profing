@@ -11,16 +11,6 @@
   justify-content: flex-end;
   page-break-inside: avoid;
 
-  .slobodenOpis {
-    flex-grow: 1;
-    display: flex;
-    align-items: flex-end;
-
-    .slobodenOpisInput {
-      width: 100%;
-    }
-  }
-
   .totals {
     display: flex;
   }
@@ -70,8 +60,7 @@
 
 @media print {
   .toggleButton,
-  .soZboroviInput,
-  .slobodenOpisInput {
+  .soZboroviInput {
     display: none !important;
   }
 
@@ -81,10 +70,6 @@
   .screen-only {
     display: none !important;
   } /* hide input */
-
-  .slobodenOpis.empty {
-    display: none !important;
-  }
 
   /* optionally hide the whole line on print if empty */
   .hide-when-empty-on-print {

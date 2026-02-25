@@ -103,6 +103,10 @@
 
 .cell-opis {
   text-align: left;
+  resize: none;        // prevents user manual resize
+  overflow: hidden;    // clean look
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 /* Better focus feedback (optional) */

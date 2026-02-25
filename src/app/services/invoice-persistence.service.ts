@@ -9,7 +9,6 @@ export interface InvoiceEditorData {
   id: string;
   header: InvoiceHeaderState;
   items: InvoiceItem[];
-  slobodenOpis: string;
   soZborovi: string;
   napomena: string;
   isNoteVisible: boolean;
@@ -21,7 +20,6 @@ export interface SaveInvoiceParams {
   userUid: string;
   header: InvoiceHeaderState;
   items: InvoiceItem[];
-  slobodenOpis: string;
   soZborovi: string;
   napomena: string;
   isNoteVisible: boolean;
@@ -66,7 +64,6 @@ export class InvoicePersistenceService {
       id: doc.id!,
       header,
       items: doc.stavki || [],
-      slobodenOpis: (doc as any).slobodenOpis || '',
       soZborovi: (doc as any).soZborovi || '',
       napomena: doc.zabeleshka || '',
       isNoteVisible:
@@ -84,7 +81,6 @@ export class InvoicePersistenceService {
       userUid,
       header,
       items,
-      slobodenOpis,
       soZborovi,
       napomena,
       isNoteVisible,
@@ -115,7 +111,6 @@ export class InvoicePersistenceService {
         ddvVkupno: totals.vkupnoDDV,
         vkupno: totals.vkupno,
         zabeleshka: napomena || '',
-        slobodenOpis: slobodenOpis || '',
         soZborovi: soZborovi || '',
         noteVisible: isNoteVisible,
       });
@@ -172,7 +167,6 @@ export class InvoicePersistenceService {
       ddvVkupno: totals.vkupnoDDV,
       vkupno: totals.vkupno,
       zabeleshka: napomena || '',
-      slobodenOpis: slobodenOpis || '',
       soZborovi: soZborovi || '',
       noteVisible: isNoteVisible,
       createdByUid: userUid,

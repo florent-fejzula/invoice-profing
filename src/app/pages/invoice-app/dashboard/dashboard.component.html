@@ -67,13 +67,11 @@
   </div>
 
   <invoice-totals
-    [slobodenOpis]="slobodenOpis"
     [(soZborovi)]="soZborovi"
     [napomena]="napomena"
     [vkupenIznosBezDDV]="vkupenIznosBezDDV"
     [vkupnoDDV]="vkupnoDDV"
     [isNoteVisible]="isNoteVisible"
-    (slobodenOpisChange)="slobodenOpis = $event"
     (napomenaChange)="napomena = $event"
     (toggleNoteVisibility)="toggleNoteVisibility()"
   >
