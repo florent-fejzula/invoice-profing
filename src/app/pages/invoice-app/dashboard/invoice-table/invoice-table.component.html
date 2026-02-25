@@ -87,6 +87,7 @@
           min="0"
           [ngModel]="items[i].cenaBezDanok"
           (ngModelChange)="setNumber(i, 'cenaBezDanok', $event)"
+          (blur)="format2(i, 'cenaBezDanok')"
           [disabled]="isLocked(i)"
           (keydown.enter)="handleEnter(i, 'cenaBezDanok', $event)"
         />
@@ -105,6 +106,7 @@
           min="0"
           [ngModel]="items[i].cenaSoDdv"
           (ngModelChange)="setNumber(i, 'cenaSoDdv', $event)"
+          (blur)="format2(i, 'cenaSoDdv')"
           [disabled]="isLocked(i)"
           (keydown.enter)="handleEnter(i, 'cenaSoDdv', $event)"
         />

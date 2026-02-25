@@ -28,26 +28,38 @@ export class InvoiceTableComponent {
   @Input() currentFontSize = 12;
   @Input() paddingSize = 5;
 
-  // Optional: enable from dashboard later with [lockMode]="true"
   @Input() lockMode = false;
 
   @Output() remove = new EventEmitter<number>();
   @Output() itemsChange = new EventEmitter<InvoiceItem[]>();
   @Output() addRowRequested = new EventEmitter<void>();
 
-  @ViewChildren('cellInput') cellInputs!: QueryList<
-    ElementRef<HTMLInputElement>
-  >;
+  @ViewChildren('cellInput') cellInputs!: QueryList<ElementRef<HTMLElement>>;
+
+  private lockedRows = new Set<number>();
+
+  // --- Helpers ---
+  private toNumber(v: any): number {
+    if (v === null || v === undefined || v === '') return 0;
+    const n = typeof v === 'number' ? v : Number(String(v).replace(',', '.'));
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  private round2(n: number): number {
+    return Math.round((n + Number.EPSILON) * 100) / 100;
+  }
+
+  private vatFactor(item: InvoiceItem): number {
+    const ddvPct = this.toNumber(item.ddv) / 100;
+    return 1 + ddvPct;
+  }
 
   autoResize(el: HTMLTextAreaElement) {
     el.style.height = 'auto';
     el.style.height = el.scrollHeight + 'px';
   }
 
-  private lockedRows = new Set<number>();
-
   emitItems() {
-    // emit new reference so parent updates reliably
     this.itemsChange.emit([...this.items]);
   }
 
@@ -62,69 +74,77 @@ export class InvoiceTableComponent {
     // set the field first
     (item as any)[field] = num;
 
-    // sync logic
-    const ddvPct = this.toNumber(item.ddv) / 100;
-    const factor = 1 + ddvPct;
+    const factor = this.vatFactor(item);
 
+    // If user edits NET
     if (field === 'cenaBezDanok') {
       item.cenaBezDanok = this.round2(num);
       item.cenaSoDdv = this.round2(item.cenaBezDanok * factor);
     }
 
+    // If user edits GROSS (source of truth for display totals)
     if (field === 'cenaSoDdv') {
       item.cenaSoDdv = this.round2(num);
-      item.cenaBezDanok =
-        factor > 0
-          ? this.round2(item.cenaSoDdv / factor)
-          : this.round2(item.cenaSoDdv);
+
+      // IMPORTANT:
+      // Do NOT round net to 2 decimals here, because it breaks the gross.
+      // Keep higher precision internally; UI can still show 2 decimals if you want.
+      item.cenaBezDanok = factor > 0 ? item.cenaSoDdv / factor : item.cenaSoDdv;
     }
 
+    // If user edits VAT %
     if (field === 'ddv') {
+      const newFactor = this.vatFactor(item);
       const gross = this.toNumber(item.cenaSoDdv);
+      const net = this.toNumber(item.cenaBezDanok);
 
+      // If gross exists, keep gross stable (more intuitive)
       if (gross > 0) {
-        const newFactor = 1 + this.toNumber(item.ddv) / 100;
-        item.cenaBezDanok =
-          newFactor > 0 ? this.round2(gross / newFactor) : this.round2(gross);
+        item.cenaBezDanok = newFactor > 0 ? gross / newFactor : gross;
       } else {
-        const net = this.toNumber(item.cenaBezDanok);
-        const newFactor = 1 + this.toNumber(item.ddv) / 100;
+        // otherwise recompute gross from net
         item.cenaSoDdv = this.round2(net * newFactor);
       }
     }
 
+    // Keep displayed gross clean
+    item.cenaSoDdv = this.round2(this.toNumber(item.cenaSoDdv));
+
     this.emitItems();
   }
 
-  private toNumber(v: any): number {
-    if (v === null || v === undefined || v === '') return 0;
-    const n = typeof v === 'number' ? v : Number(String(v).replace(',', '.'));
-    return Number.isFinite(n) ? n : 0;
-  }
-
   // --- Calculations ---
+
+  /** Discount shown in the "Рабат" column (net-based, like before) */
   discountValue(item: InvoiceItem): number {
     const qty = this.toNumber(item.kolicina);
-    const price = this.toNumber(item.cenaBezDanok);
+    const priceNet = this.toNumber(item.cenaBezDanok);
 
-    // If you ever use fixed discount (item.rabat), it will take precedence
     const fixed = this.toNumber(item.rabat);
     if (fixed > 0) return fixed;
 
     const pct = this.toNumber(item.rabatProcent) / 100;
-    return qty * price * pct;
+    return qty * priceNet * pct;
   }
 
+  /**
+   * Line total WITH VAT.
+   * ✅ If user provided cenaSoDdv, we use it as the unit gross to avoid 12159.99 issues.
+   */
   totalWithVat(item: InvoiceItem): number {
     const qty = this.toNumber(item.kolicina);
-    const price = this.toNumber(item.cenaBezDanok);
-    const ddv = this.toNumber(item.ddv) / 100;
+    const pct = this.toNumber(item.rabatProcent) / 100;
+    const factor = this.vatFactor(item);
 
-    const gross = qty * price;
-    const discount = this.discountValue(item);
-    const net = Math.max(0, gross - discount);
+    const unitGross =
+      this.toNumber(item.cenaSoDdv) > 0
+        ? this.toNumber(item.cenaSoDdv)
+        : this.toNumber(item.cenaBezDanok) * factor;
 
-    return net + net * ddv;
+    const lineGross = qty * unitGross;
+    const lineAfterDiscount = Math.max(0, lineGross * (1 - pct));
+
+    return this.round2(lineAfterDiscount);
   }
 
   // --- Lock/edit mode ---
@@ -164,18 +184,15 @@ export class InvoiceTableComponent {
     this.focusCell(rowIndex, nextField);
   }
 
-  // Exposed API: dashboard can call this after addRow()
   focusCell(rowIndex: number, field: FieldKey) {
     const el = this.findCellInput(rowIndex, field);
     if (!el) return;
-    el.focus();
-    el.select?.();
+
+    (el as any).focus?.();
+    (el as any).select?.();
   }
 
-  private findCellInput(
-    rowIndex: number,
-    field: FieldKey,
-  ): HTMLInputElement | null {
+  private findCellInput(rowIndex: number, field: FieldKey): HTMLElement | null {
     const list = this.cellInputs?.toArray() ?? [];
     for (const ref of list) {
       const el = ref.nativeElement;
@@ -186,7 +203,10 @@ export class InvoiceTableComponent {
     return null;
   }
 
-  private round2(n: number): number {
-    return Math.round((n + Number.EPSILON) * 100) / 100;
+  format2(rowIndex: number, field: 'cenaBezDanok' | 'cenaSoDdv') {
+    const item = this.items[rowIndex];
+    const v = this.toNumber((item as any)[field]);
+    (item as any)[field] = this.round2(v);
+    this.emitItems();
   }
 }

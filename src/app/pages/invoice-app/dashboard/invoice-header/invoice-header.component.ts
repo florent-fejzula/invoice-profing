@@ -45,25 +45,28 @@ export class InvoiceHeaderComponent implements OnInit {
   /** Remember which client is selected (for Edit) */
   selectedClient: ClientDoc | null = null;
 
-  constructor(private clientsSvc: ClientsService, private dialog: MatDialog) {}
+  constructor(
+    private clientsSvc: ClientsService,
+    private dialog: MatDialog,
+  ) {}
 
   ngOnInit(): void {
     this.clientOptions$ = this.clientCtrl.valueChanges.pipe(
       debounceTime(200),
       distinctUntilChanged(),
       switchMap((val) => {
-        const term = typeof val === 'string' ? val.trim() : val?.name ?? '';
+        const term = typeof val === 'string' ? val.trim() : (val?.name ?? '');
         return term
           ? this.clientsSvc.searchByName(this.companyId, term, 10)
           : of([]);
-      })
+      }),
     );
   }
 
   /** Emit partial state changes upward */
   set<K extends keyof InvoiceHeaderState>(
     key: K,
-    value: InvoiceHeaderState[K]
+    value: InvoiceHeaderState[K],
   ) {
     this.stateChange.emit({ [key]: value } as Partial<InvoiceHeaderState>);
   }
@@ -79,14 +82,22 @@ export class InvoiceHeaderComponent implements OnInit {
     const result = await ref.afterClosed().toPromise();
     if (!result) return;
 
-    const id = await this.clientsSvc.create(this.companyId, {
-      name: result.name,
-      taxId: result.taxId || undefined,
-      address: result.address || undefined,
-      city: result.city || undefined,
-      email: result.email || undefined,
-      phone: result.phone || undefined,
-    });
+    const payload: any = {
+      name: (result.name || '').trim(),
+    };
+
+    const setIf = (key: string, value: string) => {
+      const v = (value || '').trim();
+      if (v) payload[key] = v;
+    };
+
+    setIf('taxId', result.taxId);
+    setIf('address', result.address);
+    setIf('city', result.city);
+    setIf('email', result.email);
+    setIf('phone', result.phone);
+
+    const id = await this.clientsSvc.create(this.companyId, payload);
 
     const created = await this.clientsSvc.get(this.companyId, id);
     if (created) this.onSelectClient(created);
@@ -168,5 +179,5 @@ export class InvoiceHeaderComponent implements OnInit {
   }
 
   displayClient = (v: ClientDoc | string | null | undefined) =>
-    typeof v === 'object' && v ? v.name : v ?? '';
+    typeof v === 'object' && v ? v.name : (v ?? '');
 }
