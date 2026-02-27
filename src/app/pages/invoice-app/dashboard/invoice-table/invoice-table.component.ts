@@ -86,10 +86,8 @@ export class InvoiceTableComponent {
     if (field === 'cenaSoDdv') {
       item.cenaSoDdv = this.round2(num);
 
-      // IMPORTANT:
-      // Do NOT round net to 2 decimals here, because it breaks the gross.
-      // Keep higher precision internally; UI can still show 2 decimals if you want.
-      item.cenaBezDanok = factor > 0 ? item.cenaSoDdv / factor : item.cenaSoDdv;
+      const netExact = factor > 0 ? item.cenaSoDdv / factor : item.cenaSoDdv;
+      item.cenaBezDanok = this.round2(netExact); // display only
     }
 
     // If user edits VAT %

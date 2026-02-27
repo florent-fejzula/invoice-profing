@@ -3,7 +3,6 @@ import { InvoicesService } from './invoices.service';
 import { InvoiceItem } from 'src/app/models/invoice-item.model';
 import { InvoiceHeaderState } from 'src/app/pages/invoice-app/dashboard/invoice-header/invoice-header.component';
 import { computeTotals } from 'src/app/utils/compute-totals';
-import { InvoiceDoc } from 'src/app/models/invoice.model';
 
 export interface InvoiceEditorData {
   id: string;

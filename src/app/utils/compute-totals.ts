@@ -14,57 +14,77 @@ export function computeTotals(items: InvoiceItem[]) {
 
   for (const it of items) {
     const qty = it.kolicina ?? 0;
-    const unit = it.cenaBezDanok ?? 0;
-    const pct = (it.rabatProcent ?? 0) / 100; // % discount
-    const vat = (it.ddv ?? 0) / 100;
+    const pct = (it.rabatProcent ?? 0) / 100;
+    const vatRate = (it.ddv ?? 0) / 100;
+    const factor = 1 + vatRate;
 
-    const base = qty * unit;
-    const afterPct = base * (1 - pct);
+    const unitGross =
+      (it as any).cenaSoDdv && (it as any).cenaSoDdv > 0
+        ? (it as any).cenaSoDdv
+        : (it.cenaBezDanok ?? 0) * factor;
 
-    const lineNet = Math.max(0, afterPct); // (if you add fixed rabat later, handle it here)
-    const lineVAT = lineNet * vat;
+    const lineGross = qty * unitGross * (1 - pct);
+
+    const lineNet = factor > 0 ? round2(lineGross / factor) : round2(lineGross);
+    const lineVat = round2(lineGross - lineNet);
 
     iznosBezDDV += lineNet;
-    vkupnoDDV += lineVAT;
+    vkupnoDDV += lineVat;
   }
 
-  const vkupno = iznosBezDDV + vkupnoDDV;
-  return { iznosBezDDV, vkupnoDDV, vkupno };
+  const vkupno = round2(iznosBezDDV + vkupnoDDV);
+  return {
+    iznosBezDDV: round2(iznosBezDDV),
+    vkupnoDDV: round2(vkupnoDDV),
+    vkupno,
+  };
+}
+
+function round2(n: number): number {
+  return Math.round((n + Number.EPSILON) * 100) / 100;
 }
 
 /** Summary table grouped by DDV tariff */
 export function computeSummaryByDDV(items: InvoiceItem[]): SummaryRow[] {
   const uniqueTariffs = Array.from(new Set(items.map((i) => i.ddv ?? 0))).sort(
-    (a, b) => a - b
+    (a, b) => a - b,
   );
 
   return uniqueTariffs.map((ddvTarifa) => {
     const rows = items.filter((i) => (i.ddv ?? 0) === ddvTarifa);
 
-    const iznosBezDDV = rows.reduce((t, i) => {
-      const qty = i.kolicina ?? 0;
-      const unit = i.cenaBezDanok ?? 0;
-      const pct = (i.rabatProcent ?? 0) / 100;
-      return t + qty * unit * (1 - pct);
-    }, 0);
+    let iznosBezDDV = 0;
+    let vkupnoDDV = 0;
+    let iznosSoDDV = 0;
 
-    const vkupnoDDV = rows.reduce((t, i) => {
-      const qty = i.kolicina ?? 0;
-      const unit = i.cenaBezDanok ?? 0;
-      const pct = (i.rabatProcent ?? 0) / 100;
-      const vat = (i.ddv ?? 0) / 100;
+    for (const it of rows) {
+      const qty = it.kolicina ?? 0;
+      const pct = (it.rabatProcent ?? 0) / 100;
+      const vatRate = (it.ddv ?? 0) / 100;
+      const factor = 1 + vatRate;
 
-      const lineNet = qty * unit * (1 - pct);
-      return t + Math.max(0, lineNet) * vat;
-    }, 0);
+      const unitGross =
+        (it as any).cenaSoDdv && (it as any).cenaSoDdv > 0
+          ? (it as any).cenaSoDdv
+          : (it.cenaBezDanok ?? 0) * factor;
 
-    const iznosSoDDV = iznosBezDDV + vkupnoDDV;
+      // ✅ match table/totals behavior: compute gross, apply discount, then round to 2
+      const lineGross = round2(qty * unitGross * (1 - pct));
+
+      // derive net/vat from the rounded gross
+      const lineNet = factor > 0 ? round2(lineGross / factor) : lineGross;
+      const lineVat = round2(lineGross - lineNet);
+
+      iznosBezDDV += lineNet;
+      vkupnoDDV += lineVat;
+      iznosSoDDV += lineGross;
+    }
 
     return {
       ddvTarifa: ddvTarifa ?? 0,
-      iznosBezDDV,
-      vkupnoDDV,
-      iznosSoDDV,
+      iznosBezDDV: round2(iznosBezDDV),
+      vkupnoDDV: round2(vkupnoDDV),
+      iznosSoDDV: round2(iznosSoDDV),
     };
   });
 }
