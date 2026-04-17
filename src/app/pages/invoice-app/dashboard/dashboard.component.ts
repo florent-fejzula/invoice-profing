@@ -380,8 +380,26 @@ export class DashboardComponent implements OnInit {
   toggleNoteVisibility() {
     this.isNoteVisible = !this.isNoteVisible;
   }
+
   printThisPage() {
-    window.print();
+    document.body.classList.add('printing-invoice');
+
+    setTimeout(() => {
+      const areas =
+        document.querySelectorAll<HTMLTextAreaElement>('textarea.cell-opis');
+
+      areas.forEach((ta) => {
+        ta.style.height = '0px';
+        ta.style.overflow = 'hidden';
+        ta.style.height = ta.scrollHeight + 'px';
+      });
+
+      window.print();
+
+      setTimeout(() => {
+        document.body.classList.remove('printing-invoice');
+      }, 300);
+    }, 50);
   }
 
   async logout() {

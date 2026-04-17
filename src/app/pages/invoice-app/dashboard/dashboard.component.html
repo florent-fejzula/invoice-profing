@@ -5,7 +5,7 @@
     (click)="saveToFirestore()"
     [disabled]="isSaving"
   >
-    {{ isSaving ? "Saving…" : "Save (Cloud)" }}
+    {{ isSaving ? "Saving…" : "Save" }}
   </button>
   <input
     type="file"
@@ -13,8 +13,8 @@
     style="display: none"
     #fileInput
   />
-  <button class="button export" (click)="exportToJson()">Save</button>
-  <button class="button export" (click)="fileInput.click()">Open</button>
+  <!-- <button class="button export" (click)="exportToJson()">Save</button> -->
+  <!-- <button class="button export" (click)="fileInput.click()">Open</button> -->
   <!-- <button class="button font" (click)="increaseFontSize()">Font+</button> -->
   <!-- <button class="button font" (click)="decreaseFontSize()">Font-</button> -->
   <button class="button edit" (click)="openInvoiceMetaModal()">Детали</button>

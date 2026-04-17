@@ -26,9 +26,10 @@
 
       <!-- Опис -->
       <td [style.padding.px]="paddingSize">
+        <!-- screen/web -->
         <textarea
           #ta
-          class="cell-input cell-opis"
+          class="cell-input cell-opis screen-only"
           [style.font-size.px]="currentFontSize"
           [attr.data-row]="i"
           data-field="opis"
@@ -39,6 +40,14 @@
           (keydown.enter)="handleEnter(i, 'opis', $event)"
           rows="1"
         ></textarea>
+
+        <!-- print -->
+        <div
+          class="print-opis print-only"
+          [style.font-size.px]="currentFontSize"
+        >
+          {{ items[i].opis }}
+        </div>
       </td>
 
       <!-- ЕМ -->

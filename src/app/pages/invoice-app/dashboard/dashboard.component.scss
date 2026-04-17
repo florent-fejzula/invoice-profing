@@ -21,17 +21,33 @@
     transition: background-color 0.3s ease;
   }
 
-  .print { background-color: #007bff; }
-  .print:hover { background-color: #0056b3; }
+  .print {
+    background-color: #007bff;
+  }
+  .print:hover {
+    background-color: #0056b3;
+  }
 
-  .font { background-color: #2d8ff8; }
-  .font:hover { background-color: #146dcd; }
+  .font {
+    background-color: #2d8ff8;
+  }
+  .font:hover {
+    background-color: #146dcd;
+  }
 
-  .edit { background-color: #00b630; }
-  .edit:hover { background-color: #008f07; }
+  .edit {
+    background-color: #00b630;
+  }
+  .edit:hover {
+    background-color: #008f07;
+  }
 
-  .export { background-color: #b61b00; }
-  .export:hover { background-color: #8d1601; }
+  .export {
+    background-color: #b61b00;
+  }
+  .export:hover {
+    background-color: #8d1601;
+  }
 
   .invisible {
     visibility: hidden;
@@ -52,7 +68,9 @@
   margin: auto;
   max-width: 960px;
 
-  .elementA { flex-grow: 1; }
+  .elementA {
+    flex-grow: 1;
+  }
 
   .add-button {
     margin-bottom: 8px;
@@ -66,7 +84,9 @@
     cursor: pointer;
     transition: background-color 0.3s ease;
   }
-  .add-button:hover { background-color: #008f07; }
+  .add-button:hover {
+    background-color: #008f07;
+  }
 
   .invoice-total {
     width: 48%;
@@ -82,7 +102,9 @@
       margin-bottom: 4px;
       text-align: center;
 
-      div { width: 25%; }
+      div {
+        width: 25%;
+      }
     }
   }
 }
@@ -92,13 +114,37 @@
   display: flex;
   justify-content: space-between;
 
-  .signatures-left { text-align: center; }
-  .signatures-right { text-align: right; font-size: 14px; }
+  .signatures-left {
+    text-align: center;
+  }
+  .signatures-right {
+    text-align: right;
+    font-size: 14px;
+  }
 }
 
 @media print {
   .buttons,
   .addButton {
     display: none !important;
+  }
+
+  .invoice {
+    min-height: 100vh !important; /* treat as full page */
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .elementA {
+    flex: 1 1 auto !important; /* take remaining space */
+  }
+
+  .signatures {
+    margin-top: auto !important; /* ✅ pushes signatures to bottom */
+    page-break-inside: avoid;
+  }
+
+  @page {
+    margin: 10mm;
   }
 }

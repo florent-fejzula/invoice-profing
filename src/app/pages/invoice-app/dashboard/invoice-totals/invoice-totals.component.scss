@@ -76,6 +76,9 @@
   .soZboroviInput {
     display: none !important;
   }
+  textarea {
+    resize: none !important; /* ✅ removes the resize handle */
+  }
 
   .print-only {
     display: inline !important;

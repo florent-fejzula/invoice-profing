@@ -7,6 +7,7 @@
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 20px;
+  table-layout: fixed; /* ✅ stable columns on web + print */
 
   thead,
   tbody {
@@ -16,74 +17,96 @@
   th,
   td {
     border: 1px solid #000;
-    padding: 0 8px;
-    width: 100%;
-  }
-
-  td {
+    padding: 0 5px;
     vertical-align: top;
+
+    /* ✅ IMPORTANT: never do width:100% here (breaks tables) */
+    width: auto;
+    box-sizing: border-box;
   }
 
-  /* Column widths / alignment (kept 1:1 with original) */
-  th:first-child,
-  td:first-child {
-    width: 5%;
-  }
+  /* -------- Column widths (works in web + print) -------- */
+  th:nth-child(1),
+  td:nth-child(1) {
+    width: 4%;
+  } /* Р.б */
 
   th:nth-child(2),
   td:nth-child(2) {
-    max-width: 41%;
-  }
+    width: 32%;
+  } /* Опис */
 
   th:nth-child(3),
-  td:nth-child(3),
+  td:nth-child(3) {
+    width: 5%;
+  } /* ЕМ */
+
   th:nth-child(4),
   td:nth-child(4) {
-    max-width: 6%;
-  }
-
-  td:nth-child(4),
-  td:nth-child(5),
-  td:nth-child(6),
-  td:nth-child(7),
-  td:nth-child(8),
-  td:nth-child(9),
-  td:nth-child(10) {
-    text-align: right;
-  }
-
-  td:nth-child(3),
-  td:nth-child(9) {
-    text-align: center;
-  }
+    width: 8%;
+  } /* Количина */
 
   th:nth-child(5),
-  td:nth-child(5),
+  td:nth-child(5) {
+    width: 10%;
+  } /* Цена без ДДВ */
+
   th:nth-child(6),
   td:nth-child(6) {
-    max-width: 14%;
-  }
+    width: 10%;
+  } /* Цена со ДДВ */
 
   th:nth-child(7),
-  td:nth-child(7),
+  td:nth-child(7) {
+    width: 6%;
+  } /* Рабат % */
+
   th:nth-child(8),
   td:nth-child(8) {
-    max-width: 6%;
-  }
+    width: 8%;
+  } /* Износ на Рабат */
+
+  th:nth-child(9),
+  td:nth-child(9) {
+    width: 5%;
+  } /* ДДВ % */
 
   th:nth-child(10),
   td:nth-child(10) {
-    max-width: 14%;
-  }
+    width: 10%;
+  } /* Износ со ДДВ */
+
+  th:nth-child(11),
+  td:nth-child(11) {
+    width: 2%;
+  } /* action */
+}
+
+/* alignment */
+.invoice-table td:nth-child(4),
+.invoice-table td:nth-child(5),
+.invoice-table td:nth-child(6),
+.invoice-table td:nth-child(7),
+.invoice-table td:nth-child(8),
+.invoice-table td:nth-child(10) {
+  text-align: right;
+}
+
+.invoice-table td:nth-child(3),
+.invoice-table td:nth-child(9) {
+  text-align: center;
 }
 
 /* action cell (delete/edit buttons) */
 .deleteEntry {
   display: flex;
+  align-items: center;
+  justify-content: center;
   border: none !important;
   padding: 0 !important;
 }
 
+/* inputs */
 .cell-input {
   width: 100%;
   border: none;
@@ -103,26 +126,98 @@
 
 .cell-opis {
   text-align: left;
-  resize: none;        // prevents user manual resize
-  overflow: hidden;    // clean look
+  resize: none;
+  overflow: hidden; /* looks clean on web */
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
   word-break: break-word;
 }
 
-/* Better focus feedback (optional) */
+/* focus */
 .cell-input:focus {
   outline: 2px solid rgba(0, 0, 0, 0.2);
   outline-offset: 2px;
 }
 
+/* ---------------- PRINT ---------------- */
 @media print {
-  .deleteEntry {
-    display: none;
+  /* hide action column completely */
+  .invoice-table th:last-child,
+  .invoice-table td:last-child {
+    display: none !important;
+  }
+
+  .invoice-table {
+    width: 100% !important;
+    table-layout: fixed !important;
+  }
+
+  .invoice-table thead,
+  .invoice-table tbody {
+    font-size: 10px !important;
+  }
+
+  .invoice-table th,
+  .invoice-table td {
+    padding: 2px 4px !important;
+    vertical-align: top !important;
+  }
+
+  /* headers can wrap */
+  .invoice-table th {
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    line-height: 1.1 !important;
+    text-align: center !important;
+  }
+
+  /* keep most body cells on one line */
+  .invoice-table td:not(:nth-child(2)) {
+    white-space: nowrap !important;
+  }
+
+  /* Opis column may wrap */
+  .invoice-table td:nth-child(2) {
+    white-space: normal !important;
+    overflow: visible !important;
+  }
+
+  /* ✅ do not print textarea */
+  .screen-only {
+    display: none !important;
+  }
+
+  /* ✅ print plain text instead */
+  .print-only {
+    display: block !important;
+  }
+
+  .print-opis {
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+    line-height: 1.2 !important;
   }
 
   .cell-input {
     outline: none !important;
     border: none !important;
     box-shadow: none !important;
+    background: transparent !important;
   }
+}
+
+.screen-only {
+  display: block;
+}
+
+.print-only {
+  display: none;
+}
+
+.print-opis {
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.2;
+  width: 100%;
 }
