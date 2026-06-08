@@ -129,6 +129,11 @@
     display: none !important;
   }
 
+  invoice-header {
+    margin-bottom: 32px;
+    display: block;
+  }
+
   .invoice {
     min-height: 100vh !important; /* treat as full page */
     display: flex !important;

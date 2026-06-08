@@ -25,26 +25,116 @@
 <div class="pre-main-content">
   <div class="date-invoice-number">
     <div class="date-value">
-      <div class="date">
+      <div class="date-row">
         <span class="bold">Датум</span>
-        <span>{{ state.datum | date : "dd/MM/yyyy" }}</span>
-      </div>
-      <div class="value">
-        <span class="bold">Валута</span>
-        <span>{{ state.valuta | date : "dd/MM/yyyy" }}</span>
-      </div>
-    </div>
-    <div class="invoice-number">
-      <h2 class="uppercase">{{ state.fakturaTip }}</h2>
 
-      <div class="broj-row">
-        <span>број: {{ state.fakturaBroj || "—" }}</span>
+        <span>{{ state.datum | date: "dd/MM/yyyy" }}</span>
 
         <button
-          *ngIf="!state.fakturaBroj"
+          mat-icon-button
+          type="button"
+          class="calendar-btn"
+          aria-label="Edit datum"
+          (click)="datumPicker.open()"
+        >
+          <mat-icon>calendar_today</mat-icon>
+        </button>
+
+        <input
+          class="hidden-datepicker-input"
+          matInput
+          [matDatepicker]="datumPicker"
+          [value]="state.datum"
+          (dateChange)="onDatePicked('datum', $event.value)"
+        />
+        <mat-datepicker #datumPicker></mat-datepicker>
+      </div>
+
+      <div class="date-row">
+        <span class="bold">Валута</span>
+
+        <span>{{ state.valuta | date: "dd/MM/yyyy" }}</span>
+
+        <button
+          mat-icon-button
+          type="button"
+          class="calendar-btn"
+          aria-label="Edit valuta"
+          (click)="valutaPicker.open()"
+        >
+          <mat-icon>calendar_today</mat-icon>
+        </button>
+
+        <input
+          class="hidden-datepicker-input"
+          matInput
+          [matDatepicker]="valutaPicker"
+          [value]="state.valuta"
+          (dateChange)="onDatePicked('valuta', $event.value)"
+        />
+        <mat-datepicker #valutaPicker></mat-datepicker>
+      </div>
+    </div>
+
+    <div class="invoice-number">
+      <!-- Screen -->
+      <mat-form-field appearance="outline" class="tip-inline-field screen-only">
+        <input
+          matInput
+          type="text"
+          [ngModel]="state.fakturaTip"
+          (ngModelChange)="set('fakturaTip', $event)"
+          [matAutocomplete]="tipAuto"
+          autocomplete="off"
+          placeholder="Тип"
+        />
+
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          aria-label="Clear tip"
+          *ngIf="state.fakturaTip"
+          (click)="clearTip()"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+
+      <!-- Print -->
+      <span class="print-only faktura-print-label">{{ state.fakturaTip }}</span>
+
+      <mat-autocomplete
+        #tipAuto="matAutocomplete"
+        (optionSelected)="onTipSelected($event.option.value)"
+      >
+        <mat-option *ngFor="let t of presetTips" [value]="t">
+          {{ t }}
+        </mat-option>
+      </mat-autocomplete>
+
+      <div class="broj-row">
+        <span class="broj-label">број:</span>
+
+        <!-- Screen -->
+        <mat-form-field appearance="outline" class="broj-inline-field screen-only">
+          <input
+            matInput
+            [ngModel]="state.fakturaBroj"
+            (ngModelChange)="set('fakturaBroj', $event)"
+            placeholder="—"
+          />
+        </mat-form-field>
+
+        <!-- Print -->
+        <span class="print-only">{{ state.fakturaBroj }}</span>
+
+        <button
+          *ngIf="!state.fakturaBroj?.trim()"
           mat-stroked-button
           color="primary"
           class="dodeliBroj"
+          type="button"
           (click)="reserveNumber.emit()"
         >
           Додели број

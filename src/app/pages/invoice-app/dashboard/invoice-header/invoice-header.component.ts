@@ -31,19 +31,16 @@ export class InvoiceHeaderComponent implements OnInit {
   @Input() companyId!: string;
   @Input() company!: any | null;
 
-  /** Full header state from parent */
   @Input() state!: InvoiceHeaderState;
-  /** Emit granular changes up to the parent */
   @Output() stateChange = new EventEmitter<Partial<InvoiceHeaderState>>();
-  /** Optional: parent can handle immediate allocation request */
   @Output() reserveNumber = new EventEmitter<void>();
 
-  // client picker
   clientCtrl = new FormControl('');
   clientOptions$: Observable<ClientDoc[]> = of([]);
 
-  /** Remember which client is selected (for Edit) */
   selectedClient: ClientDoc | null = null;
+
+  presetTips: string[] = ['Фактура', 'Профактура', 'Авансна Фактура', 'Понуда'];
 
   constructor(
     private clientsSvc: ClientsService,
@@ -63,7 +60,6 @@ export class InvoiceHeaderComponent implements OnInit {
     );
   }
 
-  /** Emit partial state changes upward */
   set<K extends keyof InvoiceHeaderState>(
     key: K,
     value: InvoiceHeaderState[K],
@@ -71,7 +67,19 @@ export class InvoiceHeaderComponent implements OnInit {
     this.stateChange.emit({ [key]: value } as Partial<InvoiceHeaderState>);
   }
 
-  /** Create NEW client via modal */
+  onDatePicked(key: 'datum' | 'valuta', value: Date | null): void {
+    if (!value) return;
+    this.set(key, value as InvoiceHeaderState[typeof key]);
+  }
+
+  onTipSelected(value: string): void {
+    this.set('fakturaTip', value);
+  }
+
+  clearTip(): void {
+    this.set('fakturaTip', '');
+  }
+
   async openClientModal() {
     const ref = this.dialog.open(ClientModalComponent, {
       width: '520px',
@@ -103,9 +111,7 @@ export class InvoiceHeaderComponent implements OnInit {
     if (created) this.onSelectClient(created);
   }
 
-  /** Edit currently selected client via modal */
   async openEditClientModal() {
-    // If we have a selected client loaded from DB → use that
     const baseData = this.selectedClient
       ? {
           name: this.selectedClient.name ?? '',
@@ -116,7 +122,6 @@ export class InvoiceHeaderComponent implements OnInit {
           phone: this.selectedClient.phone ?? '',
         }
       : {
-          // Fallback: invoice loaded from list, only header snapshot exists
           name: this.state.companyTitle ?? '',
           taxId: this.state.companyID ?? '',
           address: this.state.companyAddress ?? '',
@@ -135,7 +140,6 @@ export class InvoiceHeaderComponent implements OnInit {
     if (!res) return;
 
     if (this.selectedClient && this.selectedClient.id) {
-      // ---- CASE A: Real Firestore client → update it ----
       await this.clientsSvc.update(this.companyId, this.selectedClient.id, {
         name: res.name,
         taxId: res.taxId || undefined,
@@ -146,10 +150,8 @@ export class InvoiceHeaderComponent implements OnInit {
         updatedAt: Date.now(),
       });
 
-      // immediately update UI snapshot
       this.onSelectClient({ ...this.selectedClient, ...res } as ClientDoc);
     } else {
-      // ---- CASE B: Snapshot-only (invoice opened from list) ----
       this.stateChange.emit({
         companyTitle: res.name ?? '',
         companyID: res.taxId ?? '',
@@ -161,7 +163,6 @@ export class InvoiceHeaderComponent implements OnInit {
     }
   }
 
-  /** When user picks a client from autocomplete */
   onSelectClient(c: ClientDoc) {
     this.selectedClient = c;
 
@@ -174,7 +175,6 @@ export class InvoiceHeaderComponent implements OnInit {
       companyPhone: c.phone ?? '',
     });
 
-    // show chosen name without re-triggering search
     this.clientCtrl.setValue(c.name ?? '', { emitEvent: false });
   }
 

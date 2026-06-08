@@ -1,5 +1,4 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { Environment } from 'src/environments/environment.interface';
 import { environment } from 'src/environments/environment';
 
@@ -10,8 +9,6 @@ import {
   InvoiceJsonPayload,
 } from 'src/app/services/invoice-file.service';
 import { InvoicePersistenceService } from 'src/app/services/invoice-persistence.service';
-
-import { InvoiceMetaModalComponent } from '../modals/invoice-meta-modal/invoice-meta-modal.component';
 
 import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -85,7 +82,6 @@ export class DashboardComponent implements OnInit {
     private auth: Auth,
     private router: Router,
     private route: ActivatedRoute,
-    private dialog: MatDialog,
     private companyService: CompanyService,
     private invoicesSvc: InvoicesService,
     private snack: MatSnackBar,
@@ -230,33 +226,6 @@ export class DashboardComponent implements OnInit {
         this.invoiceTable?.focusCell(this.items.length - 1, 'opis');
       }, 0);
     }
-  }
-
-  /** ---------- MODALS ---------- */
-  async openInvoiceMetaModal(): Promise<void> {
-    const dialogRef = this.dialog.open(InvoiceMetaModalComponent, {
-      width: '420px',
-      data: { ...this.header }, // seed modal with current values
-      disableClose: true,
-    });
-
-    const res = await dialogRef.afterClosed().toPromise();
-    if (!res) return; // user cancelled
-
-    // If the modal asked to assign a number and we don't have one yet
-    if (res.requestNumber && !this.header.fakturaBroj) {
-      await this.allocateNumberNow(); // uses the allocator we added earlier
-    }
-
-    // Apply only meta fields returned by the modal (client fields are handled in header/client modal)
-    this.header = {
-      ...this.header,
-      datum: res.datum ?? this.header.datum,
-      valuta: res.valuta ?? this.header.valuta,
-      fakturaTip: res.fakturaTip ?? this.header.fakturaTip,
-      fakturaBroj: res.fakturaBroj ?? this.header.fakturaBroj,
-      companyCity: res.companyCity ?? this.header.companyCity,
-    };
   }
 
   removeItem(index: number): void {

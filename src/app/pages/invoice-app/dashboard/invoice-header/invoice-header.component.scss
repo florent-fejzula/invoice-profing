@@ -29,7 +29,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 38px;
+  margin-bottom: 10px;
   font-size: 12px;
 }
 
@@ -48,11 +48,11 @@
       padding-bottom: 2px;
     }
     .invoice-number {
-      margin-top: 32px;
+      margin-top: 6px;
       h2 {
         margin: 0;
         font-size: 18px;
-        margin-bottom: 6px;
+        margin-bottom: 2px;
       }
       .uppercase {
         text-transform: uppercase;
@@ -96,10 +96,168 @@
   }
 }
 
+.date-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.calendar-btn {
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+
+  .mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.hidden-datepicker-input {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.invoice-number {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.tip-inline-field {
+  width: 240px;
+}
+
+.tip-inline-field .mat-mdc-text-field-wrapper,
+.tip-inline-field .mdc-text-field {
+  min-height: 32px;
+}
+
+.tip-inline-field .mat-mdc-form-field-infix {
+  padding-top: 4px;
+  padding-bottom: 4px;
+  min-height: unset;
+}
+
+.tip-inline-field .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+.tip-inline-field input {
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.broj-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.broj-label {
+  white-space: nowrap;
+  font-size: 13px;
+}
+
+.broj-inline-field {
+  width: 160px;
+}
+
+.broj-inline-field .mat-mdc-text-field-wrapper,
+.broj-inline-field .mdc-text-field {
+  min-height: 32px;
+}
+
+.broj-inline-field .mat-mdc-form-field-infix {
+  padding-top: 4px;
+  padding-bottom: 4px;
+  min-height: unset;
+}
+
+.broj-inline-field .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+.screen-only {
+  display: block;
+}
+
+.print-only {
+  display: none;
+}
+
+.faktura-print-label {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
 @media print {
+  // Hide interactive-only and screen-only elements
   .dodeliBroj,
   .client-picker,
-  .edit-client-btn {
+  .edit-client-btn,
+  .calendar-btn,
+  .screen-only {
     display: none !important;
+  }
+
+  .print-only {
+    display: inline !important;
+  }
+
+  .invoice-company-info {
+    margin-bottom: 24px;
+  }
+
+  // Shrink ФАКТУРА to a plain bold label
+  .tip-inline-field input {
+    font-size: 14px !important;
+  }
+
+  // Strip borders/padding from form fields so they render as plain text
+  .tip-inline-field .mat-mdc-text-field-wrapper,
+  .tip-inline-field .mdc-text-field,
+  .broj-inline-field .mat-mdc-text-field-wrapper,
+  .broj-inline-field .mdc-text-field {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+
+
+.tip-inline-field .mat-mdc-form-field-infix,
+  .broj-inline-field .mat-mdc-form-field-infix {
+    padding: 0 !important;
+    min-height: unset !important;
+  }
+
+  // Prevent the client box from stretching to fill the full left-column height
+  .pre-main-content {
+    align-items: flex-start;
+  }
+
+  // Tighten the client company info box
+  .invoiced-company {
+    h2 {
+      margin: 2px 4px;
+      font-size: 13px;
+    }
+    p {
+      margin: 2px 0;
+      font-size: 12px;
+    }
+    :last-child {
+      margin-top: 4px !important;
+    }
   }
 }
