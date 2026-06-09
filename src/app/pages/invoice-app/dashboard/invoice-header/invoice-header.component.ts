@@ -1,7 +1,20 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Observable, of } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
+
+// Normalize both Latin and Cyrillic to a common Latin form so that
+// typing 'M' matches 'Маисон' and vice-versa.
+const CYRILLIC_TO_LATIN: Record<string, string> = {
+  'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ж':'zh',
+  'з':'z','и':'i','ј':'j','к':'k','л':'l','љ':'lj','м':'m',
+  'н':'n','њ':'nj','о':'o','п':'p','р':'r','с':'s','т':'t',
+  'у':'u','ф':'f','х':'h','ц':'c','ч':'ch','џ':'dz','ш':'sh',
+};
+
+function normalizeSearch(s: string): string {
+  return s.toLowerCase().split('').map(ch => CYRILLIC_TO_LATIN[ch] ?? ch).join('');
+}
 
 import { ClientsService } from 'src/app/services/clients.service';
 import { ClientDoc } from 'src/app/models/client.model';
@@ -27,7 +40,7 @@ export interface InvoiceHeaderState {
   templateUrl: './invoice-header.component.html',
   styleUrls: ['./invoice-header.component.scss'],
 })
-export class InvoiceHeaderComponent implements OnInit {
+export class InvoiceHeaderComponent implements OnInit, OnChanges {
   @Input() companyId!: string;
   @Input() company!: any | null;
 
@@ -39,6 +52,7 @@ export class InvoiceHeaderComponent implements OnInit {
   clientOptions$: Observable<ClientDoc[]> = of([]);
 
   selectedClient: ClientDoc | null = null;
+  private allClients: ClientDoc[] = [];
 
   presetTips: string[] = ['Фактура', 'Профактура', 'Авансна Фактура', 'Понуда'];
 
@@ -47,15 +61,24 @@ export class InvoiceHeaderComponent implements OnInit {
     private dialog: MatDialog,
   ) {}
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['companyId']?.currentValue) {
+      this.clientsSvc.list(this.companyId, 500).then(c => this.allClients = c);
+    }
+  }
+
   ngOnInit(): void {
+
     this.clientOptions$ = this.clientCtrl.valueChanges.pipe(
       debounceTime(200),
       distinctUntilChanged(),
-      switchMap((val) => {
+      map((val) => {
         const term = typeof val === 'string' ? val.trim() : (val?.name ?? '');
-        return term
-          ? this.clientsSvc.searchByName(this.companyId, term, 10)
-          : of([]);
+        if (!term) return [];
+        const needle = normalizeSearch(term);
+        return this.allClients
+          .filter(c => normalizeSearch(c.name ?? '').includes(needle))
+          .slice(0, 10);
       }),
     );
   }
@@ -108,7 +131,10 @@ export class InvoiceHeaderComponent implements OnInit {
     const id = await this.clientsSvc.create(this.companyId, payload);
 
     const created = await this.clientsSvc.get(this.companyId, id);
-    if (created) this.onSelectClient(created);
+    if (created) {
+      this.allClients = [...this.allClients, created];
+      this.onSelectClient(created);
+    }
   }
 
   async openEditClientModal() {
