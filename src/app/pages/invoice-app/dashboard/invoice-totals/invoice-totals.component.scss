@@ -26,9 +26,10 @@
 }
 
 .napomenaInput {
-  width: 680px; // match soZborovi if you want
-  min-height: 52px; // ~3 rows feel
-  resize: vertical; // or 'none' if you want to lock it
+  width: 100%;
+  max-width: 680px;
+  min-height: 52px;
+  resize: vertical;
   padding: 4px 6px;
   font-size: 12px;
   line-height: 1.25;
@@ -60,7 +61,8 @@
   font-size: 12px;
 
   .soZboroviInput {
-    width: 600px;
+    width: 100%;
+    max-width: 600px;
   }
 }
 

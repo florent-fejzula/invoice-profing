@@ -1,5 +1,24 @@
 <div [ngClass]="{ 'show-sidebar': showSidebar, 'center-login': !showSidebar }">
-  <app-sidebar *ngIf="showSidebar"></app-sidebar>
+
+  <button
+    *ngIf="showSidebar"
+    class="hamburger-btn"
+    (click)="toggleSidebar()"
+    aria-label="Toggle navigation"
+  >
+    <span [class.open]="sidebarMobileOpen"></span>
+    <span [class.open]="sidebarMobileOpen"></span>
+    <span [class.open]="sidebarMobileOpen"></span>
+  </button>
+
+  <div
+    *ngIf="showSidebar && sidebarMobileOpen"
+    class="sidebar-overlay"
+    (click)="closeSidebar()"
+  ></div>
+
+  <app-sidebar *ngIf="showSidebar" [isOpen]="sidebarMobileOpen"></app-sidebar>
+
   <div class="content">
     <router-outlet></router-outlet>
   </div>

@@ -62,6 +62,7 @@ export class DashboardComponent implements OnInit {
   };
 
   isAllocatingNumber = false;
+  private hasInitialized = false;
 
   currentFontSize = 12;
   paddingSize = 5;
@@ -102,15 +103,16 @@ export class DashboardComponent implements OnInit {
     );
 
     combineLatest([company$, invoiceId$]).subscribe(([company, invoiceId]) => {
-      this.company = company; // ✅ this fills issuer fields in UI/print
-      this.companyId = company.id; // ✅ correct tenant
+      this.company = company;
+      this.companyId = company.id;
 
       if (invoiceId) {
         this.currentInvoiceId = invoiceId;
         this.loadInvoiceFromDb(invoiceId);
-      } else {
+      } else if (!this.hasInitialized) {
         this.resetToNewInvoice();
       }
+      this.hasInitialized = true;
     });
 
     this.recompute();

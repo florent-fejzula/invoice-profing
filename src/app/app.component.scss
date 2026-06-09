@@ -1,11 +1,61 @@
 .content {
   padding: 20px;
-  transition: margin-left 0.3s ease-in-out; // Smooth transition when sidebar appears/disappears
+  transition: margin-left 0.3s ease-in-out;
 }
 
-// ✅ When the sidebar is visible, keep the margin
 .show-sidebar .content {
   margin-left: 250px;
+}
+
+/* ---- Hamburger button (mobile only) ---- */
+.hamburger-btn {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .hamburger-btn {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 32px;
+    height: 22px;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 1001;
+
+    span {
+      display: block;
+      width: 100%;
+      height: 3px;
+      background: #2c3e50;
+      border-radius: 2px;
+      transition: transform 0.25s ease, opacity 0.25s ease;
+    }
+
+    /* Animate to X when open */
+    span:nth-child(1).open { transform: translateY(9.5px) rotate(45deg); }
+    span:nth-child(2).open { opacity: 0; }
+    span:nth-child(3).open { transform: translateY(-9.5px) rotate(-45deg); }
+  }
+
+  /* Overlay backdrop */
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 999;
+  }
+
+  /* Content takes full width; add top padding for hamburger */
+  .show-sidebar .content {
+    margin-left: 0;
+    padding-top: 52px;
+  }
 }
 
 .center-login {

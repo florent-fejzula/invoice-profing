@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { Auth } from '@angular/fire/auth';
 import { authState } from 'rxfire/auth';
@@ -12,7 +12,9 @@ const ADMIN_UID = 'nArNHAOwWNR7dgMO39ILvWRPfni1';
   styleUrls: ['./sidebar.component.scss'],
 })
 export class SidebarComponent {
-isAdmin$ = authState(this.auth).pipe(
+  @Input() isOpen = false;
+
+  isAdmin$ = authState(this.auth).pipe(
     map((user) => !!user && user.uid === ADMIN_UID)
   );
 

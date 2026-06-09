@@ -15,16 +15,13 @@ import { setPersistence, browserLocalPersistence } from 'firebase/auth';
 export class AppComponent implements OnInit {
   user: any = null;
   showSidebar: boolean = false;
+  sidebarMobileOpen = false;
 
   constructor(private auth: Auth, private router: Router, private firestore: Firestore) {}
 
   ngOnInit() {
-    // this.addCompany();
-
-    // ✅ Ensure Firebase Auth persists the session correctly
     setPersistence(this.auth, browserLocalPersistence)
       .then(() => {
-        // Monitor authentication state
         onAuthStateChanged(this.auth, (user) => {
           this.user = user;
           this.updateSidebarVisibility();
@@ -34,16 +31,23 @@ export class AppComponent implements OnInit {
         console.error('Auth persistence error:', error);
       });
 
-    // ✅ Detect route changes
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         this.updateSidebarVisibility();
+        this.sidebarMobileOpen = false;
       }
     });
   }
 
   updateSidebarVisibility() {
-    // ✅ Hide sidebar on login page, show it everywhere else if logged in
     this.showSidebar = this.user !== null && this.router.url !== '/login';
+  }
+
+  toggleSidebar() {
+    this.sidebarMobileOpen = !this.sidebarMobileOpen;
+  }
+
+  closeSidebar() {
+    this.sidebarMobileOpen = false;
   }
 }

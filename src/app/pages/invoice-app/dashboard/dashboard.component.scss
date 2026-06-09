@@ -125,6 +125,19 @@
   }
 }
 
+@media (max-width: 640px) {
+  .buttons {
+    padding: 0 12px;
+    margin-top: 12px;
+    margin-bottom: 8px;
+  }
+
+  .invoice {
+    padding: 0 12px;
+    box-sizing: border-box;
+  }
+}
+
 @media print {
   .buttons,
   .addButton {

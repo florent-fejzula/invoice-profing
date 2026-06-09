@@ -139,6 +139,19 @@
   outline-offset: 2px;
 }
 
+/* ---------------- MOBILE ---------------- */
+@media (max-width: 640px) {
+  :host {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    display: block;
+  }
+
+  .invoice-table {
+    min-width: 680px;
+  }
+}
+
 /* ---------------- PRINT ---------------- */
 @media print {
   /* hide action column completely */

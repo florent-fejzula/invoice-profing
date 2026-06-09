@@ -200,6 +200,39 @@
   text-transform: uppercase;
 }
 
+@media (max-width: 640px) {
+  .invoice-company-info {
+    font-size: 11px;
+    text-align: center;
+    padding: 0 4px;
+
+    div {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2px;
+    }
+  }
+
+  .pre-main-content {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .tip-inline-field {
+    width: 100%;
+  }
+
+  .broj-inline-field {
+    width: 140px;
+  }
+
+  .invoiced-company {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
 @media print {
   // Hide interactive-only and screen-only elements
   .dodeliBroj,
