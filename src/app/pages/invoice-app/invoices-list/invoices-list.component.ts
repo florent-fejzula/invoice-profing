@@ -7,6 +7,8 @@ import { InvoiceDoc } from 'src/app/models/invoice.model';
 import { CompanyService } from 'src/app/services/company.service';
 import { take } from 'rxjs';
 
+type SortKey = 'broj' | 'datumIzdavanje' | 'klientIme' | 'iznosBezDDV' | 'ddvVkupno' | 'vkupno';
+
 @Component({
   selector: 'app-invoices-list',
   templateUrl: './invoices-list.component.html',
@@ -18,6 +20,32 @@ export class InvoicesListComponent implements OnInit {
   invoices: InvoiceDoc[] = [];
   isLoading = false;
   error: string | null = null;
+
+  sortKey: SortKey = 'datumIzdavanje';
+  sortDir: 'asc' | 'desc' = 'desc';
+
+  get sortedInvoices(): InvoiceDoc[] {
+    return [...this.invoices].sort((a, b) => {
+      const va = a[this.sortKey];
+      const vb = b[this.sortKey];
+      let cmp = 0;
+      if (typeof va === 'string' && typeof vb === 'string') {
+        cmp = va.localeCompare(vb, undefined, { numeric: true, sensitivity: 'base' });
+      } else {
+        cmp = (va as number) - (vb as number);
+      }
+      return this.sortDir === 'asc' ? cmp : -cmp;
+    });
+  }
+
+  sort(key: SortKey) {
+    if (this.sortKey === key) {
+      this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortKey = key;
+      this.sortDir = 'asc';
+    }
+  }
 
   constructor(
     private invoicesSvc: InvoicesService,

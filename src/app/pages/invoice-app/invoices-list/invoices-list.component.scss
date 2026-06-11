@@ -20,6 +20,30 @@ h2 {
   border-bottom: 1px solid #ddd;
 }
 
+.table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.table th.sortable:hover {
+  background: #f0f0f0;
+}
+
+.table th.sorted {
+  background: #e8f0fe;
+}
+
+.sort-icon {
+  font-size: 11px;
+  color: #888;
+  margin-left: 4px;
+}
+
+.table th.sorted .sort-icon {
+  color: #1a73e8;
+}
+
 .table tbody tr {
   cursor: pointer;
 }

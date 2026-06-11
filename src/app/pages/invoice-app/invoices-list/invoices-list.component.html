@@ -7,18 +7,30 @@
   <table *ngIf="!isLoading && invoices.length" class="table">
     <thead>
       <tr>
-        <th>Број</th>
-        <th>Датум</th>
-        <th>Клиент</th>
-        <th>Износ без ДДВ</th>
-        <th>ДДВ</th>
-        <th>Вкупно</th>
+        <th class="sortable" [class.sorted]="sortKey === 'broj'" (click)="sort('broj')">
+          Број <span class="sort-icon">{{ sortKey === 'broj' ? (sortDir === 'asc' ? '▲' : '▼') : '⇅' }}</span>
+        </th>
+        <th class="sortable" [class.sorted]="sortKey === 'datumIzdavanje'" (click)="sort('datumIzdavanje')">
+          Датум <span class="sort-icon">{{ sortKey === 'datumIzdavanje' ? (sortDir === 'asc' ? '▲' : '▼') : '⇅' }}</span>
+        </th>
+        <th class="sortable" [class.sorted]="sortKey === 'klientIme'" (click)="sort('klientIme')">
+          Клиент <span class="sort-icon">{{ sortKey === 'klientIme' ? (sortDir === 'asc' ? '▲' : '▼') : '⇅' }}</span>
+        </th>
+        <th class="sortable" [class.sorted]="sortKey === 'iznosBezDDV'" (click)="sort('iznosBezDDV')">
+          Износ без ДДВ <span class="sort-icon">{{ sortKey === 'iznosBezDDV' ? (sortDir === 'asc' ? '▲' : '▼') : '⇅' }}</span>
+        </th>
+        <th class="sortable" [class.sorted]="sortKey === 'ddvVkupno'" (click)="sort('ddvVkupno')">
+          ДДВ <span class="sort-icon">{{ sortKey === 'ddvVkupno' ? (sortDir === 'asc' ? '▲' : '▼') : '⇅' }}</span>
+        </th>
+        <th class="sortable" [class.sorted]="sortKey === 'vkupno'" (click)="sort('vkupno')">
+          Вкупно <span class="sort-icon">{{ sortKey === 'vkupno' ? (sortDir === 'asc' ? '▲' : '▼') : '⇅' }}</span>
+        </th>
         <th>Акции</th>
       </tr>
     </thead>
 
     <tbody>
-      <tr *ngFor="let inv of invoices" (click)="openInvoice(inv)">
+      <tr *ngFor="let inv of sortedInvoices" (click)="openInvoice(inv)">
         <td>{{ inv.broj }}</td>
         <td>{{ inv.datumIzdavanje | date : "dd.MM.yyyy" }}</td>
         <td>{{ inv.klientIme }}</td>
